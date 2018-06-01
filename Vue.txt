@@ -1,0 +1,17 @@
+1.cnpm install vue °²×°
+2.È«¾Ö°²×° vue-cli  
+    cnpm install --global vue-cli
+3.´´½¨Ò»¸ö»ùÓÚ webpack Ä£°åµÄÐÂÏîÄ¿
+    vue init webpack my-project
+4.½øÈëÏîÄ¿£¬°²×°²¢ÔËÐÐ
+    npm install
+    npm run dev
+5.Êý¾ÝäÖÈ¾ v-text v-html {{}}
+                    v-if     v-show  v-for
+                    v-on:click="doThis" ==@click="doThis"  ÊôÓÚmethods:{}
+                    v-bond:src=""  :class="[classA,classB]" 
+                        v-bond:class="{finished: item.isFinished}"
+                   v-model
+6.data,method,watch
+7. computed 计算属性是基于他们的依赖进行缓存的
+   methods 方法

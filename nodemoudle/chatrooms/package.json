@@ -1,0 +1,21 @@
+{
+  "name": "chatrooms",
+  "version": "1.0.0",
+  "description": "chatrooms",
+  "main": "index.js",
+  "directories": {
+    "lib": "lib"
+  },
+  "scripts": {
+    "test": "npm test"
+  },
+  "author": "wangsenyan",
+  "license": "ISC",
+  "dependencies": {
+    "mime": "^2.3.1",
+    "mime-type": "^3.0.5",
+    "mime-types": "^2.1.18",
+    "serve-static": "^1.13.2",
+    "socket.io": "^2.1.0"
+  }
+}

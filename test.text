@@ -1,0 +1,43 @@
+1 、/testin/enterprise/auth  //企业认证
+get
+参数：
+
+eFullName //企业全称
+license  //营业执照路径
+
+返回
+
+2、/testin/enterprise/quotaInfo //企业认证进度
+get 
+
+返回 
+authStatus //1=认证通过，2=待审核，3=审核失败，4=未认证
+
+3、/testin/realtest //提交测试
+get
+参数:
+userId //用户id，通过session获取
+email //用户邮箱，通过session获取
+
+enterprise //企业名称
+packageUrl //apk下载地址
+upkid  //包id
+testDescr // 描述
+
+返回：
+err //371 = "提交测试失败"
+
+
+4、 /api2/upload  //上传营业执照
+post
+参数
+upload_type //上传类型
+file //文件
+
+返回
+success //上传是否成功
+file_path //保存的地址，把file_path的绝对路径传给/testin/enterprise/auth的license
+isX  //返回消息
+
+
+
