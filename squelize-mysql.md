@@ -1,68 +1,99 @@
-1.Òì²½µÄ²Ù×÷
-2.sequelize.authenticate().then(()=>{}).catch(err=>{})
-3.sequelize.define('user',{attributes},{options})
-3.1 difine('user',{},{timestamps:true,createdAt:false,updatedAt: 'updateTimestamp',deletedAt: 'destroyTime',paranoid: true});// 时间戳默认为false
 
+**文件比较粗糙，具体看官方文档**
+[sequelize](https://github.com/demopark/sequelize-docs-Zh-CN)
+## 自动生成
+  ```js
+   sequelize.authenticate().then(()=>{}).catch(err=>{})
+  ```
+## 定义模块
+  ```js
+  sequelize.define('user',{attributes},{options})
+  difine('user',{},{timestamps:true,createdAt:false,updatedAt: 'updateTimestamp',deletedAt: 'destroyTime',paranoid: true});// 时间戳默认为false
+  ```
+ ### 参数设置
+  ```js
     paranoid: true //// 不删除数据库条目，但将新添加的属性deletedAt设置为当前日期（删除完成时）
     underscored: true //不使用驼峰样式自动添加属性，而是下划线样式，因此updatedAt将变为updated_at
     freezeTableName: true //禁用修改表名; 默认情况下，sequelize将自动将所有传递的模型名称（define的第一个参数）转换为复数。
-    tableName: 'my_very_custom_table_name'//定义表的名
-    comment: "I'm a table comment!"注释
-3.2 engine:'MYISAM'
-3.2 const const sequelize = new Sequelize('connectionUri', {
-  define: {
-    timestamps: false // 默认为 true
-  }
-});
-3.3 const AuthorModel = db.import('project', require('./path/to/models/project'));
-4.Sequelize.STRING
-5.User.sync({force:true}).then(()=>{return User.create({firstName:'Johe',lastName:'Hancock'});});
-  强制执行，如果有就删除然后重建
-6.User.findAll().then(users=>{})
-7.user=await User.findOne()
+    tableName: 'my_very_custom_table_name' //定义表的名
+    comment: "I'm a table comment!" //注释
+  ```
+### engine:'MYISAM'
+### 
+  ```js
+  const sequelize = new Sequelize('connectionUri', {
+    define: {
+      timestamps: false // 默认为 true
+    }
+  });
+  ```
+### 
+  ```js
+  const AuthorModel = db.import('project', require('./path/to/models/project'));
+  ```
+### Sequelize.STRING
+
+### 强制执行，如果有就删除然后重建
+  ```js
+   User.sync({force:true}).then(()=>{return User.create({firstName:'Johe',lastName:'Hancock'});});
+  ```
+###User.findAll().then(users=>{})
+### user=await User.findOne()
   console.log(user.get('firstName'))
-8. .define('foo', {flag: { type: Sequelize.BOOLEAN, allowNull: false, defaultValue: true, unique:'compositeIndex'/true/false, autoIncrement: true,},
-}) 
-8.1 {indexes: [{unique: true, fields: ['someUnique']}]},
-8.2 Sequelize.DATA|INTEGER|
-8.3 创建外键 
+### 
+  ```js
+   define('foo', {flag: { type: Sequelize.BOOLEAN, allowNull: false, defaultValue: true, unique:'compositeIndex'/true/false, autoIncrement: true}
+   }) 
+  ```
+###
+  ```js
+  {indexes: [{unique: true, fields: ['someUnique']}]},
+  ```
+### Sequelize.DATA|INTEGER|
+### 创建外键 
+  ```js
    bar_id: {
    type: Sequelize.INTEGER,
 
    references: {
-     // 这是引用另一个模型
-     model: Bar,
+      // 这是引用另一个模型
+    model: Bar,
 
-     // 这是引用模型的列名称
-     key: 'id',
+      // 这是引用模型的列名称
+    key: 'id',
 
-     // 这声明什么时候检查外键约束。 仅限PostgreSQL。
-     deferrable: Sequelize.Deferrable.INITIALLY_IMMEDIATE
+      // 这声明什么时候检查外键约束。 仅限PostgreSQL。
+    deferrable: Sequelize.Deferrable.INITIALLY_IMMEDIATE
    }
- }
- 9.Project.sync()
-   Task.sync() //创建表
-   Project.sync({force: true}) //强制创建
-   Project.drop()
-   Task.drop()//删除表
-   //事件处理
-   Project.[sync|drop]().then(() => {
-  // 好吧...一切都很好！
-  }).catch(error => {
-    // oooh，你输入了错误的数据库凭据？
-  })
- 
-   sequelize.sync() // 同步所有尚未在数据库中的模型
-   sequelize.sync({force: true，match: /_test$/ }) //强制同步所有模型
-   sequelize.drop() // 删除所有表
-   sequelize.[sync|drop]().then(() => { //广播处理
-    // woot woot
+  }
+ ```
+ ## Project.sync()
+   ```js
+    Task.sync() //创建表
+    Project.sync({force: true}) //强制创建
+    Project.drop()
+    Task.drop()//删除表
+    //事件处理
+    Project.[sync|drop]().then(() => {
+    // 好吧...一切都很好！
     }).catch(error => {
-      // whooops
+      // oooh，你输入了错误的数据库凭据？
     })
-    10.索引https://github.com/demopark/sequelize-docs-Zh-CN/blob/master/models-definition.md#%E9%85%8D%E7%BD%AE
-    11.setDataValue() 和 getDataValue() 函数
-    12.操作符
+  
+    sequelize.sync() // 同步所有尚未在数据库中的模型
+    sequelize.sync({force: true，match: /_test$/ }) //强制同步所有模型
+    sequelize.drop() // 删除所有表
+    sequelize.[sync|drop]().then(() => { //广播处理
+      // woot woot
+      }).catch(error => {
+        // whooops
+      })
+   ``` 
+  ## 索引
+    [indexes](https://github.com/demopark/sequelize-docs-Zh-CN/blob/master/models-definition.md#%E9%85%8D%E7%BD%AE)
+  ## setDataValue() 和 getDataValue() 函数
+  ## 操作符
+      ```js
        const Op = Sequelize.Op
 
         [Op.and]: {a: 5}           // 且 (a = 5)
@@ -92,15 +123,13 @@
         [Op.contained]: [1, 2]     // <@ [1, 2] (PG数组包含于运算符)
         [Op.any]: [2,3]            // 任何数组[2, 3]::INTEGER (仅限PG)
 
-[Op.col]: 'user.organization_id' // = 'user'.'organization_id', 使用数据库语言特定的列标识符, 本例使用 PG
-       {
-  rank: {
-    [Op.or]: {
-      [Op.lt]: 1000,
-      [Op.eq]: null
-    }
-  }
-}
-    git add .
-    git commit -m ''
-    git push
+        [Op.col]: 'user.organization_id' // = 'user'.'organization_id', 使用数据库语言特定的列标识符, 本例使用 PG
+              {
+          rank: {
+            [Op.or]: {
+              [Op.lt]: 1000,
+              [Op.eq]: null
+            }
+          }
+        }
+  ```
