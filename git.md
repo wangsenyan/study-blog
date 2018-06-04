@@ -33,6 +33,7 @@
   |git checkout HEAD `<file>`|master ->暂存区->工作区|文件`<file>`
   
 ### 基本命令
+
  |命令|作用|其他
  |-----------------|-----------------| 
  |git config --list| 列出已有的配置信息| vim ~/.gitconfig
@@ -47,7 +48,7 @@
  |git commit -am '提交描述'|git add 和 git commit - m ''|
  |git rm `<file>`|删除文件| -f 强制删除，包括暂存区
  |git rm --cached `<file>`|从暂存区删除，任保留在工作目录中|
- |git rm -r *| 递归删除整个目录的所有子目录和文件
+ |git rm -r \*| 递归删除整个目录的所有子目录和文件
  |git mv|移动或重命名一个文件、目录、软链接 | `git mv a a.md`
  |git branch|列出你在本地的分支
  |git branch (branchname)|创建分支|
