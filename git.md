@@ -33,7 +33,7 @@
   |git checkout HEAD `<file>`|master ->暂存区->工作区|文件`<file>`
   
 ### 基本命令
-
+- 基本命令及作用
  |命令|作用|其他
  |-----------------|-----------------| 
  |git config --list| 列出已有的配置信息| vim ~/.gitconfig
