@@ -19,7 +19,6 @@
   - 暂存区: 英文叫stage, 或index。一般存放在 ".git目录下" 下的index文件（.git/index）中，所以我们把暂存区有时也叫作索引（index）。
   - 版本库:工作区有一个隐藏目录.git，这个不算工作区，而是Git的版本库。dev/master
     ![关系](git-stage.jpg)
-###
   |命令|作用|提示
   |----|----|----
   |git add|工作区->暂存区Obejct_Id<->对象库Object|目录和文件
@@ -30,9 +29,8 @@
   |git checkout --`<file>`|暂存区->工作区|文件
   |git checkout HEAD .|master ->暂存区->工作区|文件
   |git checkout HEAD `<file>`|master ->暂存区->工作区|文件`<file>`
-### 基本命令
-  |命令|作用|其他
-  |-----------------|-----------------| 
+  |||
+  |        **命令**|        **作用**|       **其他**
   |git config --list| 列出已有的配置信息| vim ~/.gitconfig
   |git init| 初始化git仓库，根目录生成.git目录
   |git clone `<repo><directory>`|克隆repo仓库到本地目录directory|
