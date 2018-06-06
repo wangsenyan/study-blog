@@ -21,7 +21,7 @@
 ```
 #### 测试是否安装正确
 ```sh
-  docker run hello-world
+  $ docker run hello-world
 
   Unable to find image 'hello-world:latest' locally
   latest: Pulling from library/hello-world
@@ -108,11 +108,11 @@ $ docker commit --author "Wang senyan <2633600702@qq.com>" --message "修改了�
 FROM nginx
 RUN echo '<h1>Hello,Docker</h1>' > /user/share/nginx/html/index.html
 ```
-### FROM 指定基础镜像
+#### FROM 指定基础镜像
 好的服务类镜像有`nginx`, `redis`, `mongo`, `mysql`, `httpd`, `php`, `tomcat`, `node`, `openjdk`, `python`, `ruby`, `golang`等  
 操作系统类镜像 `ubuntu`, `debian`, `centos`, `fedora`, `alpine`  
 空白镜像 `FROM scratch`
-### RUN 执行命令
+#### RUN 执行命令
 * shell格式，上面的例子
 * exec格式 `RUN ["可执行文件", "参数1", "参数2"]`
 * RUN 多行表示多次commit，多层镜像
@@ -137,4 +137,34 @@ Dockerfile 支持Shell类的行尾添加`\`的命令换行方式以及首行`#`�
 `docker build [选项]<上下文路径/url/->`
 ```sh
  docker build -t nginx:v3 .
+```
+#### [上下文](https://yeasy.gitbooks.io/docker_practice/content/image/build.html)
+客户端/服务端(C/S)设计，需要本地和服务端配合， `COPY`, `ADD` 指令客户端，`docker build`在服务端
+```txt
+COPY ./package.json /app/
+```
+指的是复制上下文目录下的`package.json`
+#### 其他docker build 的用法
+* GIT repo 源
+```sh
+$ docker build https://github.com/twang2218/gitlab-ce-zh.git#:8.14
+docker build https://github.com/twang2218/gitlab-ce-zh.git\#:8.14
+Sending build context to Docker daemon 2.048 kB
+Step 1 : FROM gitlab/gitlab-ce:8.14.0-ce.0
+8.14.0-ce.0: Pulling from gitlab/gitlab-ce
+aed15891ba52: Already exists
+773ae8583d14: Already exists
+...
+```
+* tar 压缩包构建
+```sh
+$ docker build http://server/context.tar.gz
+```
+* 从标准输入中读取Dockerfile进行构建
+```sh
+$ docker build - < Dockerfile
+
+$ cat Dockerfile | docker build -
+
+$ docker build - < context.tar.gz
 ```
