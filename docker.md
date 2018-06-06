@@ -103,3 +103,38 @@ $ docker commit --author "Wang senyan <2633600702@qq.com>" --message "修改了�
 ```sh
  docker run --name web2 -d -p 81:80 nginx:v2
 ```
+### Dockerfile
+```txt
+FROM nginx
+RUN echo '<h1>Hello,Docker</h1>' > /user/share/nginx/html/index.html
+```
+### FROM 指定基础镜像
+好的服务类镜像有`nginx`, `redis`, `mongo`, `mysql`, `httpd`, `php`, `tomcat`, `node`, `openjdk`, `python`, `ruby`, `golang`等  
+操作系统类镜像 `ubuntu`, `debian`, `centos`, `fedora`, `alpine`  
+空白镜像 `FROM scratch`
+### RUN 执行命令
+* shell格式，上面的例子
+* exec格式 `RUN ["可执行文件", "参数1", "参数2"]`
+* RUN 多行表示多次commit，多层镜像
+```txt
+FROM debian:jessie
+
+RUN buildDeps='gcc libc6-dev make' \
+    && apt-get update \
+    && apt-get install -y $buildDeps \
+    && wget -O redis.tar.gz "http://download.redis.io/releases/redis-3.2.5.tar.gz" \
+    && mkdir -p /usr/src/redis \
+    && tar -xzf redis.tar.gz -C /usr/src/redis --strip-components=1 \
+    && make -C /usr/src/redis \
+    && make -C /usr/src/redis install \
+    && rm -rf /var/lib/apt/lists/* \
+    && rm redis.tar.gz \
+    && rm -r /usr/src/redis \
+    && apt-get purge -y --auto-remove $buildDeps
+```
+Dockerfile 支持Shell类的行尾添加`\`的命令换行方式以及首行`#`注释的格式  
+镜像是多层存储，每一层的东西并不会在下一层被删除，会一直跟随着镜像。因此镜像构建时，一定要确保每一层只添加真正需要添加的东西，任何无关的东西都应该清理掉。  
+`docker build [选项]<上下文路径/url/->`
+```sh
+ docker build -t nginx:v3 .
+```
