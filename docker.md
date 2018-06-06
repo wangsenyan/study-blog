@@ -1,4 +1,4 @@
-## DOCKER
+## <center>DOCKER</center>
 ### 安装
 #### Ubuntu安装
 ```sh
@@ -167,4 +167,158 @@ $ docker build - < Dockerfile
 $ cat Dockerfile | docker build -
 
 $ docker build - < context.tar.gz
+```
+如果发现标准输入的文件格式是 gzip、bzip2 以及 xz 的话，将会使其为上下文压缩包，直接将其展开，将里面视为上下文，并开始构建
+### Dockerfile指令详解
+#### COPY 复制文件
+* COPY <源路径>...<目标路径>
+* COPY ["<源路径1>",..."<目标路径>"]  
+`COPY`指令将从构建上下文目录中`<源路径>`的文件/目录复制到新的一层的镜像内的`<目标路径>`位置。
+#### ADD 更高级的复制
+格式同`COPY`，但源路径为tar压缩文件的话，压缩格式为`gzip`, `bzip2`, `xz`的情况下，`ADD` 会自动解压缩这个压缩文件到`<目标路径>`去
+```txt
+  FROM scratch
+  ADD ubuntu-xenial-core-cloudimg-amd64-root.tar.gz /
+...
+```
+#### CMD 容器启动命令
+* `shell`格式:`CMD<命令>`
+* `exec`格式:`CMD["可执行文件","参数1","参数2"...]`，解析为JSON数组
+* 参数列表格式:`CMD ["参数1", "参数2"...]`。在指定了 `ENTRYPOINT` 指令后，用 `CMD`指定具体的参数。  
+Docker 不是虚拟机，容器就是进程
+#### ENTRYPOINT 入口点
+```txt
+  FROM ubuntu:16.04
+  RUN apt-get update \
+      && apt-get install -y curl \
+      && rm -rf /var/lib/apt/lists/*
+  ENTRYPOINT [ "curl", "-s", "http://ip.cn" ]
+```
+```sh
+ $ docker build -t myip .
+ $ docker run myip
+```
+#### ENV 设置环境变量
+
+* `ENV <key> <value>`
+
+* `ENV <key1>=<vulue1> <key2>=<value2>...`
+* 下列指令可以支持环境变量展开:  
+
+  `ADD`、`COPY`、`ENV`、`EXPOSE`、`LABEL`、`USER`、`WORKDIR`、`VOLUME`、`STOPSIGNAL`、`ONBUILD`。
+  
+```txt
+  ENV NODE_VERSION 7.2.0
+
+  RUN curl -SLO "https://nodejs.org/dist/v$NODE_VERSION/node-v$NODE_VERSION-linux-x64.tar.xz" \
+    && curl -SLO "https://nodejs.org/dist/v$NODE_VERSION/SHASUMS256.txt.asc" \
+    && gpg --batch --decrypt --output SHASUMS256.txt SHASUMS256.txt.asc \
+    && grep " node-v$NODE_VERSION-linux-x64.tar.xz\$" SHASUMS256.txt | sha256sum -c - \
+    && tar -xJf "node-v$NODE_VERSION-linux-x64.tar.xz" -C /usr/local --strip-components=1 \
+    && rm "node-v$NODE_VERSION-linux-x64.tar.xz" SHASUMS256.txt.asc SHASUMS256.txt \
+    && ln -s /usr/local/bin/node /usr/local/bin/nodejs
+```
+#### ARG构建参数
+* 格式: `ARG <参数名>[=<默认值>]`
+#### VOLUME定义匿名卷
+* `VOLUME ["<路径1>", "<路径2>"...]`
+* `VOLUME <路径>`
+```txt
+ VOLUMN /data
+```
+被取代
+```sh
+ docker run -d -v mydata:/data xxxx
+```
+#### EXPOSE 声明端口
+* `EXPOSE <端口1> [<端口2>...]`
+* 只是声明，随机映射时，`docker run -P`时，会自动随机映射`EXPOSE`端口
+#### WORKDIR 指定工作目录
+* `WORKDIR <工作目录路径>`
+#### USER 指定当前用户
+* `USER <用户名>`
+* 切换到指定用户
+```txt
+  RUN groupadd -r redis && useradd -r -g redis redis
+  USER redis
+  RUN [ "redis-server" ]
+```
+使用gosu,相当于sudo
+```txt
+  # 建立 redis 用户，并使用 gosu 换另一个用户执行命令
+  RUN groupadd -r redis && useradd -r -g redis redis
+  # 下载 gosu
+  RUN wget -O /usr/local/bin/gosu "https://github.com/tianon/gosu/releases/download/1.7/gosu-amd64" \
+      && chmod +x /usr/local/bin/gosu \
+      && gosu nobody true
+  # 设置 CMD，并以另外的用户执行
+  CMD [ "exec", "gosu", "redis", "redis-server" ]
+```
+#### HEALTHCHECK 健康检查
+* `HEALTHCHECK [选项] CMD <命令>`:设置检查容器健康状况的命令
+* `HEALTHCHECK NONE`:如果基础镜像有健康检查指令，使用这行可以屏蔽掉其健康检查指令
+* 选项 
+  1.  `--interval=<间隔>`:两次健康检查的间隔，默认30s
+  2.  `--timeout=<时长>`:健康检查命令运行超时时间，默认30s
+  3. `--retries=<次数>`:连续失败指定次数，视为`unhealthy`,默认3次
+  4. exit 返回值 0:成功 1:失败 2:保留
+```
+  FROM nginx
+  RUN apt-get update && apt-get install -y curl && rm -rf /var/lib/apt/lists/*
+  HEALTHCHECK --interval=5s --timeout=3s \
+    CMD curl -fs http://localhost/ || exit 1
+```
+* `docker container ls` 查看状态
+#### ONBUILD 
+* `ONBUILD <其他指令>`
+* `ONBUILD`是一个特殊的指令，它后面跟的是其它指令，比如 `RUN`, `COPY` 等，而这些指令，在当前镜像构建时并不会被执行。只有当以当前镜像为基础镜像，去构建下一级镜像的时候才会被执行。
+```txt
+  FROM node:slim
+  RUN mkdir /app
+  WORKDIR /app
+  ONBUILD COPY ./package.json /app
+  ONBUILD RUN [ "npm", "install" ]
+  ONBUILD COPY . /app/
+  CMD [ "npm", "start" ]
+```
+#### 参考文档
+* Dockerfile官方文档:(https://docs.docker.com/engine/reference/builder/)
+* Dockerfile最佳实践文档:(https://docs.docker.com/engine/userguide/eng-image/dockerfile_best-practices/)
+*  Docker官方镜像 Dockerfile:(https://github.com/docker-library/docs)
+#### Dockerfile多阶段构建
+* Dockerfile
+```txt
+  FROM golang:1.9-alpine as builder
+
+  RUN apk --no-cache add git
+
+  WORKDIR /go/src/github.com/go/helloworld/
+
+  RUN go get -d -v github.com/go-sql-driver/mysql
+
+  COPY app.go .
+
+  RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o app .
+
+  FROM alpine:latest as prod
+
+  RUN apk --no-cache add ca-certificates
+
+  WORKDIR /root/
+
+  COPY --from=0 /go/src/github.com/go/helloworld/app .
+
+  CMD ["./app"]
+```
+* 构建镜像
+```sh
+ $ docker build -t go/helloworld:3
+```
+* 只构建某一阶段
+```sh
+ $ docker build --target builder -t username/imagename:tag .
+```
+* 从其他镜像复制文件
+```txt
+ COPY --from=nginx:latest /etc/nginx/nginx.conf /nginx.conf
 ```
