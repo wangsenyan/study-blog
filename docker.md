@@ -87,3 +87,19 @@
  $ docker image rm [选项] <镜像1> [<镜像2> ...]
  $ docker image rm $(docker image ls -q redis)
 ```
+#### commit
+```sh
+ $ docker run --name webserver -d -p 80:80 nginx #定制web服务器
+ $ docker exec -it webserver bash #进入容器
+ $ docker diff webserver #查看具体的改动
+ $ docker commit #将容器的存储层保存下来称为镜像，存储层+原来镜像= 新镜像
+```
+语法  
+   `docker commit [选项] <容器ID或容器名> [<仓库名>[:<标签>]]`
+```sh
+$ docker commit --author "Wang senyan <2633600702@qq.com>" --message "修改了网页" webserver nginx:v2
+```
+运行
+```sh
+ docker run --name web2 -d -p 81:80 nginx:v2
+```
