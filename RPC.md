@@ -12,3 +12,4 @@
 |RpcAccepter|负责接收客户方请求并返回请求结果
 |RpcProcessor|负责制服务方控制调用过程，包括管理调用线程池、超时时间等。
 |RpcChannel|数据传输通道
+### 参考(https://blog.csdn.net/mindfloating/article/details/39474123)
