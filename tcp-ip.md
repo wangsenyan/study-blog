@@ -46,3 +46,11 @@ netstat -a -n -t
 * `Nagle`算法
 * 慢启动
 * 拥塞避免
+* CWV算法
+  1. 查看距离上次发送操作是否超过一个RTO，如果超过
+  2. 更新 ssthresh值 - 设置max(ssthresh,(3/4)*cwnd)
+  3. 每经一个空闲RTT时间，cwnd值就减半，但不小于1 SMSS
+  4. 对于应用受限阶段(非空闲阶段)，执行相似操作
+    1. 已使用的窗口大小记为W_used
+    2. 更新ssthresh值-设为max(ssthresh,(3/4)*cwnd)
+    3.cend设为cwnd和W_used的平均值
