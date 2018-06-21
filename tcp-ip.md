@@ -16,7 +16,12 @@ Linux# brctl delif <brname> <ifname>
 Linux# ifconfig etho up
 Linux# ifconfig eth1 up
 Linux# ifconfig br0 up
+#检查Linux上ICMPv4的速率掩码和速率限制来验证
+Linux% sysctl -a | grep icmp_rate
 ```
+### 链路层
+* 二进制除非 高位减法
+* CRC校验
 ### DNS
 找出`12.17.136.129`相关的主机名称
 ```sh
@@ -57,3 +62,6 @@ netstat -a -n -t
     3.cend设为cwnd和W_used的平均值
 * 伪RTO处理-Eifel响应算法
   1. 
+### ping
+ ping本地子网一个不存在的IP地址时，首先发送ARP获取Mac地址，而我设置wireshark的过滤串为icmp,所以没有察觉到arp数据，而获取mac地址失败，故不会再发送icmp数据。
+* 路由器 根据包的ip地址，对比 arp表，找出下一跳ip及对应ip地址，然后根据该Mac寻找下一个路由器
