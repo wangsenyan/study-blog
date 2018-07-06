@@ -1,7 +1,27 @@
+### node安装
+#### linux
+* 下载源代码 -[nodejs](https://nodejs.org/dist/v10.6.0/node-v10.6.0.tar.gz)
+* 源代码安装
+```sh
+wget https://nodejs.org/dist/v10.6.0/node-v10.6.0.tar.gz
+tar -zxvf node-v10.6.0.tar.gz
+#更改权限
+sudo chmod -R 755 node-v10.6.0.tar.gz
+cd node-v10.6.0.tar.gz
+sudo ./configure
+sudo make
+sudo make install
+```
+* Ubuntu apt-get
+```sh
+sudo apt-get install nodejs
+sudo apt-get install npm 
+```
 ### node后台运行
   nohup node /xx/xx/app.js &(nohup command &)后台进程容易挂掉
   pm2  npm install -g pm2    ->pm2 start app.js ->pm2 stop ->pm2 list
   pm2 restart 重启医用  pm2 describe id|all   程序信息
+
 ### mongodb后台运行
   ```sh
    mongod -fork --dbpath=/root/mongo/mongodb/data/db/ --logpath=/root/mongo/mongodb/log/mongodb.log --logappend
@@ -14,6 +34,7 @@
   n stable 安装稳定版本
   ```
 ### __filename 当前正在执行的脚本文件名
+
 ### setTimeout(cb,ms)
   clearTimeout(t)停止之前通过setTimeout()创建 定时器
   setInterval(cb,ms)/clearInterval(t)
@@ -127,10 +148,6 @@
   ```
 ---------------------
 ### 其他
-    Node 里有readFile和对应的同步方法readFileSync，但http.get() 却没有 http.getSync()，如果要实现一个http.getSync()，怎么做？
-    readFile异步，readFileSync同步
-    异步读取不能读取文件大小，分片读取，每次异步读取8k内容到buffer，并将buffer的内容存储到数组，然后合并
-   如果能正确读取文件大小，则直接生成与文件大小相同，并将内容读取到buffer里面
-  readFileSync不带回调函数，结果是直接返回
-  libuv的文件操作方法跟socket的实现方式原理不一样，对于socket处理，libuv是调用系统本身的非阻塞特性，而fs模块，则是通过线程池 模拟
-   getSync 这种方法，在libuv框架下是无法实现的，libuv从底层调用开始就是非阻塞的，是操作系统提供，所以你无论用什么黑魔法实际效果都是异步，但对于fs模块来说，仅仅是利用线程池模拟出异步的效果，所以能，非系统自带的特性，所以能写出同步的api。
+  Node 里有readFile和对应的同步方法readFileSync，但http.get() 却没有 http.getSync()，如果要实现一个http.getSync()，怎么做？  
+
+  readFile异步，readFileSync同步异步读取不能读取文件大小，分片读取，每次异步读取8k内容到buffer，并将buffer的内容存储到数组，然后合并如果能正确读取文件大小，则直接生成与文件大小相同，并将内容读取到buffer里面readFileSync不带回调函数，结果是直接返回libuv的文件操作方法跟socket的实现方式原理不一样，对于socket处理，libuv是调用系统本身的非阻塞特性，而fs模块，则是通过线程池 模拟getSync 这种方法，在libuv框架下是无法实现的，libuv从底层调用开始就是非阻塞的，是操作系统提供，所以你无论用什么黑魔法实际效果都是异步，但对于fs模块来说，仅仅是利用线程池模拟出异步的效果，所以能，非系统自带的特性，所以能写出同步的api。
