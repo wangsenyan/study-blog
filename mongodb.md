@@ -26,8 +26,8 @@
  ```sh
   npm install express --save 
  ```  
-  //express和jade安装到一个文件夹  
-  
+  express和jade安装到一个文件夹
+
 5. ps -ef |grep mongo
 
  ```sh
