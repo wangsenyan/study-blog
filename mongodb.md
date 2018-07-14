@@ -1,3 +1,4 @@
+### 常用命令
 1. rm -rf 文件夹
 
  ```sh
@@ -39,3 +40,22 @@
   ```
 
 6. 将win平台上的nodejs代码移植到Ubuntu14.04上时，出现strict模式，大部分原因是       mongod的原因。上传的时候删除原来的node_moudles和.git等无关的文件。打包上传。然    后分别安装 npm install xxx --save(test，mocha时候用)。express重新安装一遍。  不用管connect-mongo版本。启动时杀死mongod进程（或者重新安装）
+
+### 更新
+1. 更新key
+```sh
+# 更新key
+sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv EA312927
+# 创建列表
+echo "deb http://repo.mongodb.org/apt/ubuntu trusty/mongodb-org/3.2 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-3.2.list
+# 重载本地数据包
+sudo apt-get update
+# 安装mongodb
+sudo apt-get install -y mongodb-org
+# 安装特定版本(可选)-太慢
+sudo apt-get install -y mongodb-org=3.2.4 mongodb-org-server=3.2.4 mongodb-org-shell=3.2.4 mongodb-org-mongos=3.2.4 mongodb-org-tools=3.2.4
+# 开启mongodb
+sudo service mongodb start
+# 验证版本
+mongod
+```

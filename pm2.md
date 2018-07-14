@@ -9,7 +9,7 @@ $ pm2 start app.js --name="api" # 启动应用程序并命名为 "api"
 $ pm2 start app.js --watch # 当文件变化时自动重启应用
 $ pm2 start script.sh # 启动 bash 脚本
 
-$ pm2 list # 列表 PM2 启动的所有的应用程序
+$ pm2 list -al # 列表 PM2 启动的所有的应用程序
 $ pm2 monit # 显示每个应用程序的CPU和内存占用情况
 $ pm2 show [app-name] # 显示应用程序的所有信息
 
