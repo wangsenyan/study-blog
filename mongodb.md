@@ -59,3 +59,10 @@ sudo service mongodb start
 # 验证版本
 mongod
 ```
+
+### win安装
+
+* 启动服务，去除--directoryperdb,用管理员权限启动cmd
+```sh
+mongod --logpath "D:\Program Files\mongodb\data\logs.txt" --logappend --dbpath "D:\Program Files\mongodb\data"  --serviceName "MongoDB" --serviceDisplayName "MongoDB" --install
+```
