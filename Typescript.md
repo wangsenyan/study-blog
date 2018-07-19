@@ -81,6 +81,10 @@
      [propName:string]:any;
    }
    ```
+   绕过检查的方法
+     * { colour: "red", width: 100 } as S -  用as
+     * let other = { colour: "red", width: 100 } - 赋值后使用
+     * 字符索引签名 【propName:string】:any
   ### 函数类型
    ```ts
    interface SF{
@@ -93,7 +97,7 @@
    
    let mF:SF;
    mF = function(arc,sub){
-     //自动检查
+     //自动检查类型，且变量名可以不与定义一致
    }
    ```
   ### 可索引的类型
@@ -113,10 +117,16 @@
     }
    let myArray: ReadonlyStringArray = ["Alice", "Bob"];
    myArray[2] = "Mallory"; // error!
-
+    //很奇怪
+    interface StringArray {
+      [index:number]:string;
+      [propName:string]:string;
+    }
+    let myArray :StringArray ={"name":"big"} 
    ```
+  ### 强制类型 `implements`
   ### 类类型
-   * 接口描述公共部分，不会帮你检查类是否具有某些室友成员
+   * 接口描述公共部分，不会帮你检查类是否具有某些私有成员
    ```ts
     interface CInterface{
       currentTime:Date;
