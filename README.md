@@ -21,3 +21,5 @@
  - [慕课网](https://www.imooc.com)
  - [菜鸟教程](http://www.runoob.com/)
  - [cnode社区](https://cnodejs.org/)
+ - [async文档](https://caolan.github.io/async/)
+ - [async](https://github.com/caolan/async)
