@@ -146,4 +146,9 @@ Host github.com
 * `git reset --hard commit_id` - 回退到commit_id处，取消commit,代码也消失  
   没有--hard 保留工作区修改
 
-* `git reset HEAD` 只是add 
+* `git reset HEAD a ` 只是add,git add 和 git commit 之间的修改取消
+* `git checkout a` - 撤销对文件a的修改,没有**add**的修改
+
+* 已经提交
+  `git reset HEAD^` - 回退到工作区
+  `git checkout a` - 撤销工作区修改
