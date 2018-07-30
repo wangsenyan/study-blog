@@ -143,3 +143,7 @@ Host github.com
 
 ### 重要的指令
 *  `git status` - 列出当前目录所有还没有被git管理的文件和被git管理且被修改还未提交(git commit)的文件
+* `git reset --hard commit_id` - 回退到commit_id处，取消commit,代码也消失  
+  没有--hard 保留工作区修改
+
+* `git reset HEAD` 只是add 
