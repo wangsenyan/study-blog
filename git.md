@@ -140,3 +140,6 @@ Host github.com
     IdentityFile ~\.ssh\id_rsa_github
 ```
 * 将公钥 `.pub`结尾的公钥放服务器
+
+### 重要的指令
+*  `git status` - 列出当前目录所有还没有被git管理的文件和被git管理且被修改还未提交(git commit)的文件
