@@ -120,4 +120,23 @@
    git commit -m '描述'
    git remote add origin https://git.coding.net/wangsenyan/stormshop.git
    git push -u origin master  
+
 ```
+
+### 管理多个ssh key
+
+* 生成多个ssh key `ssh-keygen -C "2633600702@qq.com" -t ras` 或者  `ssh-keygen  -t ras`
+* 配置 `~/.ssh/config`
+
+```
+  
+Host git.apicloud.com
+    HostName  git.apicloud.com
+    User git
+    IdentityFile ~\.ssh\id_rsa_gitlab
+Host github.com
+    HostName  github.com
+    User git
+    IdentityFile ~\.ssh\id_rsa_github
+```
+* 将公钥 `.pub`结尾的公钥放服务器
