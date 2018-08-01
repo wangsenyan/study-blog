@@ -23,3 +23,5 @@
  - [cnode社区](https://cnodejs.org/)
  - [async文档](https://caolan.github.io/async/)
  - [async](https://github.com/caolan/async)
+ - [node测试](https://cnodejs.org/topic/55b9e875f36f579657fc52f3)
+ - [typescript文档](https://www.tslang.cn/docs/home.html)
