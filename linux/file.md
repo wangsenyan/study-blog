@@ -15,6 +15,7 @@ POSIX标准
   1. suid - 进程拥有者的UID
   2. sgid - 进程组的用户组ID
   3. sticky  - 
+
 ### 文件操作的系统调用
 * 打开文件 - 进程只能访问‘打开的’文件  
   `fd = open(path,flag,mode)`
@@ -42,6 +43,7 @@ POSIX标准
   `res = rename(oldpath,newpath)`
 * 删除文件
   `res = unlink(pathname)`
+
 ### 进程/内核模式(CPU)
 * 用户态
   不能直接访问内核数据结构或内核的程序
@@ -103,6 +105,7 @@ POSIX标准
 * 僵死进程(zombie process)
   `wait4()`系统调用允许进程等待，直到其中的一个子进程结束，返回已终止子进程的进程标识符(PID)
 * 进程组合登录会话
+
 ### 内存管理
 * 虚拟内存
  `应用程序内存请求 - 虚拟内存(virtual memory) - 硬件内存管理单元(Memory Management Unit,MMU)`
@@ -118,5 +121,6 @@ POSIX标准
   4. 初始程序栈(即用户态栈)
   5. 所需共享库的可执行代码和数据
   6. 堆(由程序动态请求的内存)
+  
 ### 设备驱动程序(device driver)
   内核通过设备驱动程序与I/O 设备交互，包含在内核中，由控制一个或多个设备的数据结构和函数组成。

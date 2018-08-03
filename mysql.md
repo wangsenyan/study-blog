@@ -36,3 +36,10 @@ mysql> source path/filename.sql
 #查看表结构包括注释
 >show full columns from `users`;
 ```
+### 便捷方法
+
+```sql
+select @@IDENTITY id ## insert into 后获得自动插入的id, @@IDENTITY返回为当前会话的所有作用域中的任何表最后生成的标识符
+select SCOPE_IDENTITY() as id ## 返回当前作用域和当前会话的任何表最后生成的标识符
+
+```
