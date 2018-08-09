@@ -43,3 +43,19 @@ select @@IDENTITY id ## insert into 后获得自动插入的id, @@IDENTITY返回
 select SCOPE_IDENTITY() as id ## 返回当前作用域和当前会话的任何表最后生成的标识符
 
 ```
+### 函数
+
+* CONCAT() - 将多个字符串连接成一个字符串  
+* CONCAT_WS(separator,str1,str2,…) - 用separator分割参数
+* CAST(value as type); - 获取一个类型的值并产生另一个类型的值
+   * 二进制，同带binary前缀的效果 : BINARY    
+   * 字符型，可带参数 : CHAR()     
+   * 日期 : DATE     
+   * 时间: TIME     
+   * 日期时间型 : DATETIME     
+   * 浮点数 : DECIMAL      
+   * 整数 : SIGNED     
+   * 无符号整数 : UNSIGNED
+* CONVERT(value, type); - 获取一个类型的值并产生另一个类型的值
+
+

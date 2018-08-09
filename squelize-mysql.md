@@ -1,16 +1,62 @@
 
 **文件比较粗糙，具体看官方文档**
 [sequelize](https://github.com/demopark/sequelize-docs-Zh-CN)
-## 自动生成
+### 简单使用方法
+1. 配置文件
+```json
+{
+  "mysql": {
+      //debug: ["ComQueryPacket"],
+      // debug: ["ComQueryPacket", "RowDataPacket"],
+      "host": "",
+      "port": 3306,
+      "database": "",
+      "username": "",
+      "password": "",
+      "dialect": "mysql",
+      "pool": {
+        "max": 5,
+        "min": 0,
+        "acquire": 30000,
+        "idle": 10000
+      },
+      "operatorsAliases": false,
+    },
+}
+```
+
+2. model文件
+
+```js
+const conf = "./config";
+const Sequelize = require("sequelize");
+exports.ownsql = new Sequelize(conf.mysql);
+//定义方法
+```
+
+3. 使用
+
+```js
+const mysql = require("./model.js");
+mysql.ownsql.query(sql,opt).then(data=>{
+  console.log(data)
+  }).catch(e=>{
+    console.log(e)
+    })
+```
+
+### 判断是否连上
   ```js
    sequelize.authenticate().then(()=>{}).catch(err=>{})
   ```
-## 定义模块
+### 定义模块  
+   创建数据库
   ```js
   sequelize.define('user',{attributes},{options})
   difine('user',{},{timestamps:true,createdAt:false,updatedAt: 'updateTimestamp',deletedAt: 'destroyTime',paranoid: true});// 时间戳默认为false
   ```
- ### 参数设置
+
+### 参数设置
   ```js
     paranoid: true //// 不删除数据库条目，但将新添加的属性deletedAt设置为当前日期（删除完成时）
     underscored: true //不使用驼峰样式自动添加属性，而是下划线样式，因此updatedAt将变为updated_at
@@ -37,7 +83,8 @@
   ```js
    User.sync({force:true}).then(()=>{return User.create({firstName:'Johe',lastName:'Hancock'});});
   ```
-###User.findAll().then(users=>{})
+###
+   User.findAll().then(users=>{})
 ### user=await User.findOne()
   console.log(user.get('firstName'))
 ### 
