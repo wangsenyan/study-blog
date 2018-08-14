@@ -29,3 +29,4 @@
 
 ## 常用软件下载
  - [Robo 3T](https://robomongo.org/)
+ - [XShell6/Xftp6](https://www.netsarang.com/products/main.html)
