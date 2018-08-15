@@ -62,5 +62,25 @@ select SCOPE_IDENTITY() as id ## 返回当前作用域和当前会话的任何�
 从左到右
 and > or
 
+### log
+MySQL有以下几种日志：
+* 错误日志： -log-err
+* 查询日志： -log
+* 慢查询日志: -log-slow-queries
+* 更新日志: -log-update
+* 二进制日志： -log-bin
 
+```sql
+show variables like 'log_%'; ## 是否启用了log
+show master status ##怎么知道当前的日志
+show master logs ##显示二进制日志数目
+```
+### 连接
+```sh
+mysqladmin -uroot -ppassword processlist ## 所有连接详细信息
+mysqladmin -uroot -ppassword status ## 连接数
 
+mysql>show full processlist ## 所有连接进程
+```
+
+### 权限
