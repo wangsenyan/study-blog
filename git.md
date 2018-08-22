@@ -5,20 +5,24 @@
  |/etc/gitconfig|系统所有用户|<code>git config --system<code>
  |~/.gitconfig|用户目录|<code>git config --global<code>
  |.git/config|项目目录|<code>git config<code>
+
 ### 工作流程
-  - 克隆 Git 资源作为工作目录。
+  - commit 提交
+  - 克隆 Git 资源作为工作目录。 `git clone <url> [目录]`
   - 在克隆的资源上添加或修改文件。
   - 如果其他人修改了，你可以更新资源。
   - 在提交前查看修改。
   - 提交修改。
   - 在修改完成后，如果发现错误，可以撤回提交并再次修改并提交。
   - ![工作流程](git-process.png)
+
 ### Git 工作区、暂存区和版本库
   - 工作区: 就是你在电脑里能看到的目录。
   - 暂存区: 英文叫stage, 或index。一般存放在 ".git目录下" 下的index文件（.git/index）中，所以我们把暂存区有时也叫作索引（index）。
   - 版本库:工作区有一个隐藏目录.git，这个不算工作区，而是Git的版本库。dev/master
   ![关系](git-stage.jpg)
   - 图片中的命令
+
 ### up
  |命令|作用|提示
  |----|----|----
@@ -43,7 +47,7 @@
  |git diff HEAD|查看已缓存的与未缓存的所有改动|
  |git diff --stat|显示摘要而非整个diff
  |git commit -am '提交描述'|git add 和 git commit - m ''|
- |git rm `<file>`|删除文件| -f 强制删除，包括暂存区
+ |git rm `<file>`|删除文件| -f 强制删除，包括暂存区(在删除前修改并保存到暂存区)
  |git rm --cached `<file>`|从暂存区删除，任保留在工作目录中|
  |git rm -r \*| 递归删除整个目录的所有子目录和文件
  |git mv|移动或重命名一个文件、目录、软链接 | `git mv a a.md`
@@ -56,12 +60,11 @@
  |git merge (branchname)|将该分支合并到当前分支，该分支删除
  |git log|历史记录
  |git log --oneline|历史记录的简洁版本
- |git log --graph|查看历史中什么时候出现了分支、合并|--reverse 逆向显示
- |git log||--author = wangsenyan
  |git log||--since --before={3.weeks.age} --after={2010-04-18}
  |git log||----no-merges 隐藏合并提交
  |git tag|打标签| -a 创建一个带注解的标签`git tag -a v1.0`
  |git remote add [shortname] [url]|添加一个新的远程仓库
+
 ### 创建远程仓库[参考](http://www.runoob.com/git/git-remote-repo.html)
  生成秘钥
 ```sh
@@ -78,6 +81,7 @@
 |git fetch|从远程仓库下载新分支和数据|然后merge
 |git push origin master|推送到远程master分支
 |git remote rm [别名]|删除远程仓库
+
 ### linux上的git命令
 1. apt-get install git
 2.
@@ -152,3 +156,94 @@ Host github.com
 * 已经提交
   `git reset HEAD^` - 回退到工作区
   `git checkout a` - 撤销工作区修改
+
+### 强制回滚
+```sh
+git commit 版本号  ##本地回滚
+git push -f origin develop ## 远程回滚
+```
+### 暂存
+```sh
+git stash ## 暂存
+git stash apply stash@{1} ##取出暂存，但是没有删除
+git stash clear ## 删除暂存
+git stash list ## 列出暂存文件
+```
+
+### log
+```sh
+git log --stat ##显示log 同时又修改过的文件
+git log --author=username  ## 显示某人的某个文件的log
+git show commitId ## 显示该commit的log
+git log --pretty=oneline filename ## 某文件的commit
+git log --graph  --reverse #查看历史中什么时候出现了分支、合并  ##逆向显示
+git log --since 2018-8-21 --before={3.weeks.age} --after={2010-04-18} 
+git log -p -2 ##查询最近两次提交，-p代表内容差异
+git log -p ##按补丁格式显示每个更新之间的差异。
+git log --shortstat ##只显示 --stat 中最后的行数修改添加移除统计。
+git log --name-only ##仅在提交信息后显示已修改的文件清单。
+git log --name-status ##显示新增、修改、删除的文件清单。
+git log --abbrev-commit ##仅显示 SHA-1 的前几个字符，而非所有的 40 个字符。
+git log --relative-date ##使用较短的相对时间显示（比如，“2 weeks ago”）。
+git log --graph ##显示 ASCII 图形表示的分支合并历史。
+git log --pretty ##使用其他格式显示历史提交信息。可用的选项包括 oneline，short，full，fuller 和 format（后跟指定格式）。```
+git log -(n) ##仅显示最近的 n 条提交
+git log --since, --after ##仅显示指定时间之后的提交。
+git log --until, --before ##仅显示指定时间之前的提交。
+git log --author ##仅显示指定作者相关的提交。
+git log --committer ##仅显示指定提交者相关的提交。
+git log --grep ##仅显示含指定关键字的提交
+git log -S ##仅显示添加或移除了某个关键字的提交
+```
+
+### 查看已暂存和为暂存的修改
+```sh
+git diff ## 工作区修改但未暂存和暂存区域快照之间的差异
+git diff --staged|--cached ## 已暂存的将要下次提交你的内容
+```
+
+### 撤销操作
+```sh
+git commit -amend ##将暂存区的文件提交，覆盖上次的提交，合并多次提交
+
+git reset HEAD <file> ## 只会撤销暂存区 --hard 工作区也取消
+git checkout -- <file> ## 撤销工作区的修改
+```
+
+### checkout,reset,revert
+|命令|作用域|常用情景
+|---|------|-------
+|git reset |提交层面|  在私有分支上舍弃一些没有提交的更改
+|git reset |文件层面|  将文件从缓存区中移除
+|git checkout  |提交层面 | 切换分支或查看旧版本
+|git checkout  |文件层面 | 舍弃工作目录中的更改
+|git revert  |提交层面  |在公共分支上回滚更改
+|git revert  |文件层面  |然而并没有
+
+### commit 包含四个部分 放在`object`
+- 工作目录快照的哈希
+- 提交的说明信息
+- 提交者的信息
+- 父提交的哈希值
+- `git cherry -v` 查看未传送到远程代码库的提交描述/说明
+
+### **.gitignore**
+* 所有空行或者以 ＃ 开头的行都会被 Git 忽略。
+* 可以使用标准的 glob 模式匹配。
+* 匹配模式可以以（/）开头防止递归。
+* 匹配模式可以以（/）结尾指定目录。
+* 要忽略指定模式以外的文件或目录，可以在模式前加上惊叹号（!）取反。
+```txt
+所谓的 glob 模式是指 shell 所使用的简化了的正则表达式。 星号（*）匹配零个或多个任意字符；[abc] 匹配任何一个列在方括号中的字符（这个例子要么匹配一个 a，要么匹配一个 b，要么匹配一个 c）；问号（?）只匹配一个任意字符；如果在方括号中使用短划线分隔两个字符，表示所有在这两个字符范围内的都可以匹配（比如 [0-9] 表示匹配所有 0 到 9 的数字）。 使用两个星号（*) 表示匹配任意中间目录，比如`a/**/z` 可以匹配 a/z, a/b/z 或 `a/b/c/z`等。
+```
+
+### 添加远程仓库
+```sh
+git origin
+git remote add <shortname> <url> ##shortname和origin类似
+git remote -v
+git fetch [remote-name] ## 从远程仓库获取数据
+git remote show [origin] ## 查看仓库的更多信息
+git remote rename ##修改远程仓库的简写名
+git remote remove [remove-name] ##移除远程分支
+```
