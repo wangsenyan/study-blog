@@ -247,3 +247,21 @@ git remote show [origin] ## 查看仓库的更多信息
 git remote rename ##修改远程仓库的简写名
 git remote remove [remove-name] ##移除远程分支
 ```
+
+### 从某个分支更新当前分支
+从B更新A
+```sh
+git checkout A ##切换到需要更新的分支
+git merge B ## 将A的修改更新到B
+
+# 将B上的b.md 文件改动合并到A分支上
+git checkout A
+git checkout --path B b.md
+git reset --hard origin/master ## ???
+
+# 有效方法
+## 在前一个分支commit B
+## 在另一个分支 
+git checkout B path/file ## 从另一个分支检出文件
+git commit -m ''
+```
