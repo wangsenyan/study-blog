@@ -237,6 +237,28 @@ git checkout -- <file> ## 撤销工作区的修改
 所谓的 glob 模式是指 shell 所使用的简化了的正则表达式。 星号（*）匹配零个或多个任意字符；[abc] 匹配任何一个列在方括号中的字符（这个例子要么匹配一个 a，要么匹配一个 b，要么匹配一个 c）；问号（?）只匹配一个任意字符；如果在方括号中使用短划线分隔两个字符，表示所有在这两个字符范围内的都可以匹配（比如 [0-9] 表示匹配所有 0 到 9 的数字）。 使用两个星号（*) 表示匹配任意中间目录，比如`a/**/z` 可以匹配 a/z, a/b/z 或 `a/b/c/z`等。
 ```
 
+```tet
+#               表示此为注释,将被Git忽略
+*.a             表示忽略所有 .a 结尾的文件
+!lib.a          表示但lib.a除外
+/TODO           表示仅仅忽略项目根目录下的 TODO 文件，不包括 subdir/TODO
+build/          表示忽略 build/目录下的所有文件，过滤整个build文件夹；
+doc/*.txt       表示会忽略doc/notes.txt但不包括 doc/server/arch.txt
+ 
+bin/:           表示忽略当前路径下的bin文件夹，该文件夹下的所有内容都会被忽略，不忽略 bin 文件
+/bin:           表示忽略根目录下的bin文件
+/*.c:           表示忽略cat.c，不忽略 build/cat.c
+debug/*.obj:    表示忽略debug/io.obj，不忽略 debug/common/io.obj和tools/debug/io.obj
+**/foo:         表示忽略/foo,a/foo,a/b/foo等
+a/**/b:         表示忽略a/b, a/x/b,a/x/y/b等
+!/bin/run.sh    表示不忽略bin目录下的run.sh文件
+*.log:          表示忽略所有 .log 文件
+config.php:     表示忽略当前路径的 config.php 文件
+ 
+/mtk/           表示过滤整个文件夹
+*.zip           表示过滤所有.zip文件
+/mtk/do.c       表示过滤某个具体文件
+```
 ### 添加远程仓库
 ```sh
 git origin
