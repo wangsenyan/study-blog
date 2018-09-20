@@ -84,3 +84,24 @@ mysql>show full processlist ## 所有连接进程
 ```
 
 ### 权限
+
+### 时间
+- datatime
+  * 占用8字节
+  * 允许空值，可以自定义
+  * 实际格式存储
+  * 与时区无关
+  * 使用 now() 插入当前时间
+- timestamp
+  * 占用4字节
+  * 允许空值，不可自定义
+  * 在1970-2037之间
+  * 值以UTC格式保存
+  * 时区转化，存储时对当前的时区进行转化，检索时再转回当前的时区
+  * 默认值为CURRENT_TIMESTAMP()
+  * `field_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE
+
+  ### float,double,decimal
+  * float 32位，精确存取6位数的浮点型数据
+  * double 64位，精确存取13位数字左右的浮点型数据
+  * decimal
