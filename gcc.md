@@ -22,3 +22,52 @@ $ gcc -shared -fpic -o libvector.so addvec.c multvec.c # -fpic指示编译器生
 * READELF 显示一个目标文件的完整结构，包括ELF头中的所有信息。
 * OBJDUMP 所有二进制工具之母。能够显示一个目标文件中的所有的信息。最大作用是反汇编.text节中的二进制指令
 * LDD 列出一个可执行文件在运行时所需的共享库
+
+### 异常处理
+* 获取进程ID 
+```c
+#include <sys/types.h>
+#include <unistd.h>
+pid_t getpid(void);
+pid_t getppid(void);
+```
+* 创建和终止进程
+  - 运行 可被调度
+  - 停止 挂起不可被调度,SIGSTOP,SIGTSTP,SIGTTIN,SIGTTOU进程终止，SIGCONT进程开始运行
+  - 终止 1) 信号终止 2)从主程序返回 3)调用exit函数
+  - 创建子进程 fork() 执行一次返回两次，分别在父进程中自己的PID 自己进程0
+* 等待它的子进程终止或停止
+  - options[WNOHANG,WUNTRACED,WCONTINUED]
+```c
+#include <sys/types.h>
+#include <sys/wait.h>
+/*如果成功，为子进程PID，如果WNOHANG,则为0，如果其他错误，为-1*/
+/*如果pid>0 单独子进程，如果pid=-1，那么等待集合就是由父进程所有的子进程组成的*/
+pid_t waitpid(pid_t pid,int *statusp,int options);
+```
+
+|参数|含义|返回
+|----|---|----
+|**pid**|**|**
+|>0|单独子进程，进程id等与pid|
+|=-1|所有子进程组成|
+|**statusp**|**|**
+|WIFEXITED(status)|子进程exit或return正常终止|真
+|WEXITSTATUS(status)|只有WIFEXITED()为真|正常终止的子进程的退出状态
+|WIFSIGNALED(status)|子进程未被捕获信号终止|真
+|WTERMSIG(status)|只有在WIFSIGNALED()为真|导致终止的信号的编号
+|WIFSTOPPED(status)|引起返回的子进程当前是停止的|真
+|WSTOPSIG(status)|WIFSTOPPED()为真|引起子进程停止的信号的编号
+|**options**|**|**
+|WNOHANG|等待集合中任何子进程都没终止立即返回|0
+|WUNTRACED|挂起调用进程的执行，直到一个进程变成已终止或停止|被终止进程的pid
+|WCONTINUED|挂起调用进程,直到一个正在运行的进程终止或收到SIGCONT重新开始|
+|WNOHANG \| WCONTINUED |或|0或pid
+
+
+* wait(\*status)相当于 waitpid(-1,&status,0)
+```c
+#include <sys/types.h>
+#include <sys/wait.h>
+pid_t wait(int *statusp);
+```
