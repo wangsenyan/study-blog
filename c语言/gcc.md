@@ -45,10 +45,13 @@ pid_t getppid(void);
 /*如果pid>0 单独子进程，如果pid=-1，那么等待集合就是由父进程所有的子进程组成的*/
 pid_t waitpid(pid_t pid,int *statusp,int options);
 ```
+**waitpid()会暂时听指挥目前进程的执行，直到有信号来到或子进程结束，如果调用时子进程已经结束，则wait()会立即返回子进程结束状态值，子进程的状态值会由参数statusp返回，而子进程的进程识别码也一同返回。如果不在意结束状态值，则参数status可以设成NULL，参数pid为欲等待的子进程识别码，成功返回pid失败返回-1如果有错误发生失败原因存于errno**
 
 |参数|含义|返回
 |----|---|----
 |**pid**|**|**
+|<-1|等待进程组识别码为pid绝对值的任何子进程|
+|=-1|等待任何子进程相当于wait|
 |>0|单独子进程，进程id等与pid|
 |=-1|所有子进程组成|
 |**statusp**|**|**
@@ -86,6 +89,7 @@ int pause(void);
 ```
 
 * 在当前上下文中加载并运行程序
+
 ```c
 /*成功不返回，错误返回-1*/
 #include <unistd.h>
@@ -101,11 +105,13 @@ char *getenv(const char *name);
 int setenv(const char *name,const char *newvalue,int overwrite);
 void unsetenv(const char *name);
 ```
-![](../image/execve.png)
-![](../image/execve1.png)
+
+![1](../image/execve.png)
+![1](../image/execve1.png)
 
 * 信号
-![](./image/sign.png)
+
+![1](../image/sign.png)
 
 ```c
 #include <unistd.h>
@@ -140,9 +146,10 @@ typedef void(*sighandler_t)(int);
 //handler SIG_IGN 忽略 SIG_DFL 恢复默认 其他 调用
 sighandler_t signal(int signum,sighandler_t handler);
 ```
-![](./image/signal.png)
+![1](../image/signal.png)
 
 * 阻塞和解除阻塞信号
+
 ```c
 #include <signal.h>
 
@@ -160,4 +167,41 @@ int sigdelset(sigset_t *set,int signum);
 //1 signum是set成员 0 不是 -1 出错
 int sigismember(const sigset_t *set,int signum);
 ```
-![异步处理安全函数](./image/safe.png)
+![异步处理安全函数](../image/safe.png)
+
+* sigsuspend函数
+暂时用mask替换当前的阻塞集合，然后挂起该进程，知道收到一个信号  
+处理程序：从处理程序返回
+终止程序：直接终止
+
+```c
+#include <signal.h>
+int sigsuspend(const sigset_t *mask);
+//相当于下面的原子版本
+sigprocmask(SIG_SETMASK,&mask,&prev);
+pause();
+sigprocmask(SIG_SETMASK,&prev,NULL);
+```
+
+### 非本地跳转
+* `setjmp`在env缓存区中保存当前调用环境，以供后面的longjmp使用，并返回0
+* 调用环境包括程序计数器、栈指针、通用目的寄存器
+* setjmp返回的值不能被赋值给变量，但可以用在switch或条件语句测试中
+
+* longjmp从env缓存区中恢复调用环境，然后触发一个从最近一次初始化env的setjmp调用的返回
+
+```c
+#include <setjmp.h>
+int setjmp(jum_buf env);
+int sigsetjmp(sigjmp_buf env,int savesigs);
+
+void longjmp(jum_buf env,int retval);
+void siglongjmp(sigjmp_buf env,int retval);
+```
+[setjmp.c](./setjmp.c)
+
+### 操作进程的工具
+* STRACE 
+* ps 列出当前系统中的进程(包括僵死进程)
+* top 打印出关于当前进程资源使用的信息
+* pmap 显示进程的内存映射
