@@ -140,3 +140,24 @@ typedef void(*sighandler_t)(int);
 //handler SIG_IGN 忽略 SIG_DFL 恢复默认 其他 调用
 sighandler_t signal(int signum,sighandler_t handler);
 ```
+![](./image/signal.png)
+
+* 阻塞和解除阻塞信号
+```c
+#include <signal.h>
+
+//0 成功 -1 出错
+//how SIG_BLOCK blocked=blocked|set SIG_UNBLOCK blocked=blocked&~set SIG_SETMASK block=set
+int sigprocmask(int how,const sigset_t *set,sigset_t *oldset);
+//初始化set为空
+int sigemptyset(sigset_t *set);
+//把每个信号都添加到set中
+int sigfillset(sigset_t *set);
+//把signum添加到set
+int sigaddset(sigset_t *set,int signum);
+//从set删除signum
+int sigdelset(sigset_t *set,int signum);
+//1 signum是set成员 0 不是 -1 出错
+int sigismember(const sigset_t *set,int signum);
+```
+![异步处理安全函数](./image/safe.png)
