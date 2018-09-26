@@ -1,14 +1,22 @@
 /* $begin csapp.h */
 #ifndef __CSAPP_H__
 #define __CSAPP_H__
-
+/**/
 #include <stdio.h>
+/*malloc*/
 #include <stdlib.h>
+/*unix std*/
+/*read write getpid waitpid*/
 #include <unistd.h>
+/*strcmp strchr strcpy strlen*/
 #include <string.h>
+/*tolower toupper isblank*/
 #include <ctype.h>
+/*setjumo longjmp*/
 #include <setjmp.h>
+/*raise signal*/
 #include <signal.h>
+/*linux*/
 #include <sys/time.h>
 #include <sys/types.h>
 #include <sys/wait.h>

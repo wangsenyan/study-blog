@@ -71,3 +71,72 @@ pid_t waitpid(pid_t pid,int *statusp,int options);
 #include <sys/wait.h>
 pid_t wait(int *statusp);
 ```
+
+* 让进程休眠
+```c
+/*返回0或还要休眠的秒数*/
+#include <unistd.h>
+unsigned int sleep(unsigned int secs);
+```
+
+* 让进程暂停
+```c
+#include <unistd.h>
+int pause(void);
+```
+
+* 在当前上下文中加载并运行程序
+```c
+/*成功不返回，错误返回-1*/
+#include <unistd.h>
+#include <stdlib.h>
+int execve(const char *filename,const char *argv[], const char *envp[]);
+/*argc argv[]数组中非空指针的数量*/
+int main(int argc,char **argv,char **envp);
+int main(int argc,char *argv,char *envp[]);
+/*在环境数组中搜索字符串name=value*/
+//如果找到返回否则NULL
+char *getenv(const char *name);
+
+int setenv(const char *name,const char *newvalue,int overwrite);
+void unsetenv(const char *name);
+```
+![](../image/execve.png)
+![](../image/execve1.png)
+
+* 信号
+![](./image/sign.png)
+
+```c
+#include <unistd.h>
+//获得进程组id
+int getpgrp(void);
+//改变自己活其他进程的进程组 0 成功 -1失败
+//pid 0 使用当前进程PID,pgid 0 用pid指定的进程的PID作为进程组ID
+int setpgid(pid_t pid,pid_t pgid);
+```
+
+* /bin/kill -9 15213  进程  
+/bin/kill -9 -15213 进程组中所有进程
+
+```c
+#include <sys/types.h>
+#include <signal.h>
+//pid >0 进程pid =0 调用进程所在组所有进程 <0 进程组|pid|中每个进程
+int kill(pid_t pid,int sig);
+```
+
+* alarm 发出信号
+```c
+#include <unistd.h>
+unsigned int alarm(unsigned int secs);
+```
+
+* signal
+```c
+#include <signal.h>
+typedef void(*sighandler_t)(int);
+//成功 指向前次处理程序的指针，出错为SIG_ERR
+//handler SIG_IGN 忽略 SIG_DFL 恢复默认 其他 调用
+sighandler_t signal(int signum,sighandler_t handler);
+```
