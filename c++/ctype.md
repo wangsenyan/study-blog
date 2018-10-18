@@ -31,3 +31,14 @@ int main()
 	fout.open(filename);
 }
 ```
+* setf() 设置各种格式化状态,返回调用它之前有效的所有格式化设置
+* ios_base::fixed 将对象至于使用定点表示法的模式
+* ios_base::showpoint 仅对象置于显示小数点的模式，即使小数部分为零
+* width()设置下一次输出操作使用的字段宽度，只下一次有效
+* ios_base::fmtflags
+是存储这种信息所需的数据类型名称，存储格式化设置
+```cpp
+ios_base::fmtflags initial
+initial = os.setf(ios_base::fixed);
+os.setf(initial);
+```
