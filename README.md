@@ -26,7 +26,7 @@
  - [async](https://github.com/caolan/async)
  - [node测试](https://cnodejs.org/topic/55b9e875f36f579657fc52f3)
  - [typescript文档](https://www.tslang.cn/docs/home.html)
-
+ - [算法导论答案](http://sites.math.rutgers.edu/~ajl213/CLRS)
 ## 常用软件下载
  - [Robo 3T](https://robomongo.org/)
  - [XShell6/Xftp6](https://www.netsarang.com/products/main.html)
