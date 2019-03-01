@@ -14,13 +14,13 @@
   - 在提交前查看修改。
   - 提交修改。
   - 在修改完成后，如果发现错误，可以撤回提交并再次修改并提交。
-  - ![工作流程](git-process.png)
+  - ![工作流程](/image/git-process.png)
 
 ### Git 工作区、暂存区和版本库
   - 工作区: 就是你在电脑里能看到的目录。
   - 暂存区: 英文叫stage, 或index。一般存放在 ".git目录下" 下的index文件（.git/index）中，所以我们把暂存区有时也叫作索引（index）。
   - 版本库:工作区有一个隐藏目录.git，这个不算工作区，而是Git的版本库。dev/master
-  ![关系](git-stage.jpg)
+  ![关系](/image/git-stage.jpg)
   - 图片中的命令
 
 ### up
