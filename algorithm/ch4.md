@@ -1,4 +1,4 @@
-## 分治算法
+## <center>分治算法</center>
 
 * Strassen(A,B)
 
