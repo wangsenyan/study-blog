@@ -1,4 +1,11 @@
 ## GIT
+
+### 错误解决方案
+* `remote: HTTP Basic: Access denied`
+```
+   git config --system --unset credential.helper
+```
+
 ### git 配置
  |文件|环境|描述
  |------|----|----
@@ -115,14 +122,17 @@
 8. pscp -i alpahcoding-test.ppk third-party-login.js     root@192.168.5.3:/root/alphacoding/config
 
 9. git clone -b <分支名字> <地址>
-10. 创建自己的项目
+10. *创建自己的项目*
 ```
    切换到自己的项目目录，切记.gitignore 添加node_modules等
    git add . 
      //fatal: Not a git repository (or any of the parent directories): .git
    git init
    git commit -m '描述'
+   //将origin设置为远程仓库路径，包括所有分支
    git remote add origin https://git.coding.net/wangsenyan/stormshop.git
+   //将本地master和远程master分支对应
+   git branch --set-upstream-to=origin/master
    git push -u origin master  
 
 ```
