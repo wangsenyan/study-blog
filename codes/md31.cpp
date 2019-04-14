@@ -1,8 +1,9 @@
 
 #include <iostream>
 #include <math.h>
+#include <vector>
 using namespace std;
-//Î»ÔËËãµÄ³Ë·¨
+//ä½è¿ç®—çš„ä¹˜æ³•
 int bit_Multiplication(int a,int b)
 {
      int ans=0;
@@ -15,7 +16,7 @@ int bit_Multiplication(int a,int b)
 	 }
 	 return ans;
 }
-//Î»ÔËËãµÄ³ı·¨
+//ä½è¿ç®—çš„é™¤æ³•
 int bit_Division1(int x,int y)
 {
     int ans=0;
@@ -29,7 +30,7 @@ int bit_Division1(int x,int y)
 	}
 	return ans;
 }
-//¼ÆËãÕûÊıµÄ¶ş½øÖÆÎ»Êı
+//è®¡ç®—æ•´æ•°çš„äºŒè¿›åˆ¶ä½æ•°
 int bit_num(int d)
 {
    int i=0;
@@ -40,29 +41,29 @@ int bit_num(int d)
    }
    return i;
 }
-//Î»ÔËËãµÄ³ı·¨ ¼ÆËãÉÌ
+//ä½è¿ç®—çš„é™¤æ³• è®¡ç®—å•†
 int bit_Division2_quotient(int x,int y)
 {
 	int c2=bit_num(x),c1=bit_num(y),quotient=0;
-	for (int i=c2-c1;i>=0;i--)//i=c2-c1·ÀÖ¹³ıÊıyÒÆÎ»ºó³¬¹ıÎŞ·ûºÅÕûÊı×î´óÖµ Ê±¼ä¸´ÔÓ¶ÈO(c2-c1)
+	for (int i=c2-c1;i>=0;i--)//i=c2-c1é˜²æ­¢é™¤æ•°yç§»ä½åè¶…è¿‡æ— ç¬¦å·æ•´æ•°æœ€å¤§å€¼ æ—¶é—´å¤æ‚åº¦O(c2-c1)
 	{
-		unsigned int a=(y<<i);//ÓĞÁËi=c2-c1±£Ö¤ÁËy<<i²»»áÒç³ö aÓĞc1+c2-c1=c2Î»
+		unsigned int a=(y<<i);//æœ‰äº†i=c2-c1ä¿è¯äº†y<<iä¸ä¼šæº¢å‡º aæœ‰c1+c2-c1=c2ä½
 		if (a<=x)
 		{
 			quotient+=(1<<i);
 			x-=a;
 		}
 	}
-	//×ÜµÄÊ±¼ä¸´ÔÓ¶ÈÎª O(c2)=O(xµÄ¶ş½øÖÆÎ»Êı)=O(b^2) bÎª³ıÊıµÄÊ®½øÖÆÎ»Êı
+	//æ€»çš„æ—¶é—´å¤æ‚åº¦ä¸º O(c2)=O(xçš„äºŒè¿›åˆ¶ä½æ•°)=O(b^2) bä¸ºé™¤æ•°çš„åè¿›åˆ¶ä½æ•°
 	return quotient;
 }
-//Î»ÔËËãµÄ³ı·¨ ¼ÆËãÓàÊı Óë¼ÆËãÉÌÒ»Ñù£¬Ö»ÊÇ·µ»ØÖµ²»Í¬
+//ä½è¿ç®—çš„é™¤æ³• è®¡ç®—ä½™æ•° ä¸è®¡ç®—å•†ä¸€æ ·ï¼Œåªæ˜¯è¿”å›å€¼ä¸åŒ
 int bit_Division2_Remainder(int x,int y)
 {
 	int c2=bit_num(x),c1=bit_num(y),quotient=0;
-	for (int i=c2-c1;i>=0;i--)//i=c2-c1·ÀÖ¹³ıÊıyÒÆÎ»ºó³¬¹ıÎŞ·ûºÅÕûÊı×î´óÖµ Ê±¼ä¸´ÔÓ¶ÈO(c2-c1)
+	for (int i=c2-c1;i>=0;i--)//i=c2-c1é˜²æ­¢é™¤æ•°yç§»ä½åè¶…è¿‡æ— ç¬¦å·æ•´æ•°æœ€å¤§å€¼ æ—¶é—´å¤æ‚åº¦O(c2-c1)
 	{   
-		unsigned int a=(y<<i);//ÓĞÁËi=c2-c1±£Ö¤ÁËy<<i²»»áÒç³ö aÓĞc1+c2-c1=c2Î»
+		unsigned int a=(y<<i);//æœ‰äº†i=c2-c1ä¿è¯äº†y<<iä¸ä¼šæº¢å‡º aæœ‰c1+c2-c1=c2ä½
 		cout<<i<<'\t'<<a<<'\t'<<x<<endl;
 		if (a<=x)
 		{
@@ -70,15 +71,140 @@ int bit_Division2_Remainder(int x,int y)
 			x-=a;
 		}
 	}
-	//×ÜµÄÊ±¼ä¸´ÔÓ¶ÈÎª O(c2)=O(xµÄ¶ş½øÖÆÎ»Êı)=O(b^2) bÎª³ıÊıµÄÊ®½øÖÆÎ»Êı
+	//æ€»çš„æ—¶é—´å¤æ‚åº¦ä¸º O(c2)=O(xçš„äºŒè¿›åˆ¶ä½æ•°)=O(b^2) bä¸ºé™¤æ•°çš„åè¿›åˆ¶ä½æ•°
 	return x;
+}
+
+vector<int> EXTENDED_EUCLID(int a,int b)
+{  
+   std::vector<int>ans;
+   int tmp;
+   if(b==0){
+   	  ans.push_back(a);
+   	  ans.push_back(1);
+   	  ans.push_back(0);
+   }else{
+   	  ans=EXTENDED_EUCLID(b,a%b);	
+   	  tmp=ans[1]-(a/b)*ans[2];
+   	  ans[1]=ans[2];
+   	  ans[2]=tmp;
+   }
+    cout<<a<<'\t'<<b<<'\t'<<'\t'<<ans[0]<<'\t'<<ans[1]<<'\t'<<ans[2]<<endl;	
+    return ans;
+} 
+
+void EXTENDED_EUCLID_MULTIPLE(vector<int>a)
+{
+	int n=a.size();
+	if(n==1)
+	{
+	   cout<<a[0]<<'\t'<<0<<endl;
+	}else{
+	   int g=a[n-1];
+	   vector<int>x(n,1);
+	   vector<int>y(n,0);
+	   vector<int> s;
+	   for(int i=n-2;i>=0;i--)
+	   {
+	       s=EXTENDED_EUCLID(a[i],g);
+	       cout<<a[i]<<'\t'<<g<<endl;
+	       cout<<s[0]<<'\t'<<s[1]<<'\t'<<s[2]<<endl;
+	   	   g=s[0];
+	   	   x[i]=s[1];
+	   	   y[i+1]=s[2];
+	   }
+	   int m=1;
+	   for(int i=1;i<=n;i++)
+	   {
+	   	  m*=y[i];
+	   	  x[i]*=m;
+	   }
+	   for(int i=0;i<=n;i++)
+	   {
+	   	  cout<<x[i]<<'\t'<<y[i]<<endl;
+	   }
+	}
+	
+}
+
+int gcd(int a,int b)
+{
+	if(b==0)
+	  return a;
+	return gcd(b,a%b);
+}
+
+int lcm(int a,int b)
+{
+	return a/gcd(a,b)*b;
+}
+
+int lcm_multiple(vector<int>a)
+{
+   int l=a[0];
+   int n=a.size();
+   for(int i=1;i<n;i++)
+       l=lcm(l,a[i]);
+   return l;
+}
+
+int modular_exponentiation(int a,int b,int n)
+{
+	int c=0;
+	int d=1;
+	vector<int>B;
+	while(b>0)
+	{  
+	   B.push_back(b&1);
+	   b>>=1;
+	}
+	for(int i=B.size()-1;i>=0;i--)
+	{
+		c=2*c;
+		d=(d*d)%n;
+		if(B[i]==1)
+		{
+			c=c+1;
+			d=(d*a)%n;
+		}
+	}
+	return d;
+}
+
+int modular_exponentiation_reverse(int a,int b,int n)
+{
+	int c=0;
+	int d=1;
+	int s=a;
+	vector<int>B;
+	while(b>0)
+	{  
+	   B.push_back(b&1);
+	   b>>=1;
+	}
+	for(int i=0;i<B.size();i++)
+	{
+		if(B[i]==1)
+		{
+		   d=(d*s)%n;
+		}
+		s=s*s % n;
+	}
+	return d;
 }
 int main()
 {
-	cout<<bit_Multiplication(789,43)<<endl;
-	cout<<bit_Division1(789,43)<<endl;
-	cout<<"ÉÌ£º"<<bit_Division2_quotient(350,43)<<endl;
-	cout<<"ÓàÊı£º"<<bit_Division2_Remainder(789,43)<<endl;
+//	cout<<bit_Multiplication(789,43)<<endl;
+//	cout<<bit_Division1(789,43)<<endl;
+//	cout<<"å•†ï¼š"<<bit_Division2_quotient(350,43)<<endl;
+//	cout<<"ä½™æ•°ï¼š"<<bit_Division2_Remainder(789,43)<<endl;
+	//EXTENDED_EUCLID(35,50);
+	int a=modular_exponentiation_reverse(33,340,341);
+	cout<<a<<endl;
+	//vector<int> a={8,12,16,24};
+	//EXTENDED_EUCLID_MULTIPLE(a);
+	//int l=lcm_multiple(a);
+	//cout<<l<<endl;
 	return 0;
 }
 //int main()
@@ -87,8 +213,8 @@ int main()
 //	int flag=1;
 //    cout<<"enter:"<<endl;
 //    cin>>n;
-//	//O(¡Ìnlgn)
-//    for (int i=2;i<=sqrt(n);i++)//O(a=¡Ìn)
+//	//O(âˆšnlgn)
+//    for (int i=2;i<=sqrt(n);i++)//O(a=âˆšn)
 //	{
 //		int m=n,k=0;
 //		while (m%i==0)//O(k=lgn)
@@ -98,15 +224,14 @@ int main()
 //		}
 //		if (m==1&&k>1)
 //		{
-//			cout<<n<<"ÊÇ·ÇÆ½·²Ãİ,´æÔÚÒ»¸öÕûÊı"<<i<<"ËüµÄ"<<k<<"´ÎÃİ="<<n<<endl;
+//			cout<<n<<"æ˜¯éå¹³å‡¡å¹‚,å­˜åœ¨ä¸€ä¸ªæ•´æ•°"<<i<<"å®ƒçš„"<<k<<"æ¬¡å¹‚="<<n<<endl;
 //			flag=0;
 //			break;
 //		}
 //	}
 //	if (flag)
 //	{
-//		cout<<"n="<<n<<"²»´æÔÚ·ÇÆ½·²Ãİ"<<endl;
+//		cout<<"n="<<n<<"ä¸å­˜åœ¨éå¹³å‡¡å¹‚"<<endl;
 //	}
 //	return 0;
 //}
-
