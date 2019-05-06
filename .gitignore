@@ -5,3 +5,4 @@ node_modules/
 nodemoudle/cheerio/*.sql
 nodemoudle/cheerio/*.json
 *.exe
+.vscode/

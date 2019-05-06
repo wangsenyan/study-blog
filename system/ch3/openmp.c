@@ -1,6 +1,6 @@
 #include <omp.h>
 #include <stdio.h>
-#define N 100
+#define N 100  
 int main(int argc, char *argv[])
 {
   int a[N] = {0};
