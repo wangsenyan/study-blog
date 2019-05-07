@@ -2,7 +2,18 @@
 #include <string>
 #include <algorithm>
 using namespace std;
-//傅里叶？？？
+//can multiply with ftt ???
+/*
+            123456
+          X  11111
+          ----------
+            123456
+           123456
+          123456
+         123456
+        123456
+each bit equal to i+j=k,  i is first string's char position,j is second's,k is answer's
+*/
 class Solution
 {
 public:
