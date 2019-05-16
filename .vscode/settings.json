@@ -12,6 +12,7 @@
     "string": "cpp",
     "xtree": "cpp",
     "map": "cpp",
-    "sched.h": "c"
+    "sched.h": "c",
+    "deque": "cpp"
   }
 }
