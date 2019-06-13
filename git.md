@@ -1,5 +1,9 @@
 ## GIT
 
+### 切换分支删除文件
+- 从工作区删除该文件但是没有从索引中删除该文件
+  git rm --cached 文件
+
 ### 错误解决方案
 * `remote: HTTP Basic: Access denied`
 ```

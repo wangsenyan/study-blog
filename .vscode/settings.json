@@ -13,6 +13,12 @@
     "xtree": "cpp",
     "map": "cpp",
     "sched.h": "c",
-    "deque": "cpp"
+    "deque": "cpp",
+    "initializer_list": "c",
+    "list": "c",
+    "stack": "c",
+    "type_traits": "c",
+    "xutility": "c",
+    "iostream": "cpp"
   }
 }

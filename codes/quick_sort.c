@@ -70,21 +70,21 @@ int *partition_equl(int *a, int p, int r)
 {
   int x = *(a + r);
   int i = p - 1;
-  int q = p - 1;
+  //int q = p - 1;
   int t = p - 1;
   int temp;
   for (int j = p; j < r; j++)
   {
     if (*(a + j) <= x)
     {
-      t++;
+      t++; 
       temp = *(a + j);
       *(a + j) = *(a + t);
       *(a + t) = temp;
       if (temp < x)
       {
         i++;
-        q++;
+        //q++;
         temp = *(a + t);
         *(a + t) = *(a + i);
         *(a + i) = temp;
@@ -93,7 +93,8 @@ int *partition_equl(int *a, int p, int r)
   }
   *(a + r) = *(a + t + 1);
   *(a + t + 1) = x;
-  int b[2] = {q + 1, t + 1};
+  int b[2] = {i + 1, t + 1};
+  //int b[2] = {q + 1, t + 1};
   int *ptr;
   return ptr = b;
 }
