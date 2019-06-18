@@ -21,3 +21,9 @@
  8. [吴恩达深度学习](https://www.deeplearning.ai/)
 
  9. [deep learning](http://www.deeplearningbook.org/)
+
+
+### 资料
+* [《统计学习方法》算法实现](https://github.com/wangsenyan/lihang_book_algorithm)
+* [框架《Python Data Science Handbook》](https://book.douban.com/subject/26600459/)
+* [Tensorflow](https://tensorflow.google.cn/)
