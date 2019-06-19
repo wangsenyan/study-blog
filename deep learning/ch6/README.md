@@ -171,3 +171,43 @@
 ### 支持向量回归
 
 * 支持向量回归(Support Vector Regression,SVR) 假设我们能容忍f(x)与y之间最多有ε的偏差，即仅当f(x) 与 y 之间的差别绝对值大于ε时才计算损失
+
+![svr](../../image/svr.png)
+
+* SVR问题可形式化为
+
+![svr_dual](../../svr_dual.png)
+
+* C 为正则化常数，lε是上图所示的ε不敏感损失函数
+
+![svr_loss](../../svr_loss.png)
+
+* 引入松弛变量ζi和ζ'i
+
+![svr_loss_i](../../image/svr_loss_i.png)
+
+![e_loss](../../image/e_loss.png)
+
+![svr_st](../../image/svr_st.png)
+
+* 引入拉格朗日乘子 μi≥0，μi'≥0，αi≥0，αi'≥0，可得拉格朗日函数
+
+![svr_lg](../../svr_lg.png)
+
+* 将 f(xi) = ωT* xi+b带入拉格朗日函数，对ω，b,ζi,ζi'偏导为0，可得
+
+![求解](../../image/svr_solve.png)
+
+* 将解带入拉格朗日函数，得
+
+![SVR对偶问题](../../image/svr_f.png)
+
+* 上式满足KKT条件
+
+![SVR KKT](../../image/svr_kkt.png)
+
+* SVR的解
+
+![SVR的解](../../image/svr_sv.png)
+
+* 能使上式中的(αi'-αi)≠0的样本即为SVR的支持向量，他们必落在 ε 间隔带之外
