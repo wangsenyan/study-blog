@@ -1,5 +1,10 @@
 ## GIT
 
+
+### win更新
+```shell
+git update-git-for-windows
+```
 ### git diff  --ignore-all-space  忽略空格
 
 ### 切换分支删除文件
