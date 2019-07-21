@@ -5,6 +5,7 @@
 
  - [node.js中文网](http://nodejs.cn/api/)
  - [node.js英文网](https://nodejs.org/api/)
+ - [mongodb文档](https://docs.mongodb.com/?_ga=2.206475667.1470507889.1563621385-837874040.1563621385)
  - [es6](http://es6.ruanyifeng.com/)
  - [stackoverflow](https://stackoverflow.com/)
  - [babel](https://github.com/jamiebuilds/babel-handbook/blob/master/translations/zh-Hans/plugin-handbook.md)
@@ -33,3 +34,4 @@
 ## 常用软件下载
  - [Robo 3T](https://robomongo.org/)
  - [XShell6/Xftp6](https://www.netsarang.com/products/main.html)
+ - [Qt](https://account.qt.io/)
