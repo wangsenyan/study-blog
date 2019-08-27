@@ -9,6 +9,7 @@
 #include <netdb.h>
 #include <unistd.h>  //read write
 #include <errno.h>
+#include "util.h"
 #define   SERV_TCP_PORT 8000 
 
 int main(int argc,char *argv[])
@@ -57,7 +58,8 @@ int main(int argc,char *argv[])
        exit(1);
      }
     //  printf("%d",(int)sizeof(msg));
-     write(sockfd,msg,strlen(msg));
-     
-     close(sockfd);
+     //write(sockfd,msg,strlen(msg));
+     str_cli(stdin,sockfd);
+     exit(0);
+     //close(sockfd);
 }
