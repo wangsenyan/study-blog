@@ -48,14 +48,19 @@ int main(int argc,char *argv[])
     {
         clilen = sizeof(cli_addr);
         newsockfd = accept(sockfd,(struct sockaddr *)&cli_addr,&clilen);
+//        if(newsockfd<0)
+//        {
+//          if(errno==EINTR)
+//	         continue;
+//		  else{
+//             perror("can't bind local address");
+//             exit(1);
+//		   } 
+//		}
         if(newsockfd<0)
         {
-          if(errno==EINTR)
-	         continue;
-		  else{
-             perror("can't bind local address");
-             exit(1);
-		   } 
+            perror("can't bind local address");
+            exit(1);
 		}
         if((childpid = fork())==0)
         {

@@ -25,7 +25,9 @@ void str_cli(FILE *fp,int sockfd)
 {
 	char sendline[MAXLINE],recvline[MAXLINE];
 	while(fgets(sendline,MAXLINE,fp)!=NULL){
-		writen(sockfd,sendline,strlen(sendline));
+		writen(sockfd,sendline,1);
+		sleep(1);
+		writen(sockfd,sendline+1,strlen(sendline)-1);
 		if(readline(sockfd,recvline,MAXLINE)==0)
 		{
 			perror("str_cli:server terminated prematurely");
@@ -126,8 +128,9 @@ void sig_chld(int signal)
 {
 	pid_t pid;
 	int stat;
-	pid = wait(&stat);//wait取到子进程的pid和终止状态 
-	printf("child %d terminated\n",pid);
+	//pid = wait(&stat);//wait取到子进程的pid和终止状态 
+	while((pid=waitpid(-1,&stat,WNOHANG))>0)
+	  printf("child %d terminated\n",pid);
 	return;
 }
 
