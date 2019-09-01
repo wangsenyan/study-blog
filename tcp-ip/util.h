@@ -1,6 +1,8 @@
 #ifndef _UTIL_H_
 #define MAXLINE 2047
 #define LISTENQ 1024
+#define INFTIM -1
+#define OPEN_MAX 256
 #define MAX(a, b) ((a > b) ? a : b)
 typedef void Sigfunc(int);
 void str_echo(int sockfd);

@@ -166,3 +166,45 @@ int pselect(int maxfdp1,fd_set *readset,fd_set *writeset,fd_set *exceptset,const
 
 * sigmask
   - 允许程序先禁止递交某些信号，再测试由这些当前被禁止信号的信号处理函数设置的全局变量，然后调用pselect,告诉他重新设置信号掩码
+
+### poll函数
+```c
+#include <poll.h>
+struct pollfd {
+  int fd; /* descriptor to check */
+  short events; /* events of interest on fd */
+  short revents; /* events that occurred on fd */
+}
+int poll(struct pollfd *fdarray,unsigned long nfds,int timeout);
+//返回：若有就绪描述符则为其数目，若超时则为0，若出货则为-1
+```
+
+* 要测试的条件由events成员指定
+* 函数在相应的revents成员中返回该描述符的状态
+* poll 识别三类数据：普通(normal)，优先级带(priority band)和高优先级(high priority) 
+![poll](../../image/poll.png)
+
+* POLLERR 在条件成立时总是返回
+
+## 习题
+6.4 
+```c
+include      <sys/resource.h>
+struct rlimit           limit;
+
+bzero(&limit,sizeof(limit));
+if(getrlimit(RLIMIT_NOFILE,&limit)<0)
+        printf("error getting maxfile.\n");
+else{
+        printf("soft limit: %lu, hard limit: %lu\n",limit.rlim_cur,limit.rlim_max);
+        limit.rlim_cur=limit.rlim_max;
+        if(setrlimit(RLIMIT_NOFILE,&limit)<0){
+                printf("set error\n");
+        }
+        if(getrlimit(RLIMIT_NOFILE,&limit)<0)
+                printf("error getting maxfile.\n");
+        else{
+                printf("soft limit: %lu, hard limit: %lu\n",limit.rlim_cur,limit.rlim_max);
+        }
+}
+```
