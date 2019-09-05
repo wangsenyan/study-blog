@@ -122,3 +122,59 @@ int setsockopt(int sockfd,int level,int optname,const void *optval,socklen_t opt
   - 这两个选项允许我们给套接字的接收和发送设置一个套接字
   - 接收超时影响5个输入函数：read、readv、recv、recvfrom、recvmsg
   - 发送超时影响5个输出函数：write、writev、send、sendto、sendmsg
+
+
+### TCP套接字选项
+* 级别 IPPROTO_TCP
+* TCP_MAXSEG 
+  - 获取或设置TCP连接的最大分节大小(MSS),返回值是我们的TCP可以发送给对端的最大数据量，它通常是由对端使用SYN分节通告的MSS
+
+* TCP_NODELAY 
+  - 开启本选项将禁止TCP的Nagle算法，默认是该算法是开启的
+  - Nagle算法的目的在于减少广域网(WAN)上小分组的数目，如果某个给定连接上有待确认数据，那么原本应该作为用户写操作之响应的在该连接上立即发送相应小分组的行为就不会发生，直到现有数据被确认为止。
+  - 小分组：定义为小于MSS的任何分组
+  - Nagle算法常常和另一个TCP算法联合使用：ACK延迟算法
+  - ACK延迟算法：该算法使得TCP接收到数据后不立即发送ACK，而是等待一小段时间(典型值为50 ~ 200ms)，然后才发送ACK。TCP期待在这一小段时间内自身有数据发送回对端，被延滞的ACK就可以由这些数据捎带，从而省掉一个TCP分节。
+  - 不适合Nagle算法和TCP延滞算法的客户是以若干小片数据向服务器发送单个逻辑请求的客户
+  - 修正上面的问题
+    - 使用writev,TCP输出功能一次而不是两次，只产生一个TCP分节
+    - 把两部分数据复制到单个缓冲区中，然后对该缓冲区调用一次write
+    - 设置TCP_NODELAY，不可取
+  
+![Nagle](../../image/nagle.png)
+
+
+### fcntl函数
+
+![fcntl](../../image/fcntl.png)
+
+* 前6个操作可由任何进程应用于套接字
+* 后两个操作由诸如ifconfig和route之类管理程序执行
+* fcntl函数提供了与网络编程相关的如下特性
+  - 非阻塞式I/O，通过使用 F_SETFL命令设置O_NONBLOCK文件标志
+  - 信号驱动式I/O。通过使用F_SETFL命令设置O_ASYNC文件标志，SIGIO信号
+  - F_SETOWN命令允许我们指定用于接收SIGIN和SIGURG信号的套接字属主(进程ID或进程组ID)
+     - SIGIO 设置为信号驱动式I/O型后产生
+     - SIGURG 信号是在新的带外数据到达套接字时产生
+     - F_GETOWN命令返回套接字的当前属主
+
+```c
+#include <fcntl.h>
+int fcntl(int fd,int cmd,.../*int arg*/);
+//若成功，则取决于cmd,若出错则为-1
+
+
+//正确开启非阻塞式I/O的典型代码
+int flag;
+if((flag=fcntl(fd,F_GETFL,0))<0)
+    err_sys("F_GETFL error");
+flag |= O_NONBLOCK;
+if(fcntl(fd,F_SETFL,0)<0)
+     err_sys("F_SETFL eror");
+
+
+//正确关闭非阻塞标志
+flag & = ~O_NONBLOCK;
+if(fcntl(fd,F_SETFL,0)<0)
+    err_sys("F_SETFL error");
+```
