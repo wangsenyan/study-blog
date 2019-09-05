@@ -12,6 +12,8 @@ ssize_t readn(int fd, void *vptr, size_t n);
 ssize_t readline(int fd, void *vptr, size_t maxlen);
 Sigfunc *signal(int signo, Sigfunc *func);
 void sig_chld(int signal);
+void dg_echo(int sockfd, struct sockaddr *pcliaddr, socklen_t clilen);
+void dg_cli(FILE *fp, int sockfd, const struct sockaddr *pservaddr, socklen_t servlen);
 struct args
 {
   long arg1;
