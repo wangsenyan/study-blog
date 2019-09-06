@@ -7,6 +7,7 @@
 #include <sys/wait.h>
 #include <sys/socket.h>
 #include "util.h"
+#include "sock_ntop.h"
 void str_echo(int sockfd)
 {
   ssize_t n;
@@ -292,15 +293,88 @@ void dg_echo(int sockfd, struct sockaddr *pcliaddr, socklen_t clilen)
   }
 }
 
+void dg_echo_calc(int sockfd, struct sockaddr *pcliaddr, socklen_t clilen)
+{
+  int n;
+
+  socklen_t len;
+  char mesg[MAXLINE];
+  signal(SIGINT, recvfrom_int);
+
+  n = 220 * 1024;
+  setsockopt(sockfd, SOL_SOCKET, SO_RCVBUF, &n, sizeof(n)); //设置套接字缓冲区大小
+
+  for (;;)
+  {
+    len = clilen;
+    recvfrom(sockfd, mesg, MAXLINE, 0, pcliaddr, &len);
+    count++;
+  }
+}
+
+static void recvfrom_int(int signc)
+{
+  printf("\nreceived %d datagrams\n", count);
+  exit(0);
+}
+//不保留服务器端？
+// void dg_cli(FILE *fp, int sockfd, const struct sockaddr *pservaddr, socklen_t servlen)
+// {
+//   int n;
+//   char sendline[MAXLINE], recvline[MAXLINE + 1];
+//   while (fgets(sendline, MAXLINE, fp) != NULL)
+//   {
+//     sendto(sockfd, sendline, strlen(sendline), 0, pservaddr, servlen);
+//     n = recvfrom(sockfd, recvline, MAXLINE, 0, NULL, NULL);
+//     recvline[n] = 0;
+//     fputs(recvline, stdout);
+//   }
+// }
+
 void dg_cli(FILE *fp, int sockfd, const struct sockaddr *pservaddr, socklen_t servlen)
 {
   int n;
   char sendline[MAXLINE], recvline[MAXLINE + 1];
+  socklen_t len;
+  struct sockaddr *preply_addr;
+  preply_addr = malloc(servlen);
   while (fgets(sendline, MAXLINE, fp) != NULL)
   {
     sendto(sockfd, sendline, strlen(sendline), 0, pservaddr, servlen);
-    n = recvfrom(sockfd, recvline, MAXLINE, 0, NULL, NULL);
+    len = servlen;
+    n = recvfrom(sockfd, recvline, MAXLINE, 0, preply_addr, &len);
+    if (len != servlen || memcmp(pservaddr, preply_addr, len) != 0)
+    {
+      printf("reply from %s (ignore)\n", sock_ntop(preply_addr, len));
+      continue;
+    }
     recvline[n] = 0;
     fputs(recvline, stdout);
+  }
+}
+
+void dg_cli_conn(FILE *fp, int sockfd, const struct sockaddr *pservaddr, socklen_t servlen)
+{
+  int n;
+  char sendline[MAXLINE], recvline[MAXLINE + 1];
+
+  connect(sockfd, (struct sockaddr *)pservaddr, servlen);
+  while (fgets(sendline, MAXLINE, fp) != NULL)
+  {
+
+    write(sockfd, sendline, strlen(sendline));
+    n = read(sockfd, recvline, MAXLINE);
+    recvline[n] = 0;
+    fputs(recvline, stdout);
+  }
+}
+
+void dg_cli_bigdata(FILE *fp, int sockfd, const struct sockaddr *pservaddr, socklen_t servlen)
+{
+  int i;
+  char sendline[DGLEN];
+  for (i = 0; i < NDG; i++)
+  {
+    sendto(sockfd, sendline, DGLEN, 0, pservaddr, servlen);
   }
 }

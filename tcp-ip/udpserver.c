@@ -17,5 +17,5 @@ int main(int argc, char **argv)
   servaddr.sin_port = htons(8000);
 
   bind(sockfd, (struct sockaddr *)&servaddr, sizeof(servaddr)); //协议无关的
-  dg_echo(sockfd, (struct sockaddr *)&cliaddr, sizeof(cliaddr));
+  dg_echo_calc(sockfd, (struct sockaddr *)&cliaddr, sizeof(cliaddr));
 }
