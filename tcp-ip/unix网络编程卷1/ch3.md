@@ -19,7 +19,7 @@ struct sockaddr_in{
 ```
 sin_addr 字段是一个结构，而in_addr_t 是无符号长整数
 结构本身不在主机之间传递
-![posix数据类型](../image/posix_types.png)
+![posix数据类型](../../image/posix_types.png)
 
 
 * 通用套接字地址结构
@@ -74,7 +74,7 @@ struct sockaddr_storage{
 }
 ```
 
-![sockaddr](../image/sockaddr.png)
+![sockaddr](../../image/sockaddr.png)
 
 ### 值-结果参数
 
@@ -89,7 +89,7 @@ struct sockaddr_in serv
 connect(sockfd,(sockaddr *)&serv,sizeof(serv));
 ```
 
-![copyvalue](../image/copyvalue.png)
+![copyvalue](../../image/copyvalue.png)
 
 >> 从内核传递到进程,值结果参数，传递指针是需要返回
 - accept
@@ -103,11 +103,11 @@ socklen_t len;
 len = sizeof(cli);
 getpeername(unixfd,(SA*)&cli,&len);
 ```
-![keyvalue](../image/keyvalue.png)
+![keyvalue](../../image/keyvalue.png)
 
 ### 字节排序函数
 * 经常使用的是大端字节序
-![little-endian](../image/endian.png)
+![little-endian](../../image/endian.png)
 * 网际协议使用大端字节序来传递这些多字节整数
 * 在主机字节序和网络字节序之间相互转换
 ```c
@@ -160,7 +160,7 @@ const char *inet_ntop(int family,const void *addrptr,char *strptr,size_t len);
 //不支持的family，errno = EAFNOSUPPORT
 //len太小，返回空指针，并置errno = ENOSPC
 ```
-![pton](../image/pton.png)
+![pton](../../image/pton.png)
 
 ```c
 int inet_pton(int family,const char *strptr,void *addrptr)
