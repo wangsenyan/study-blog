@@ -101,7 +101,7 @@ struct sockaddr_un cli;
 socklen_t len;
 
 len = sizeof(cli);
-getpeername(unixfd,(SA*)&cli,&len);
+getpeername(unixfd,(SA*)&cli,&len); //获取与某个套接字管关联的外地协议地址
 ```
 ![keyvalue](../../image/keyvalue.png)
 

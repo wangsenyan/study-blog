@@ -20,6 +20,7 @@ void dg_cli_conn(FILE *fp, int sockfd, const struct sockaddr *pservaddr, socklen
 void dg_cli_bigdata(FILE *fp, int sockfd, const struct sockaddr *pservaddr, socklen_t servlen);
 void dg_echo_calc(int sockfd, struct sockaddr *pcliaddr, socklen_t clilen);
 int tcp_connect(const char *host, const char *serv);
+int tcp_listen(const char *host, const char *serv, socklen_t *addrlenp);
 static void recvfrom_int(int);
 static int count;
 struct args

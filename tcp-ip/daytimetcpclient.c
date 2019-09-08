@@ -5,9 +5,10 @@
 #include <sys/socket.h>
 #include <netdb.h>
 #include <arpa/inet.h> //inet_aton
-#include "util.h"
 #include "sock_ntop.h"
+#include "util.h"
 
+//同时支持IPv4和IPv6
 int main(int argc, char **argv)
 {
   int sockfd, n;
@@ -24,6 +25,7 @@ int main(int argc, char **argv)
   getpeername(sockfd, (struct sockaddr *)&ss, &len);
   printf("connected to %s\n", sock_ntop((struct sockaddr *)&ss, len));
 
+  //str_cli(stdin, sockfd);
   while ((n = read(sockfd, recvline, MAXLINE)) > 0)
   {
     recvline[n] = 0;

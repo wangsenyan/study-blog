@@ -8,10 +8,12 @@
 #include <sys/socket.h>
 #include "util.h"
 #include "sock_ntop.h"
+#include <netdb.h>
 void str_echo(int sockfd)
 {
   ssize_t n;
   char buf[MAXLINE];
+  // write(sockfd, "hello world", sizeof("hello world"));
 again:
   while ((n = read(sockfd, buf, MAXLINE)) > 0)
     write(sockfd, buf, n);
@@ -388,7 +390,7 @@ int tcp_connect(const char *host, const char *serv)
   hints.ai_socktype = SOCK_STREAM;
   if ((n = getaddrinfo(host, serv, &hints, &res)) != 0)
   {
-    printf("tcp_connect error for %s, %s: %s", host, serv, gai_strerror(n));
+    printf("tcp_connect error for %s, %s: %s\n", host, serv, gai_strerror(n));
     exit(0);
   }
   ressave = res;
@@ -405,4 +407,41 @@ int tcp_connect(const char *host, const char *serv)
     printf("tcp_connect error for %s,  %s", host, serv);
   freeaddrinfo(ressave);
   return (sockfd);
+}
+
+int tcp_listen(const char *host, const char *serv, socklen_t *addrlenp)
+{
+  int listenfd, n;
+  const int on = 1;
+  struct addrinfo hints, *res, *ressave;
+  bzero(&hints, sizeof(struct addrinfo));
+  hints.ai_flags = AI_PASSIVE;
+  hints.ai_family = AF_UNSPEC;
+  hints.ai_socktype = SOCK_STREAM;
+
+  if ((n = getaddrinfo(host, serv, &hints, &res)) != 0)
+  {
+    printf("tcp_listen error for %s, %s: %s\n", host, serv, gai_strerror(n));
+    exit(0);
+  }
+  ressave = res;
+  do
+  {
+    listenfd = socket(res->ai_family, res->ai_socktype, res->ai_protocol);
+    if (listenfd < 0)
+      continue;
+    setsockopt(listenfd, SOL_SOCKET, SO_REUSEADDR, &on, sizeof(on)); //重复绑定
+    if (bind(listenfd, res->ai_addr, res->ai_addrlen) == 0)
+      break;
+    close(listenfd);
+  } while ((res = res->ai_next) != NULL);
+  if (res == NULL)
+  {
+    printf("tcp_listen error for %s, %s\n", host, serv);
+  }
+  listen(listenfd, LISTENQ);
+  if (addrlenp)
+    *addrlenp = res->ai_addrlen;
+  freeaddrinfo(ressave);
+  return (listenfd);
 }
