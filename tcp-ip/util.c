@@ -445,3 +445,95 @@ int tcp_listen(const char *host, const char *serv, socklen_t *addrlenp)
   freeaddrinfo(ressave);
   return (listenfd);
 }
+
+int udp_client(const char *hostname, const char *service, struct sockaddr **saptr, socklen_t *lenp)
+{
+  int sockfd, n;
+  struct addrinfo hints, *res, *ressave;
+
+  bzero(&hints, sizeof(struct addrinfo));
+  hints.ai_family = AF_UNSPEC;
+  hints.ai_socktype = SOCK_DGRAM;
+  if ((n = getaddrinfo(hostname, service, &hints, &res)) != 0)
+  {
+    printf("udp_client error for %s, %s: %s\n", hostname, service, gai_strerror(n));
+    exit(0);
+  }
+  ressave = res;
+  do
+  {
+    sockfd = socket(res->ai_family, res->ai_socktype, res->ai_protocol);
+    if (sockfd >= 0)
+      break;
+  } while ((res = res->ai_next) != NULL);
+  if (res == NULL)
+  {
+    printf("udp_client error for %s, %s\n", hostname, service);
+  }
+  *saptr = malloc(res->ai_addrlen);
+  memcpy(*saptr, res->ai_addr, res->ai_addrlen);
+  *lenp = res->ai_addrlen;
+
+  freeaddrinfo(ressave);
+  return (sockfd);
+}
+
+int udp_connect(const char *hostname, const char *service)
+{
+  int sockfd, n;
+  struct addrinfo hints, *res, *ressave;
+  bzero(&hints, sizeof(struct addrinfo));
+  hints.ai_family = AF_UNSPEC;
+  hints.ai_socktype = SOCK_DGRAM;
+  if ((n = getaddrinfo(hostname, service, &hints, &res)) != 0)
+  {
+    printf("udp_connect error for %s, %s: %s", hostname, service, gai_strerror(n));
+    exit(0);
+  }
+  ressave = res;
+  do
+  {
+    sockfd = socket(res->ai_family, res->ai_socktype, res->ai_protocol);
+    if (sockfd < 0)
+      continue;
+    if (connect(sockfd, res->ai_addr, res->ai_addrlen) == 0)
+      break;
+    close(sockfd);
+  } while ((res = res->ai_next) != NULL);
+  if (res == NULL)
+    printf("udp_connect error for %s, %s", hostname, service);
+  freeaddrinfo(ressave);
+  return (sockfd);
+}
+
+int udp_server(const char *hostname, const char *service, socklen_t *lenptr)
+{
+  int sockfd, n;
+  struct addrinfo hints, *res, *ressave;
+  bzero(&hints, sizeof(struct addrinfo));
+  hints.ai_flags = AI_PASSIVE;
+  hints.ai_family = AF_UNSPEC;
+  hints.ai_socktype = SOCK_DGRAM;
+
+  if ((n = getaddrinfo(hostname, service, &hints, &res)) != 0)
+  {
+    printf("udp_server error for %s, %s: %s\n", hostname, service, gai_strerror(n));
+    exit(0);
+  }
+  ressave = res;
+  do
+  {
+    sockfd = socket(res->ai_family, res->ai_socktype, res->ai_protocol);
+    if (sockfd < 0)
+      continue;
+    if (bind(sockfd, res->ai_addr, res->ai_addrlen) == 0)
+      break;
+    close(sockfd);
+  } while ((res = res->ai_next) != NULL);
+  if (res == NULL)
+    printf("udp_server error for %s, %s", hostname, service);
+  if (lenptr)
+    *lenptr = res->ai_addrlen;
+  freeaddrinfo(ressave);
+  return (sockfd);
+}
