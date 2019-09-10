@@ -9,6 +9,10 @@
 #include "util.h"
 #include "sock_ntop.h"
 #include <netdb.h>
+#include <syslog.h>
+#include <fcntl.h>
+#include <stdarg.h>
+int daemon_proc;
 void str_echo(int sockfd)
 {
   ssize_t n;
@@ -25,6 +29,7 @@ again:
     exit(1);
   }
 }
+
 //int snprintf(char *str, int n, char * format [, argument, ...]);
 //字符串传递参数
 // void str_echo(int sockfd)
@@ -536,4 +541,93 @@ int udp_server(const char *hostname, const char *service, socklen_t *lenptr)
     *lenptr = res->ai_addrlen;
   freeaddrinfo(ressave);
   return (sockfd);
+}
+
+int deamon_init(const char *pname, int facility)
+{
+  int i;
+  pid_t pid;
+
+  if ((pid = fork()) < 0)
+    return (-1);
+  else if (pid)
+    _exit(0);
+
+  if (setsid() < 0)
+    return (-1);
+
+  signal(SIGHUP, SIG_IGN);
+  //再次fork目的:确保本守护进程将来即使打开一个终端，也不会自动获得控制终端
+  if ((pid = fork()) < 0)
+    return (-1);
+  else if (pid)
+    _exit(0);
+
+  daemon_proc = 1;
+  chdir("/");
+  for (i = 0; i < MAXFD; i++)
+    close(i);
+  open("/dev/null", O_RDONLY);
+  open("/dev/null", O_RDWR);
+  open("/dev/null", O_RDWR);
+  openlog(pname, LOG_PID, facility);
+  return (0);
+}
+
+void err_exit(int error, const char *fmt, ...)
+{
+  va_list ap;
+
+  va_start(ap, fmt);
+  err_doit(1, error, fmt, ap);
+  va_end(ap);
+  exit(1);
+}
+
+void err_msg(const char *fmt, ...)
+{
+  va_list ap;
+
+  va_start(ap, fmt);
+  err_doit(0, 0, fmt, ap);
+  va_end(ap);
+}
+void err_quit(const char *fmt, ...)
+{
+  va_list ap;
+
+  va_start(ap, fmt);
+  err_doit(0, 0, fmt, ap);
+  va_end(ap);
+  exit(1);
+}
+
+void err_sys(const char *fmt, ...)
+{
+  va_list ap;
+
+  va_start(ap, fmt);
+  err_doit(1, errno, fmt, ap);
+  va_end(ap);
+  exit(1);
+}
+void err_ret(const char *fmt, ...)
+{
+  va_list ap;
+
+  va_start(ap, fmt);
+  err_doit(1, errno, fmt, ap);
+  va_end(ap);
+}
+
+static void err_doit(int errnoflag, int error, const char *fmt, va_list ap)
+{
+  char buf[MAXLINE];
+  vsnprintf(buf, MAXLINE, fmt, ap);
+  if (errnoflag)
+    snprintf(buf + strlen(buf), MAXLINE - strlen(buf), ": %s", strerror(error));
+  strcat(buf, "\n");
+  fflush(stdout); /* in case stdout and stderr are the same */
+  fputs(buf, stderr);
+  fflush(NULL); /* flushes all stdio output streams */
 }

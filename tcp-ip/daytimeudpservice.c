@@ -27,6 +27,7 @@ int main(int argc, char **argv)
   {
     len = sizeof(cliaddr);
     n = recvfrom(sockfd, buff, MAXLINE, 0, (struct sockaddr *)&cliaddr, &len);
+    // n = recvfrom(sockfd, buff, MAXLINE, 0, (void **)&cliaddr, &len);
     printf("datagram from %s\n", sock_ntop((struct sockaddr *)&cliaddr, len));
     ticks = time(NULL);
     snprintf(buff, sizeof(buff), "%.24s\r\n", ctime(&ticks));
