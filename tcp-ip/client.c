@@ -79,7 +79,7 @@ int main(int argc,char *argv[])
     //  printf("%d",(int)sizeof(msg));
      //write(sockfd,msg,strlen(msg));
     //str_cli(stdin,sockfd[0]);
-    str_cli(stdin,sockfd);
+    str_cli_poll(stdin,sockfd);
     exit(0);
      //close(sockfd);
 }

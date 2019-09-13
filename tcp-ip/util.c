@@ -12,6 +12,7 @@
 #include <syslog.h>
 #include <fcntl.h>
 #include <stdarg.h>
+#include <sys/devpoll.h>
 int daemon_proc;
 void str_echo(int sockfd)
 {
@@ -325,20 +326,36 @@ static void recvfrom_int(int signc)
   exit(0);
 }
 //不保留服务器端？
-// void dg_cli(FILE *fp, int sockfd, const struct sockaddr *pservaddr, socklen_t servlen)
-// {
-//   int n;
-//   char sendline[MAXLINE], recvline[MAXLINE + 1];
-//   while (fgets(sendline, MAXLINE, fp) != NULL)
-//   {
-//     sendto(sockfd, sendline, strlen(sendline), 0, pservaddr, servlen);
-//     n = recvfrom(sockfd, recvline, MAXLINE, 0, NULL, NULL);
-//     recvline[n] = 0;
-//     fputs(recvline, stdout);
-//   }
-// }
+static void sig_alarm(int signo)
+{
+  return;
+}
 
 void dg_cli(FILE *fp, int sockfd, const struct sockaddr *pservaddr, socklen_t servlen)
+{
+  int n;
+  char sendline[MAXLINE], recvline[MAXLINE + 1];
+  signal(SIGALRM, sig_alarm);
+  while (fgets(sendline, MAXLINE, fp) != NULL)
+  {
+    sendto(sockfd, sendline, strlen(sendline), 0, pservaddr, servlen);
+    alarm(5);
+    if((n = recvfrom(sockfd, recvline, MAXLINE, 0, NULL, NULL))<0)
+    {
+      if(errno==EINTR)
+        fprintf(stderr, "socket timeout\n");
+      else
+        err_sys("recvfrom error");
+    }else{
+      alarm(0);
+      recvline[n] = 0;
+      fputs(recvline, stdout);
+    }
+    //n = recvfrom(sockfd, recvline, MAXLINE, 0, NULL, NULL);
+  }
+}
+
+void dg_cli_pri(FILE *fp, int sockfd, const struct sockaddr *pservaddr, socklen_t servlen)
 {
   int n;
   char sendline[MAXLINE], recvline[MAXLINE + 1];
@@ -630,4 +647,134 @@ static void err_doit(int errnoflag, int error, const char *fmt, va_list ap)
   fflush(stdout); /* in case stdout and stderr are the same */
   fputs(buf, stderr);
   fflush(NULL); /* flushes all stdio output streams */
+}
+
+int connect_timeo(int sockfd,const struct sockaddr *saptr,socklen_t salen,int nsec)
+{
+  Sigfunc *sigfunc;
+  int n;
+  sigfunc = signal(SIGALRM, connect_alarm);
+  if(alarm(nsec)!=0)
+    err_msg("connect_timeo: alarm war already set");
+  if((n=connect(sockfd,saptr,salen))<0){
+    close(sockfd);
+    if(errno==EINTR)
+      errno = ETIMEDOUT;
+  }
+  alarm(0);
+  signal(SIGALRM, sigfunc);
+  return (n);
+}
+
+static void connect_alarm(int signo)
+{
+  return;
+}
+
+//返回：出错时为-1，超时发生时为0，否则返回正值给出已就绪描述符的数目
+int readable_timeo(int fd,int sec)
+{
+  fd_set rset;
+  struct timeval tv;
+  FD_ZERO(&rset);
+  FD_SET(fd, &rset);
+  tv.tv_sec = sec;
+  tv.tv_usec = 0;
+  return (select(fd + 1, &rset, NULL, NULL, NULL));
+}
+
+//为单个套接字设置select
+void dg_cli_select(FILE *fp,int sockfd,const struct sockaddr *pservaddr,socklen_t servlen)
+{
+  int n;
+  char sendline[MAXLINE], recvline[MAXLINE + 1];
+  while (fgets(sendline,MAXLINE,fp)!=NULL)
+  {
+    sendto(sockfd, sendline, strlen(sendline), 0, pservaddr, servlen);
+    if(readable_timeo(sockfd,5)==0)
+      fprintf(stderr, "socket timeout\n");
+    else{
+      n = recvfrom(sockfd, recvline, MAXLINE, 0, NULL, NULL);
+      recvline[n] = 0;
+      fputs(recvline, stdout);
+    }
+  }
+}
+
+void dg_cli_so(FILE *fp,int sockfd,const struct sockaddr *pservaddr,socklen_t servlen)
+{
+  int n;
+  char sendline[MAXLINE], recvline[MAXLINE + 1];
+  struct timeval tv;
+  tv.tv_sec = 5;
+  tv.tv_usec = 0;
+  setsockopt(sockfd, SOL_SOCKET, SO_RCVTIMEO, &tv, sizeof(tv));
+  while (fgets(sendline,MAXLINE,fp)!=NULL)
+  {
+    sendto(sockfd, sendline, strlen(sendline), 0, pservaddr, servlen);
+    n = recvfrom(sockfd, recvline, MAXLINE, 0, NULL, NULL);
+    if(n < 0){
+      if(errno==EWOULDBLOCK){
+        fprintf(stderr, "socket timeout\n");
+        continue;
+      }else
+        err_sys("recvfrom error");
+    }
+    recvline[n] = 0;
+    fputs(recvline, stdout);
+  }
+  
+}
+// /dev/poll tcp 
+void str_cli_poll(FILE *fp,int sockfd)
+{
+  int stdineof;
+  char buf[MAXLINE];
+  int n;
+  int wfd;
+  struct pollfd pollfd[2];
+  struct dvpoll dopoll;
+  int i;
+  int result;
+
+  wfd = open("dev/poll", O_RDWR, 0);
+  pollfd[0].fd = fileno(fp);
+  pollfd[0].events = POLLIN;
+  pollfd[0].revents = 0;
+
+  pollfd[1].fd = sockfd;
+  pollfd[1].events = POLLIN;
+  pollfd[1].revents = 0;
+
+  write(wfd, pollfd, sizeof(struct pollfd) * 2);
+
+  stdineof = 0;
+  for (;;)
+  {
+    dopoll.dp_timeout = -1;
+    dopoll.dp_nfds = 2;
+    dopoll.dp_fds = pollfd;
+
+    result = ioctl(wfd, DP_POLL, &dopoll);
+    for (i = 0; i < result;i++)
+    {
+      if(dopoll.dp_fds[i].fd == sockfd){
+         if((n=read(sockfd,buf,MAXLINE))==0){
+           if(stdineof==1)
+             return;
+            else
+              err_quit("str_cli_poll:server terminated prematurely");
+         }
+         write(fileno(fp), buf, n);
+      }else{
+        if((n=read(fileno(fp),buf,MAXLINE))==0)
+        {
+          stdineof = 1;
+          shutdown(sockfd, SHUT_WR);
+          continue;
+        }
+        writen(sockfd, buf, n);
+      }
+    }
+  }
 }

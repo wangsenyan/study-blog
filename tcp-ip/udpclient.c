@@ -21,7 +21,7 @@ int main(int argc, char **argv)
   inet_pton(AF_INET, argv[1], &servaddr.sin_addr);
 
   sockfd = socket(AF_INET, SOCK_DGRAM, 0);
-  dg_cli(stdin, sockfd, (struct sockaddr *)&servaddr, sizeof(servaddr));
+  dg_cli_so(stdin, sockfd, (struct sockaddr *)&servaddr, sizeof(servaddr));
   //dg_cli_bigdata(stdin, sockfd, (struct sockaddr *)&servaddr, sizeof(servaddr));
   exit(0);
 }
