@@ -12,7 +12,7 @@
 #include <syslog.h>
 #include <fcntl.h>
 #include <stdarg.h>
-#include <sys/devpoll.h>
+//#include <sys/devpoll.h>
 int daemon_proc;
 void str_echo(int sockfd)
 {
@@ -340,13 +340,15 @@ void dg_cli(FILE *fp, int sockfd, const struct sockaddr *pservaddr, socklen_t se
   {
     sendto(sockfd, sendline, strlen(sendline), 0, pservaddr, servlen);
     alarm(5);
-    if((n = recvfrom(sockfd, recvline, MAXLINE, 0, NULL, NULL))<0)
+    if ((n = recvfrom(sockfd, recvline, MAXLINE, 0, NULL, NULL)) < 0)
     {
-      if(errno==EINTR)
+      if (errno == EINTR)
         fprintf(stderr, "socket timeout\n");
       else
         err_sys("recvfrom error");
-    }else{
+    }
+    else
+    {
       alarm(0);
       recvline[n] = 0;
       fputs(recvline, stdout);
@@ -649,16 +651,17 @@ static void err_doit(int errnoflag, int error, const char *fmt, va_list ap)
   fflush(NULL); /* flushes all stdio output streams */
 }
 
-int connect_timeo(int sockfd,const struct sockaddr *saptr,socklen_t salen,int nsec)
+int connect_timeo(int sockfd, const struct sockaddr *saptr, socklen_t salen, int nsec)
 {
   Sigfunc *sigfunc;
   int n;
   sigfunc = signal(SIGALRM, connect_alarm);
-  if(alarm(nsec)!=0)
+  if (alarm(nsec) != 0)
     err_msg("connect_timeo: alarm war already set");
-  if((n=connect(sockfd,saptr,salen))<0){
+  if ((n = connect(sockfd, saptr, salen)) < 0)
+  {
     close(sockfd);
-    if(errno==EINTR)
+    if (errno == EINTR)
       errno = ETIMEDOUT;
   }
   alarm(0);
@@ -672,7 +675,7 @@ static void connect_alarm(int signo)
 }
 
 //返回：出错时为-1，超时发生时为0，否则返回正值给出已就绪描述符的数目
-int readable_timeo(int fd,int sec)
+int readable_timeo(int fd, int sec)
 {
   fd_set rset;
   struct timeval tv;
@@ -684,16 +687,17 @@ int readable_timeo(int fd,int sec)
 }
 
 //为单个套接字设置select
-void dg_cli_select(FILE *fp,int sockfd,const struct sockaddr *pservaddr,socklen_t servlen)
+void dg_cli_select(FILE *fp, int sockfd, const struct sockaddr *pservaddr, socklen_t servlen)
 {
   int n;
   char sendline[MAXLINE], recvline[MAXLINE + 1];
-  while (fgets(sendline,MAXLINE,fp)!=NULL)
+  while (fgets(sendline, MAXLINE, fp) != NULL)
   {
     sendto(sockfd, sendline, strlen(sendline), 0, pservaddr, servlen);
-    if(readable_timeo(sockfd,5)==0)
+    if (readable_timeo(sockfd, 5) == 0)
       fprintf(stderr, "socket timeout\n");
-    else{
+    else
+    {
       n = recvfrom(sockfd, recvline, MAXLINE, 0, NULL, NULL);
       recvline[n] = 0;
       fputs(recvline, stdout);
@@ -701,7 +705,7 @@ void dg_cli_select(FILE *fp,int sockfd,const struct sockaddr *pservaddr,socklen_
   }
 }
 
-void dg_cli_so(FILE *fp,int sockfd,const struct sockaddr *pservaddr,socklen_t servlen)
+void dg_cli_so(FILE *fp, int sockfd, const struct sockaddr *pservaddr, socklen_t servlen)
 {
   int n;
   char sendline[MAXLINE], recvline[MAXLINE + 1];
@@ -709,72 +713,184 @@ void dg_cli_so(FILE *fp,int sockfd,const struct sockaddr *pservaddr,socklen_t se
   tv.tv_sec = 5;
   tv.tv_usec = 0;
   setsockopt(sockfd, SOL_SOCKET, SO_RCVTIMEO, &tv, sizeof(tv));
-  while (fgets(sendline,MAXLINE,fp)!=NULL)
+  while (fgets(sendline, MAXLINE, fp) != NULL)
   {
     sendto(sockfd, sendline, strlen(sendline), 0, pservaddr, servlen);
     n = recvfrom(sockfd, recvline, MAXLINE, 0, NULL, NULL);
-    if(n < 0){
-      if(errno==EWOULDBLOCK){
+    if (n < 0)
+    {
+      if (errno == EWOULDBLOCK)
+      {
         fprintf(stderr, "socket timeout\n");
         continue;
-      }else
+      }
+      else
         err_sys("recvfrom error");
     }
     recvline[n] = 0;
     fputs(recvline, stdout);
   }
-  
 }
-// /dev/poll tcp 
-void str_cli_poll(FILE *fp,int sockfd)
+// /dev/poll tcp
+// void str_cli_poll(FILE *fp, int sockfd)
+// {
+//   int stdineof;
+//   char buf[MAXLINE];
+//   int n;
+//   int wfd;
+//   struct pollfd pollfd[2];
+//   struct dvpoll dopoll;
+//   int i;
+//   int result;
+
+//   wfd = open("dev/poll", O_RDWR, 0);
+//   pollfd[0].fd = fileno(fp);
+//   pollfd[0].events = POLLIN;
+//   pollfd[0].revents = 0;
+
+//   pollfd[1].fd = sockfd;
+//   pollfd[1].events = POLLIN;
+//   pollfd[1].revents = 0;
+
+//   write(wfd, pollfd, sizeof(struct pollfd) * 2);
+
+//   stdineof = 0;
+//   for (;;)
+//   {
+//     dopoll.dp_timeout = -1;
+//     dopoll.dp_nfds = 2;
+//     dopoll.dp_fds = pollfd;
+
+//     result = ioctl(wfd, DP_POLL, &dopoll);
+//     for (i = 0; i < result; i++)
+//     {
+//       if (dopoll.dp_fds[i].fd == sockfd)
+//       {
+//         if ((n = read(sockfd, buf, MAXLINE)) == 0)
+//         {
+//           if (stdineof == 1)
+//             return;
+//           else
+//             err_quit("str_cli_poll:server terminated prematurely");
+//         }
+//         write(fileno(fp), buf, n);
+//       }
+//       else
+//       {
+//         if ((n = read(fileno(fp), buf, MAXLINE)) == 0)
+//         {
+//           stdineof = 1;
+//           shutdown(sockfd, SHUT_WR);
+//           continue;
+//         }
+//         writen(sockfd, buf, n);
+//       }
+//     }
+//   }
+// }
+
+int my_open(const char *pathname, int mode)
 {
-  int stdineof;
-  char buf[MAXLINE];
-  int n;
-  int wfd;
-  struct pollfd pollfd[2];
-  struct dvpoll dopoll;
-  int i;
-  int result;
-
-  wfd = open("dev/poll", O_RDWR, 0);
-  pollfd[0].fd = fileno(fp);
-  pollfd[0].events = POLLIN;
-  pollfd[0].revents = 0;
-
-  pollfd[1].fd = sockfd;
-  pollfd[1].events = POLLIN;
-  pollfd[1].revents = 0;
-
-  write(wfd, pollfd, sizeof(struct pollfd) * 2);
-
-  stdineof = 0;
-  for (;;)
+  int fd, sockfd[2], status;
+  pid_t childpid;
+  char c, argsockfd[10], argmode[10];
+  socketpair(AF_LOCAL, SOCK_STREAM, 0, sockfd);
+  if ((childpid = fork()) == 0)
   {
-    dopoll.dp_timeout = -1;
-    dopoll.dp_nfds = 2;
-    dopoll.dp_fds = pollfd;
-
-    result = ioctl(wfd, DP_POLL, &dopoll);
-    for (i = 0; i < result;i++)
-    {
-      if(dopoll.dp_fds[i].fd == sockfd){
-         if((n=read(sockfd,buf,MAXLINE))==0){
-           if(stdineof==1)
-             return;
-            else
-              err_quit("str_cli_poll:server terminated prematurely");
-         }
-         write(fileno(fp), buf, n);
-      }else{
-        if((n=read(fileno(fp),buf,MAXLINE))==0)
-        {
-          stdineof = 1;
-          shutdown(sockfd, SHUT_WR);
-          continue;
-        }
-        writen(sockfd, buf, n);
-      }
-    }
+    close(sockfd[0]);
+    snprintf(argsockfd, sizeof(argsockfd), "%d", sockfd[1]);
+    snprintf(argmode, sizeof(argmode), "%d", mode);
+    execl("./openfile", "openfile", argsockfd, pathname, argmode, (char *)NULL);
+    err_sys("execl error");
   }
+  close(sockfd[1]);
+  waitpid(childpid, &status, 0);
+  if (WIFEXITED(status) == 0)
+    err_quit("child did not terminate");
+  if ((status = WEXITSTATUS(status)) == 0)
+    read_fd(sockfd[0], &c, 1, &fd);
+  else
+  {
+    errno = status;
+    fd = -1;
+  }
+  close(sockfd[0]);
+  return (fd);
+}
+
+ssize_t write_fd(int fd, void *ptr, size_t nbytes, int sendfd)
+{
+  struct msghdr msg;
+  struct iovec iov[1];
+#ifdef HAVE_MSGHDR_MSG_CONTROL
+  union {
+    struct cmsghdr cm;
+    char control[CMSG_SPACE(sizeof(int))];
+  } control_un;
+  struct cmsghdr *cmptr;
+  msg.msg_control = control_un.control;
+  msg.msg_controllen = sizeof(control_un.control);
+  cmptr = CMSG_FIRSTHDR(&msg);
+  cmptr->cmsg_len = CMSG_LEN(sizeof(int));
+  cmptr->cmsg_level = SOL_SOCKET;
+  cmptr->cmsg_type = SCM_RIGHTS;
+  *((int *)CMSG_DATA(cmptr)) = sendfd;
+#else
+  msg.msg_accrights = (caddr_t)&sendfd;
+  msg.msg_accrightslen = sizeof(int);
+#endif
+  msg.msg_name = NULL;
+  msg.msg_namelen = 0;
+  iov[0].iov_base = ptr;
+  iov[0].iov_len = nbytes;
+  msg.msg_iov = iov;
+  msg.msg_iovlen = 1;
+  return (sendmsg(fd, &msg, 0));
+}
+
+ssize_t read_fd(int fd, void *ptr, size_t nbytes, int *recvfd)
+{
+  struct msghdr msg;
+  struct iovec iov[1];
+  ssize_t n;
+
+#ifdef HAVE_MSGHDR_MSG_CONTROL
+  union {
+    struct cmsghdr cm;
+    char control[CMSG_SPACE(sizeof(int))];
+  } control_un;
+  struct cmsghdr *cmptr;
+  msg.msg_control = control_un.control;
+  msg.msg_controllen = sizeof(control_un.control);
+#else
+  int newfd;
+  msg.msg_accrights = (caddr_t)&newfd;
+  msg.msg_accrightslen = sizeof(int);
+#endif
+  msg.msg_name = NULL;
+  msg.msg_namelen = 0;
+  iov[0].iov_base = ptr;
+  iov[0].iov_len = nbytes;
+  msg.msg_iov = iov;
+  msg.msg_iovlen = 1;
+  if ((n = recvmsg(fd, &msg, 0)) <= 0)
+    return (n);
+#ifdef HAVE_MSGHDR_MSG_CONTROL
+  if ((cmptr = CMSG_FIRSTHDR(&msg)) != NULL && cmptr->cmsg_len == CMSG_LEN(sizeof(int)))
+  {
+    if (cmptr->cmsg_level != SOL_SOCKET)
+      err_quit("control level != SOL_SOCKET");
+    if (cmptr->cmsg_type != SCM_RIGHTS)
+      err_quit("control type != SCM_RIGTHS");
+    *recvfd = *((int *)CMSG_DATA(cmptr));
+  }
+  else
+    *recvfd = -1;
+#else
+  if (msg.msg_accrightslen == sizeof(int))
+    *recvfd = newfd;
+  else
+    *recvfd = -1;
+#endif
+  return (n);
 }

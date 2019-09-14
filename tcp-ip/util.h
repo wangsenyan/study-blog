@@ -1,3 +1,4 @@
+#define HAVE_MSGHDR_MSG_CONTROL 1
 #ifndef _UTIL_H_
 #define MAXLINE 2047
 #define LISTENQ 1024
@@ -7,6 +8,8 @@
 #define NDG 2000
 #define DGLEN 1400
 #define MAXFD 64
+#define UNIXSTR_PATH "/tmp/unix.str"
+#define BUFSIZE 256
 typedef void Sigfunc(int);
 void str_echo(int sockfd);
 void str_cli(FILE *fp, int sockfd);
@@ -39,7 +42,10 @@ void err_sys(const char *fmt, ...);
 void err_ret(const char *fmt, ...);
 static void connect_alarm(int signo);
 int connect_timeo(int sockfd, const struct sockaddr *saptr, socklen_t salen, int nsec);
-void str_cli_poll(FILE *fp, int sockfd);
+ssize_t write_fd(int fd, void *ptr, size_t nbytes, int sendfd);
+ssize_t read_fd(int fd, void *ptr, size_t nbytes, int *recvfd);
+int my_open(const char *pathname, int mode);
+//void str_cli_poll(FILE *fp, int sockfd);
 static void recvfrom_int(int);
 static int count;
 struct args
@@ -51,5 +57,4 @@ struct result
 {
   long sum;
 };
-
 #endif
