@@ -10,6 +10,7 @@
 #define MAXFD 64
 #define UNIXSTR_PATH "/tmp/unix.str"
 #define BUFSIZE 256
+#define CONTROL_LEN (sizeof(struct cmsghdr) + sizeof(struct cmsgcred))
 typedef void Sigfunc(int);
 void str_echo(int sockfd);
 void str_cli(FILE *fp, int sockfd);
@@ -45,6 +46,8 @@ int connect_timeo(int sockfd, const struct sockaddr *saptr, socklen_t salen, int
 ssize_t write_fd(int fd, void *ptr, size_t nbytes, int sendfd);
 ssize_t read_fd(int fd, void *ptr, size_t nbytes, int *recvfd);
 int my_open(const char *pathname, int mode);
+//ssize_t read_cred(int fd, void *ptr, size_t nbytes, struct cmsgcred *cmsgcredptr);
+//void str_echo_cred(int sockfd);
 //void str_cli_poll(FILE *fp, int sockfd);
 static void recvfrom_int(int);
 static int count;

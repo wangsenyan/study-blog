@@ -9,7 +9,6 @@
 #include <errno.h>
 #include <signal.h>
 #include "util.h"
-
 int main(int argc, char **argv)
 {
   int listenfd, connfd;
