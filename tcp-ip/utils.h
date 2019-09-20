@@ -18,14 +18,13 @@
 #define LISTENQ 1024
 #define INFTIM -1
 #define OPEN_MAX 256
-#define MAX(a, b) (((a) > (b)) ? (a) : (b))
+#define MAX(a,b) ((a > b) ? a : b)
 #define MIN(a,b)  (((a) < (b)) ? (a) : (b))
 #define NDG 2000
 #define DGLEN 1400
 #define MAXFD 64
 #define UNIXSTR_PATH "/tmp/unix.str"
 #define BUFSIZE 256
-#define CONTROL_LEN (sizeof(struct cmsghdr) + sizeof(struct cmsgcred))
 typedef void Sigfunc(int);
 void str_echo(int sockfd);
 void str_cli(FILE *fp, int sockfd);
@@ -63,8 +62,6 @@ ssize_t read_fd(int fd, void *ptr, size_t nbytes, int *recvfd);
 int my_open(const char *pathname, int mode);
 int connect_nonb(int sockfd, const struct sockaddr *saptr, socklen_t salen, int nsec);
 struct addrinfo *host_serv(const char *host, const char *serv, int family, int socktype);
-//ssize_t read_cred(int fd, void *ptr, size_t nbytes, struct cmsgcred *cmsgcredptr);
-//void str_echo_cred(int sockfd);
 //void str_cli_poll(FILE *fp, int sockfd);
 static void recvfrom_int(int);
 static int count;

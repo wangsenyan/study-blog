@@ -1,9 +1,3 @@
-#include <string.h>
-#include <stdio.h>  //stdin
-#include <stdlib.h> //exit
-#include <sys/un.h>
-#include <sys/socket.h>
-#include <sys/unistd.h> //unlink
 #include "util.h"
 int main(int argc, char *argv)
 {
