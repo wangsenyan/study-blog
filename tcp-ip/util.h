@@ -12,6 +12,8 @@
 #include <stdarg.h>
 #include <sys/un.h>
 #include <sys/unistd.h> //unlink
+#include <arpa/inet.h> //inet_pton
+#include <time.h>
 #define HAVE_MSGHDR_MSG_CONTROL 1
 #ifndef _UTIL_H_
 #define MAXLINE 2047
@@ -25,6 +27,7 @@
 #define MAXFD 64
 #define UNIXSTR_PATH "/tmp/unix.str"
 #define BUFSIZE 256
+#define SERV_PORT 8000
 #define CONTROL_LEN (sizeof(struct cmsghdr) + sizeof(struct cmsgcred))
 typedef void Sigfunc(int);
 void str_echo(int sockfd);
@@ -66,6 +69,8 @@ struct addrinfo *host_serv(const char *host, const char *serv, int family, int s
 //ssize_t read_cred(int fd, void *ptr, size_t nbytes, struct cmsgcred *cmsgcredptr);
 //void str_echo_cred(int sockfd);
 //void str_cli_poll(FILE *fp, int sockfd);
+void str_cli_unblock(FILE *fp, int sockfd);
+char *gf_time(void);
 static void recvfrom_int(int);
 static int count;
 struct args
