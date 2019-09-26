@@ -8,6 +8,7 @@ struct file {
     char *f_host;
     int f_fd;
     int f_flags;
+    pthread_t f_tid;
 } file[MAXFILES];
 
 #define F_CONNECTING 1
@@ -18,6 +19,7 @@ struct file {
 
 int nconn, nfiles, nlefttoconn, nlefttoread, maxfd;
 fd_set rset, wset;
+void *do_get_read(void *);
 void home_page(const char *,const char *);
-void start_connect(struct file *);
+//void start_connect(struct file *);
 void write_get_cmd(struct file *);

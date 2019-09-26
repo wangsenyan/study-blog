@@ -82,4 +82,22 @@ struct result
 {
   long sum;
 };
+
+static pthread_key_t rl_key;
+static pthread_once_t rl_once = PTHREAD_ONCE_INIT;
+static void readline_destructor(void *ptr)
+{
+	free(ptr);
+}
+static void readline_once(void)
+{
+	pthread_key_create(&rl_key,readline_destructor);
+}
+typedef struct {
+	int rl_cnt;
+	char *rl_buffptr;
+	char rl_buf[MAXLINE];
+} Rline;
+static ssize_t my_read(Rline *tsd,int fd,char *ptr);
+ssize_t readline_r(int fd,void *ptr,size_t maxlen);
 #endif
