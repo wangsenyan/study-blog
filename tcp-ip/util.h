@@ -12,8 +12,10 @@
 #include <stdarg.h>
 #include <sys/un.h>
 #include <sys/unistd.h> //unlink
-#include <arpa/inet.h> //inet_pton
+#include <arpa/inet.h>  //inet_pton
 #include <time.h>
+#include <pthread.h>
+// #include <thread.h>
 #define HAVE_MSGHDR_MSG_CONTROL 1
 #ifndef _UTIL_H_
 #define MAXLINE 2047
@@ -21,7 +23,7 @@
 #define INFTIM -1
 #define OPEN_MAX 256
 #define MAX(a, b) (((a) > (b)) ? (a) : (b))
-#define MIN(a,b)  (((a) < (b)) ? (a) : (b))
+#define MIN(a, b) (((a) < (b)) ? (a) : (b))
 #define NDG 2000
 #define DGLEN 1400
 #define MAXFD 64
@@ -69,8 +71,8 @@ struct addrinfo *host_serv(const char *host, const char *serv, int family, int s
 //ssize_t read_cred(int fd, void *ptr, size_t nbytes, struct cmsgcred *cmsgcredptr);
 //void str_echo_cred(int sockfd);
 //void str_cli_poll(FILE *fp, int sockfd);
-void str_cli_unblock(FILE *fp, int sockfd);
-char *gf_time(void);
+// void str_cli_unblock(FILE *fp, int sockfd);
+// char *gf_time(void);
 static void recvfrom_int(int);
 static int count;
 struct args
@@ -83,21 +85,26 @@ struct result
   long sum;
 };
 
-static pthread_key_t rl_key;
-static pthread_once_t rl_once = PTHREAD_ONCE_INIT;
-static void readline_destructor(void *ptr)
-{
-	free(ptr);
-}
-static void readline_once(void)
-{
-	pthread_key_create(&rl_key,readline_destructor);
-}
-typedef struct {
-	int rl_cnt;
-	char *rl_buffptr;
-	char rl_buf[MAXLINE];
-} Rline;
-static ssize_t my_read(Rline *tsd,int fd,char *ptr);
-ssize_t readline_r(int fd,void *ptr,size_t maxlen);
+// static pthread_key_t rl_key;
+// static pthread_once_t rl_once = PTHREAD_ONCE_INIT;
+// static void readline_destructor(void *ptr)
+// {
+//   free(ptr);
+// }
+// static void readline_once(void)
+// {
+//   pthread_key_create(&rl_key, readline_destructor);
+// }
+// typedef struct
+// {
+//   int rl_cnt;
+//   char *rl_bufptr;
+//   char rl_buf[MAXLINE];
+// } Rline;
+// static ssize_t my_read(Rline *tsd, int fd, char *ptr);
+// ssize_t readline_r(int fd, void *ptr, size_t maxlen);
+
+static int ndone;
+static pthread_mutex_t ndone_mutex = PTHREAD_MUTEX_INITIALIZER;
+static pthread_cond_t ndone_cond = PTHREAD_COND_INITIALIZER;
 #endif

@@ -111,7 +111,7 @@ git update-git-for-windows
   gedit sample
   git add sample
   git commit -m "create a git project" //commitµ½»º´æÇø£¬²¢Ìí¼Ó¼ò½é
-  git remote add origin https://github.com/wangsenyan/myGitTest.git
+  git remote add origin https://github.com/wangsenyan/myGitTest.git   [!!!!!!!!!]
   git push origin master //ÉÏ´«
   git clone ¿ËÂ¡
   git pull origin master
