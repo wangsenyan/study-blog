@@ -1167,3 +1167,10 @@ struct addrinfo *host_serv(const char *host, const char *serv, int family, int s
 //   *ptr = 0;
 //   return (n);
 // }
+
+void sig_int(int signo)
+{
+  void pr_cpu_time(void);
+  pr_cpu_time();
+  exit(0);
+}
