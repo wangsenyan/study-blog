@@ -49,10 +49,10 @@ void sig_int(int signo)
 {
   int i;
   void pr_cpu_time(void);
-//   while (wait(NULL) > 0)
-//     ;
-//   if (errno != ECHILD)
-//     err_sys("wait error");
+  while (wait(NULL) > 0)
+    ;
+  if (errno != ECHILD)
+    err_sys("wait error");
   pr_cpu_time();
   exit(0);
 }
