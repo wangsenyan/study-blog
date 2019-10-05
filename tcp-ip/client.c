@@ -78,8 +78,10 @@ int main(int argc,char *argv[])
 	     } 
     //  printf("%d",(int)sizeof(msg));
      //write(sockfd,msg,strlen(msg));
-    //str_cli(stdin,sockfd[0]);
-    str_cli_poll(stdin,sockfd);
-    exit(0);
-     //close(sockfd);
+    //str_cli(stdin,sockfd);
+    //str_cli_poll(stdin,sockfd);
+       printf("connected success");
+       str_cli_pthread(stdin, sockfd);
+       exit(0);
+       //close(sockfd);
 }
