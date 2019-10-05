@@ -107,17 +107,8 @@ struct result
 static int ndone;
 static pthread_mutex_t ndone_mutex = PTHREAD_MUTEX_INITIALIZER;
 static pthread_cond_t ndone_cond = PTHREAD_COND_INITIALIZER;
-//void sig_int(int signo);
+void sig_int(int signo);
 void web_child(int sockfd);
 void pr_cpu_time(void);
 pid_t child_make(int i, int listenfd, int addrlen);
-
-typedef struct
-{
-  pid_t child_pid;
-  int child_pipefd;
-  int child_status;
-  long child_count;
-} Child;
-Child *cptr;
 #endif
