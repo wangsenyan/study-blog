@@ -30,3 +30,7 @@ id：加密算法 1代表MD5,5代表SHA-256,6代表SHA-512
 salt：密码学中的salt
 encrypted：表示密码的hash
 ```
+
+### 文件和目录
+* 每当运行一个新程序时，所有的shell都为其打开3个文件描述符，即标准输入，标准输出，标准错误，默认连接向终端
+* open ,read, write , lseek ,close 提供不带缓冲的I/O
