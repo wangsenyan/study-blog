@@ -31,5 +31,5 @@
 long sysconf(int name);
 long pathconf(const char *pathname,int name);
 long fpathconf(int fd,int name);
-//返回:若成功，返回相应值，若出错，返回-1，errno置为EINVAL
+//返回:若成功，返回相应值，若出错，返回-1，errno置为EINVAL，不确定值返回-1但不设置errno的值
 ```
