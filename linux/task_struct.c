@@ -148,7 +148,7 @@ struct fs_struct
   //模拟根目录所安装的文件系统对象（在80x86结构上始终为NULL）
 };
 
-//进程当前打开的文件
+//文件描述符标志
 struct files_struct
 {
   atomic_t count;

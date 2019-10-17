@@ -151,3 +151,36 @@ int fcntl(int fd,int cmd,.../*int arg **/);
   - 获取/设置文件状态标志 (cmd=F_GETFL 或 F_SETFL)
   - 获取/设置异步I/O所有权(cmd=F_GETOWN或F_SETOWN)
   - 获取/设置记录锁 (cmd=F_GETLK 、 F_SETLK 或 F_SETLKW)
+
+* 文件描述符标志：体现进程的文件描述符的状态，fork进程时，文件描述符被复制，目前只有一种文件描述符 FD_CLOEXEC
+* 文件状态标志：是体现进程打开文件的一些标志，fork时不会复制file结构，指向同一个file
+
+* F_GETFL fd的文件状态标志
+
+![F_GETFL](../../image/f_getfl.png)
+
+* O_ACCMODE 读写文件操作时，用于取出flag的低2位
+* F_SETFL  可以更改的几个标志是:O_APPEND  O_NONBLOCK  O_SYNC  O_DSYNC O_RSYNC  O_FSYNC O_ASYNC
+* F_GETOWN 获取当前接收SIGIO 和 SIGURG 信号的进程ID 或进程组ID
+
+* /dev/tty 当前终端
+* 5<>temp.foo 表示在文件描述符5上打开文件temp.foo 以供读写
+
+### 函数ioctl
+
+```c
+#include <unistd.h>
+#include <sys/ioctl.h>
+int ioctl(int fd,int request,...);
+//返回：若出错，返回-1，若成功，返回其他值
+```
+
+### /dev/fd
+* 打开文件 /dev/fd/n 等效于复制描述符n(假定描述符n是打开的)
+* fd = open("/dev/fd/0",mode) 相当于 fd = dup(0)
+
+```c
+filter file2 | cat file1 - file3 | lpr
+
+filter file2 | cat file1 /dev/fd/0 file3 | lpr
+```
