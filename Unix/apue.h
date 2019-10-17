@@ -6,6 +6,7 @@
 #include <stdarg.h> //va_start
 #include <errno.h>
 #include <unistd.h> //read write
+#include <sys/stat.h>
 #define MAXLINE 4096
 #define FILE_MODE (S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH)
 void err_exit(int error, const char *fmt, ...);

@@ -182,5 +182,5 @@ int ioctl(int fd,int request,...);
 ```c
 filter file2 | cat file1 - file3 | lpr
 
-filter file2 | cat file1 /dev/fd/0 file3 | lpr
+filter file2 | cat file1 /dev/fd/0 file3 | lpr 
 ```
