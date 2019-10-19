@@ -184,3 +184,6 @@ filter file2 | cat file1 - file3 | lpr
 
 filter file2 | cat file1 /dev/fd/0 file3 | lpr 
 ```
+
+* chmod函数更新的只是i 节点最近一次被更改的时间，ls -l列出的是最后修改文件内容的时间
+
