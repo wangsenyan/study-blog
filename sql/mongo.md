@@ -23,3 +23,14 @@ db.getCollection().update({},{},true)
 save:不存在插入，存在的时候更新
 db.getCollection().update({},{},flase,true) 第四个为true，表示批量更新
 ```
+
+### [不同服务器复制数据](http://www.pclic.com/article/a120191023173277.html)
+
+```mongo
+//复制所有collection
+db.copyDatabase('analysis','analysis','39.106.214.176:27018');
+
+//复制某个表，query可选，空为全部
+{ cloneCollection: "", from: "", query: { } }
+db.runCommand({cloneCollection : "analysis.vehicle_diagnosis", from : "39.106.214.176:27018"})
+```
