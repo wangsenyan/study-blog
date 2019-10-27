@@ -34,3 +34,32 @@ db.copyDatabase('analysis','analysis','39.106.214.176:27018');
 { cloneCollection: "", from: "", query: { } }
 db.runCommand({cloneCollection : "analysis.vehicle_diagnosis", from : "39.106.214.176:27018"})
 ```
+
+
+### 索引
+
+* 查看
+```
+db.getCollection("collectionName").getIndexes();
+```
+* 查看索引大小
+```
+db.getCollection("").totalIndexSize()
+```
+* 添加
+```
+db.getCollection("collectionName").ensureIndex("paramName":1);
+```
+
+* 修改
+```
+db.getCollection().reIndex()
+
+```
+* 删除
+```m
+//删除所有
+db.getCollection().dropIndexes()  
+//删除指定
+db.getCollection().dropIndex("索引名称")
+```
