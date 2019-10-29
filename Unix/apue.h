@@ -9,6 +9,8 @@
 #include <sys/stat.h>
 #define MAXLINE 4096
 #define FILE_MODE (S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH)
+#define DIR_MODE (FILE_MODE | S_IXUSR | S_IXGRP | S_IXOTH)
+char *path_alloc(size_t *);
 void err_exit(int error, const char *fmt, ...);
 void err_msg(const char *fmt, ...);
 void err_quit(const char *fmt, ...);

@@ -288,8 +288,92 @@ int renameat(int oldfd,const char *oldname,int newfd,const char *newname);
 
 ```c
 #include <dirent.h>
+
+struct dirent {
+  ino_t d_ino; /* i-node number */
+  char d_name[]; /* null-terminated filename */
+}
 DIR *opendir(const char *pathname);
 DIR *fdopendir(int fd);
 //返回：成功，返回指针，失败，返回null
 struct dirent *readdir(DIR *dp);
+//返回：成功，范湖指针，出错，返回null
+void rewinddir(DIR *dp);
+int closedir(DIR *dp);
+//返回：若成功，返回0，若出错，返回-1
+long telldir(DIR *dp);
+//返回值：与dp关联的目录中的当前位置
+void seekdir(DIR *dp,long loc);
 ```
+
+[代码](ftwo.c)
+
+### 函数chdir、fchdir和getcwd
+* 当前工作目录是进程的一个属性，起始目录是登录名的一个属性
+```c
+#include <unistd.h>
+int chdir(const char *pathname);
+int fchdir(int fd); 
+//返回值：成 0 错 -1
+
+char *getcwd(char *buf,size_t size);
+//返回：成功 buf,出错，null
+//buf必须足够长容纳绝对路径名再加一个终止null字节
+//跟随符号链接
+```
+* 通过 (..) 找到其上一级目录，然后读其目录项，直到该目录项中的i节点编号与工作目录i节点编号相同，这样地就找到了其对应的文件名
+
+### 设备特殊文件
+* 每个文件系统所在的存储设备都由其主、次设备号表示
+* 主设备号标识设备驱动程序，有时编码为与其通信的外设板
+* 次设备号标识特定的子设备
+* 只有字特殊文件和块特殊文件才有st_rdev值，包含实际设备的设备号
+
+![quanxian](../../image/quanxian.png)
+
+
+### du 和 df
+* du 显示目录或文件的大小
+* df 显示目前在Linux系统上的文件系统的磁盘使用情况统计
+* awk [-F field-separator] 'commands' input-file(s)  
+  awk工作流程是这样的：读入有'\n'换行符分割的一条记录，然后将记录按指定的域分隔符划分域，填充域，$0则表示所有域,$1表示第一个域,$n表示第n个域。默认域分隔符是"空白键" 或 "[tab]键".
+```s
+du -h --max-depth=1  
+df -h 
+du --max-depth=1 | sort -n | awk 'BEGIN {OFMT = "%.0f"} {print $1/1024,"MB", $2}'
+#OFMT 输出格式为数字
+tar -zcvf dest sour  
+/*
+-A或--catenate：新增文件到以存在的备份文件；
+-B：设置区块大小；
+-c或--create：建立新的备份文件；
+-C <目录>：这个选项用在解压缩，若要在特定目录解压缩，可以使用这个选项。
+-d：记录文件的差别；
+-x或--extract或--get：从备份文件中还原文件；
+-t或--list：列出备份文件的内容；
+-z或--gzip或--ungzip：通过gzip指令处理备份文件；
+-Z或--compress或--uncompress：通过compress指令处理备份文件；
+-f<备份文件>或--file=<备份文件>：指定备份文件；
+-v或--verbose：显示指令执行过程；
+-r：添加文件到已经压缩的文件；
+-u：添加改变了和现有的文件到已经存在的压缩文件；
+-j：支持bzip2解压文件；
+-v：显示操作过程；
+-l：文件系统边界设置；
+-k：保留原有文件不覆盖；
+-m：保留文件不被覆盖；
+-w：确认压缩文件的正确性；
+-p或--same-permissions：用原来的文件权限还原文件；
+-P或--absolute-names：文件名使用绝对名称，不移除文件名称前的“/”号；
+-N <日期格式> 或 --newer=<日期时间>：只将较指定日期更新的文件保存到备份文件里；
+--exclude=<范本样式>：排除符合范本样式的文件。
+*/
+```
+
+## 习题
+4.8 du需要文件名，不计算将被删除但任然被占用的文件，df查看文件系统中实际可用的空闲空间
+4.11 [codes](ftwo.c)
+4.12 chroot只能由超级用户执行，一旦更改了一个进程的根，该进程及其后代进程就再也不能恢复至原来的根
+4.14 finger 命令可以让使用者查询一些其他使用者的资料
+4.16 [codes](deptho.c)
+4.17 /dev 目录关闭了一般用户的写访问权限，以防止普通用户删除目录中的文件名,unlink失败 [codes](dev_fdo.c)
