@@ -19,8 +19,8 @@
  *	POSIX Standard: 9.2.1 Group Database Access	<grp.h>
  */
 
-#ifndef	_GRP_H
-#define	_GRP_H	1
+#ifndef _GRP_H
+#define _GRP_H 1
 
 #include <features.h>
 
@@ -31,57 +31,54 @@ __BEGIN_DECLS
 #define __need_size_t
 #include <stddef.h>
 
-
 /* For the Single Unix specification we must define this type here.  */
 #if (defined __USE_XOPEN || defined __USE_XOPEN2K) && !defined __gid_t_defined
 typedef __gid_t gid_t;
-# define __gid_t_defined
+#define __gid_t_defined
 #endif
 
 /* The group structure.	 */
 struct group
-  {
-    char *gr_name;		/* Group name.	*/
-    char *gr_passwd;		/* Password.	*/
-    __gid_t gr_gid;		/* Group ID.	*/
-    char **gr_mem;		/* Member list.	*/
-  };
-
+{
+  char *gr_name;   /* Group name.	*/
+  char *gr_passwd; /* Password.	*/
+  __gid_t gr_gid;  /* Group ID.	*/
+  char **gr_mem;   /* Member list.	*/
+};
 
 #ifdef __USE_MISC
-# define __need_FILE
-# include <stdio.h>
+#define __need_FILE
+#include <stdio.h>
 #endif
-
 
 #if defined __USE_MISC || defined __USE_XOPEN_EXTENDED
 /* Rewind the group-file stream.
 
    This function is a possible cancellation point and therefore not
    marked with __THROW.  */
-extern void setgrent (void);
+extern void setgrent(void);
 
 /* Close the group-file stream.
 
    This function is a possible cancellation point and therefore not
    marked with __THROW.  */
-extern void endgrent (void);
+extern void endgrent(void);
 
 /* Read an entry from the group-file stream, opening it if necessary.
 
    This function is a possible cancellation point and therefore not
    marked with __THROW.  */
-extern struct group *getgrent (void);
+extern struct group *getgrent(void);
 #endif
 
-#ifdef	__USE_MISC
+#ifdef __USE_MISC
 /* Read a group entry from STREAM.
 
    This function is not part of POSIX and therefore no official
    cancellation point.  But due to similarity with an POSIX interface
    or due to the implementation it is a cancellation point and
    therefore not marked with __THROW.  */
-extern struct group *fgetgrent (FILE *__stream);
+extern struct group *fgetgrent(FILE *__stream);
 #endif
 
 #ifdef __USE_GNU
@@ -91,29 +88,29 @@ extern struct group *fgetgrent (FILE *__stream);
    cancellation point.  But due to similarity with an POSIX interface
    or due to the implementation it is a cancellation point and
    therefore not marked with __THROW.  */
-extern int putgrent (const struct group *__restrict __p,
-		     FILE *__restrict __f);
+extern int putgrent(const struct group *__restrict __p,
+                    FILE *__restrict __f);
 #endif
 
 /* Search for an entry with a matching group ID.
 
    This function is a possible cancellation point and therefore not
    marked with __THROW.  */
-extern struct group *getgrgid (__gid_t __gid);
+extern struct group *getgrgid(__gid_t __gid);
 
 /* Search for an entry with a matching group name.
 
    This function is a possible cancellation point and therefore not
    marked with __THROW.  */
-extern struct group *getgrnam (const char *__name);
+extern struct group *getgrnam(const char *__name);
 
 #ifdef __USE_POSIX
 
-# ifdef __USE_MISC
+#ifdef __USE_MISC
 /* Reasonable value for the buffer sized used in the reentrant
    functions below.  But better use `sysconf'.  */
-#  define NSS_BUFLEN_GROUP	1024
-# endif
+#define NSS_BUFLEN_GROUP 1024
+#endif
 
 /* Reentrant versions of some of the functions above.
 
@@ -128,30 +125,30 @@ extern struct group *getgrnam (const char *__name);
    or due to the implementation it is a cancellation point and
    therefore not marked with __THROW.  */
 
-# ifdef __USE_GNU
-extern int getgrent_r (struct group *__restrict __resultbuf,
-		       char *__restrict __buffer, size_t __buflen,
-		       struct group **__restrict __result);
-# endif
+#ifdef __USE_GNU
+extern int getgrent_r(struct group *__restrict __resultbuf,
+                      char *__restrict __buffer, size_t __buflen,
+                      struct group **__restrict __result);
+#endif
 
 /* Search for an entry with a matching group ID.
 
    This function is a possible cancellation point and therefore not
    marked with __THROW.  */
-extern int getgrgid_r (__gid_t __gid, struct group *__restrict __resultbuf,
-		       char *__restrict __buffer, size_t __buflen,
-		       struct group **__restrict __result);
+extern int getgrgid_r(__gid_t __gid, struct group *__restrict __resultbuf,
+                      char *__restrict __buffer, size_t __buflen,
+                      struct group **__restrict __result);
 
 /* Search for an entry with a matching group name.
 
    This function is a possible cancellation point and therefore not
    marked with __THROW.  */
-extern int getgrnam_r (const char *__restrict __name,
-		       struct group *__restrict __resultbuf,
-		       char *__restrict __buffer, size_t __buflen,
-		       struct group **__restrict __result);
+extern int getgrnam_r(const char *__restrict __name,
+                      struct group *__restrict __resultbuf,
+                      char *__restrict __buffer, size_t __buflen,
+                      struct group **__restrict __result);
 
-# ifdef	__USE_MISC
+#ifdef __USE_MISC
 /* Read a group entry from STREAM.  This function is not standardized
    an probably never will.
 
@@ -159,22 +156,21 @@ extern int getgrnam_r (const char *__restrict __name,
    cancellation point.  But due to similarity with an POSIX interface
    or due to the implementation it is a cancellation point and
    therefore not marked with __THROW.  */
-extern int fgetgrent_r (FILE *__restrict __stream,
-			struct group *__restrict __resultbuf,
-			char *__restrict __buffer, size_t __buflen,
-			struct group **__restrict __result);
-# endif
+extern int fgetgrent_r(FILE *__restrict __stream,
+                       struct group *__restrict __resultbuf,
+                       char *__restrict __buffer, size_t __buflen,
+                       struct group **__restrict __result);
+#endif
 
-#endif	/* POSIX or reentrant */
+#endif /* POSIX or reentrant */
 
+#ifdef __USE_MISC
 
-#ifdef	__USE_MISC
-
-# define __need_size_t
-# include <stddef.h>
+#define __need_size_t
+#include <stddef.h>
 
 /* Set the group set for the current user to GROUPS (N of them).  */
-extern int setgroups (size_t __n, const __gid_t *__groups) __THROW;
+extern int setgroups(size_t __n, const __gid_t *__groups) __THROW;
 
 /* Store at most *NGROUPS members of the group set for USER into
    *GROUPS.  Also include GROUP.  The actual number of groups found is
@@ -184,8 +180,8 @@ extern int setgroups (size_t __n, const __gid_t *__groups) __THROW;
    cancellation point.  But due to similarity with an POSIX interface
    or due to the implementation it is a cancellation point and
    therefore not marked with __THROW.  */
-extern int getgrouplist (const char *__user, __gid_t __group,
-			 __gid_t *__groups, int *__ngroups);
+extern int getgrouplist(const char *__user, __gid_t __group,
+                        __gid_t *__groups, int *__ngroups);
 
 /* Initialize the group set for the current user
    by reading the group database and using all groups
@@ -195,7 +191,7 @@ extern int getgrouplist (const char *__user, __gid_t __group,
    cancellation point.  But due to similarity with an POSIX interface
    or due to the implementation it is a cancellation point and
    therefore not marked with __THROW.  */
-extern int initgroups (const char *__user, __gid_t __group);
+extern int initgroups(const char *__user, __gid_t __group);
 
 #endif /* Use misc.  */
 

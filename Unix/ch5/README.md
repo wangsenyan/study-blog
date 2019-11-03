@@ -234,7 +234,8 @@ int mkstemp(char *template);// S_IRUSR | S_IWUSR
 ### 内存流 //看不懂
 
 * 虽然使用FILE指针进行访问，
-
+* fclose 增加缓冲区数据量才追加null
+* offset 主动增长，被动减小
 ![fmemopen](../../image/fmemopen.png)
 
 ```c

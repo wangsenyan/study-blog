@@ -18,40 +18,38 @@
 /* Declaration of types and functions for shadow password suite.  */
 
 #ifndef _SHADOW_H
-#define _SHADOW_H	1
+#define _SHADOW_H 1
 
 #include <features.h>
 
 #include <paths.h>
 
-#define	__need_FILE
+#define __need_FILE
 #include <stdio.h>
 #define __need_size_t
 #include <stddef.h>
 
 /* Paths to the user database files.  */
-#define	SHADOW _PATH_SHADOW
-
+#define SHADOW _PATH_SHADOW
 
 __BEGIN_DECLS
 
 /* Structure of the password file.  */
 struct spwd
-  {
-    char *sp_namp;		/* Login name.  */
-    char *sp_pwdp;		/* Encrypted password.  */
-    long int sp_lstchg;		/* Date of last change.  */
-    long int sp_min;		/* Minimum number of days between changes.  */
-    long int sp_max;		/* Maximum number of days between changes.  */
-    long int sp_warn;		/* Number of days to warn user to change
+{
+  char *sp_namp;             /* Login name.  */
+  char *sp_pwdp;             /* Encrypted password.  */
+  long int sp_lstchg;        /* Date of last change.  */
+  long int sp_min;           /* Minimum number of days between changes.  */
+  long int sp_max;           /* Maximum number of days between changes.  */
+  long int sp_warn;          /* Number of days to warn user to change
 				   the password.  */
-    long int sp_inact;		/* Number of days the account may be
+  long int sp_inact;         /* Number of days the account may be
 				   inactive.  */
-    long int sp_expire;		/* Number of days since 1970-01-01 until
+  long int sp_expire;        /* Number of days since 1970-01-01 until
 				   account expires.  */
-    unsigned long int sp_flag;	/* Reserved.  */
-  };
-
+  unsigned long int sp_flag; /* Reserved.  */
+};
 
 /* Open database for reading.
 
@@ -59,7 +57,7 @@ struct spwd
    cancellation point.  But due to similarity with an POSIX interface
    or due to the implementation it is a cancellation point and
    therefore not marked with __THROW.  */
-extern void setspent (void);
+extern void setspent(void);
 
 /* Close database.
 
@@ -67,7 +65,7 @@ extern void setspent (void);
    cancellation point.  But due to similarity with an POSIX interface
    or due to the implementation it is a cancellation point and
    therefore not marked with __THROW.  */
-extern void endspent (void);
+extern void endspent(void);
 
 /* Get next entry from database, perhaps after opening the file.
 
@@ -75,7 +73,7 @@ extern void endspent (void);
    cancellation point.  But due to similarity with an POSIX interface
    or due to the implementation it is a cancellation point and
    therefore not marked with __THROW.  */
-extern struct spwd *getspent (void);
+extern struct spwd *getspent(void);
 
 /* Get shadow entry matching NAME.
 
@@ -83,7 +81,7 @@ extern struct spwd *getspent (void);
    cancellation point.  But due to similarity with an POSIX interface
    or due to the implementation it is a cancellation point and
    therefore not marked with __THROW.  */
-extern struct spwd *getspnam (const char *__name);
+extern struct spwd *getspnam(const char *__name);
 
 /* Read shadow entry from STRING.
 
@@ -91,7 +89,7 @@ extern struct spwd *getspnam (const char *__name);
    cancellation point.  But due to similarity with an POSIX interface
    or due to the implementation it is a cancellation point and
    therefore not marked with __THROW.  */
-extern struct spwd *sgetspent (const char *__string);
+extern struct spwd *sgetspent(const char *__string);
 
 /* Read next shadow entry from STREAM.
 
@@ -99,7 +97,7 @@ extern struct spwd *sgetspent (const char *__string);
    cancellation point.  But due to similarity with an POSIX interface
    or due to the implementation it is a cancellation point and
    therefore not marked with __THROW.  */
-extern struct spwd *fgetspent (FILE *__stream);
+extern struct spwd *fgetspent(FILE *__stream);
 
 /* Write line containing shadow password entry to stream.
 
@@ -107,8 +105,7 @@ extern struct spwd *fgetspent (FILE *__stream);
    cancellation point.  But due to similarity with an POSIX interface
    or due to the implementation it is a cancellation point and
    therefore not marked with __THROW.  */
-extern int putspent (const struct spwd *__p, FILE *__stream);
-
+extern int putspent(const struct spwd *__p, FILE *__stream);
 
 #ifdef __USE_MISC
 /* Reentrant versions of some of the functions above.
@@ -117,31 +114,30 @@ extern int putspent (const struct spwd *__p, FILE *__stream);
    cancellation point.  But due to similarity with an POSIX interface
    or due to the implementation they are cancellation points and
    therefore not marked with __THROW.  */
-extern int getspent_r (struct spwd *__result_buf, char *__buffer,
-		       size_t __buflen, struct spwd **__result);
+extern int getspent_r(struct spwd *__result_buf, char *__buffer,
+                      size_t __buflen, struct spwd **__result);
 
-extern int getspnam_r (const char *__name, struct spwd *__result_buf,
-		       char *__buffer, size_t __buflen,
-		       struct spwd **__result);
+extern int getspnam_r(const char *__name, struct spwd *__result_buf,
+                      char *__buffer, size_t __buflen,
+                      struct spwd **__result);
 
-extern int sgetspent_r (const char *__string, struct spwd *__result_buf,
-			char *__buffer, size_t __buflen,
-			struct spwd **__result);
+extern int sgetspent_r(const char *__string, struct spwd *__result_buf,
+                       char *__buffer, size_t __buflen,
+                       struct spwd **__result);
 
-extern int fgetspent_r (FILE *__stream, struct spwd *__result_buf,
-			char *__buffer, size_t __buflen,
-			struct spwd **__result);
-#endif	/* misc */
-
+extern int fgetspent_r(FILE *__stream, struct spwd *__result_buf,
+                       char *__buffer, size_t __buflen,
+                       struct spwd **__result);
+#endif /* misc */
 
 /* The simple locking functionality provided here is not suitable for
    multi-threaded applications.  */
 
 /* Protect password file against multi writers.  */
-extern int lckpwdf (void) __THROW;
+extern int lckpwdf(void) __THROW;
 
 /* Unlock password file.  */
-extern int ulckpwdf (void) __THROW;
+extern int ulckpwdf(void) __THROW;
 
 __END_DECLS
 

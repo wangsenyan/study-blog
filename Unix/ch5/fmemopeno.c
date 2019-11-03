@@ -15,14 +15,14 @@ int main(void)
   fprintf(fp, "hello,world");
   printf("before flush: %s\n", buf);
   fflush(fp);
-  printf("after fflush: %s", buf);
+  printf("after fflush: %s\n", buf);
   printf("len of string in buf = %ld \n", (long)strlen(buf));
 
   memset(buf, 'b', BSZ - 2);
   buf[BSZ - 2] = '\0';
   buf[BSZ - 1] = 'X';
   fprintf(fp, "hello, world");
-  fseek(fp, 0, SEEK_SET);
+  fseek(fp, 0, SEEK_SET); //偏移开始
   printf("after fseek: %s\n", buf);
   printf("len of string in buf = %ld\n", (long)strlen(buf));
 
@@ -30,6 +30,10 @@ int main(void)
   buf[BSZ - 2] = '\0';
   buf[BSZ - 1] = 'X';
   fprintf(fp, "hello, world");
+  fflush(fp);
+  //fclose(fp);
+  printf("after fflush: %s\n", buf);
+  printf("len of string in buf = %ld\n", (long)strlen(buf));
   fclose(fp);
   printf("after fclose: %s\n", buf);
   printf("len of string in buf = %ld\n", (long)strlen(buf));
