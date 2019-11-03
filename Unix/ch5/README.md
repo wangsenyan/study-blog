@@ -81,7 +81,7 @@ int puts(const char *str);
 * fgets 一直读到换行符为止，但是不超过n-1个字符  
   该缓冲区以null字节结尾（换行符--> null），超过缓冲区长度会缓冲区溢出
 * gets并不将换行符存入缓冲区，而fgets会
-
+* 通过 null 判断是否行结尾，换行符当普通字符输出 \t\r+null ?
 ### I/O缓冲和内核缓冲
 
 终端  ------------>  I/O 缓冲区  ------------>  内核缓冲区
@@ -230,3 +230,27 @@ char *mkdtemp(char *template); //创建临时文件，S_IRUSR | S_IWUSR | S_IXUS
 int mkstemp(char *template);// S_IRUSR | S_IWUSR 
 //返回值：成功，返回文件描述符，出错，返回-1
 ```
+
+### 内存流 //看不懂
+
+* 虽然使用FILE指针进行访问，
+
+![fmemopen](../../image/fmemopen.png)
+
+```c
+#include <stdio.h>
+FILE *fmemopen(void *restrict buf,size_t size,const char *restrict type);
+//返回值：若成功，返回流指针，若出错，返回NULL
+```
+
+* fp是在内存中的
+
+
+### 标准I/O的替代软件
+
+* 复制数据
+ -  内核和标准I/O缓冲区之间(read/write)
+ -  标准I/O缓冲区和用户程序中的行缓冲区之间
+
+### 习题
+5.4 getc/getchar的返回值是int，如果系统使用无符号字符类型，EOF保存不是-1，程序进入死循环
