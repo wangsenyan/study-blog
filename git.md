@@ -3,7 +3,12 @@
 
 ### win更新
 ```shell
-git update-git-for-windows
+git log --name-status //每次修改的文件列表, 显示状态
+git log --name-only //每次修改的文件列表
+git log --stat //每次修改的文件列表, 及文件修改的统计
+git whatchanged //每次修改的文件列表
+git whatchanged --stat //每次修改的文件列表, 及文件修改的统计
+git show //显示最后一次的文件改变的具体内容
 ```
 ### git diff  --ignore-all-space  忽略空格
 

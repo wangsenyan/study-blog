@@ -78,3 +78,8 @@ db.foo.find({"$where":function(){
 	 return false;
 }})
 ```
+
+### ubuntu下默认路径
+* 默认数据文件  /var/lib/mongodb/
+* 默认日志文件路径 /var/log/mongodb/mongodb.log
+* 可执行文件路径 /usr/bin/mongo  /usr/bin/mongod
