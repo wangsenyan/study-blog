@@ -113,3 +113,10 @@ db.runCommand({"fsync":1,"lock":1});
 db.$cmd.sys.unlock.findOne();解锁
 db.currentOp()
 ```
+
+* 修复:将所有的文档导出然后马上导入，忽略那些无效的文档，完成后会重新建立索引
+```sh
+mongod --repaire
+
+db.repaireDatabase() #修复运行中的服务器上的数据
+```
