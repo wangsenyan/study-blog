@@ -48,7 +48,7 @@ db.getCollection("").totalIndexSize()
 ```
 * 添加
 ```
-db.getCollection("collectionName").ensureIndex("paramName":1);
+db.getCollection("collectionName").ensureIndex({"paramName":1});
 ```
 
 * 修改
@@ -83,3 +83,10 @@ db.foo.find({"$where":function(){
 * 默认数据文件  /var/lib/mongodb/
 * 默认日志文件路径 /var/log/mongodb/mongodb.log
 * 可执行文件路径 /usr/bin/mongo  /usr/bin/mongod
+
+···········
+
+```sh
+db.getCollection("").totalIndexSize() #某个表的索引
+db.runCommand({"collStats":collection}); #表的信息
+```

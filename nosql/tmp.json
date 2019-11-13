@@ -1,19 +1,19 @@
-{
+db.runCommand({
   "replSetInitiate": {
-    "_id": "blort",
+    "_id": "nodes",
     "members": [
       {
         "_id": 1,
-        "host": "iZm5eiyzjbfgqbs8o82kquZ:10001"
+        "host": "iZm5eiyzjbfgqbs8o82kquZ:40001"
       },
       {
         "_id": 2,
-        "host": "iZm5eiyzjbfgqbs8o82kquZ:10002"
+        "host": "iZm5eiyzjbfgqbs8o82kquZ:40002"
       },
       {
         "_id": 3,
-        "host": "iZm5eiyzjbfgqbs8o82kquZ:10003"
+        "host": "iZm5eiyzjbfgqbs8o82kquZ:40003"
       }
     ]
   }
-}
+})

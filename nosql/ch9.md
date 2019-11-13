@@ -126,3 +126,8 @@ rs.reconfig(cfg)
   - 复制到N个节点超时时返回错误
 
 * 诊断
+
+```sh
+>db.printReplicationInfo(); #主节点
+>db.printSlaveReplicationInfo(); #从结点
+```
