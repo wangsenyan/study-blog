@@ -80,3 +80,77 @@ pid_t waitpid(pid_t pid,int *statloc,int options);
 * 令子进程脱离父进程，直接由init进程掌控
   - 第二个子进程充当父进程的子进程，但已经与父进程脱离关系
 [code](waitto.c)
+
+### 函数exec
+* 调用exec并不创建新进程，只是用磁盘上的一个新程序替换了当前进程的正文段，数据段，堆段和栈段
+* p -> filename  l->list v->argv[] e->envp[]
+![exec](../../image/exec.png)
+![exec_args](../../image/exec_args.png)
+
+```s
+# xargs 将标准输入转换为命令行参数
+# grep 不能在目录中进行模式搜索， -type f 列表只包含普通文件
+>find /usr/share/man  -type f -print | xargs grep getrlimit
+>find /usr/share/man  -type f -print | xargs bzgrep getrlimit
+```
+
+* 新进程从调用进程继承了下列属性
+  1. 进程ID和父进程ID
+  2. 实际用户ID和实际组ID
+  3. 附属组ID
+  4. 进程组ID
+  5. 回话ID
+  6. 控制终端
+  7. 闹钟尚余留时间
+  8. 当前工作目录
+  9. 根目录
+  10. 文件模式创建屏蔽字
+  11. 文件锁
+  12. 进程信号屏蔽
+  13. 未处理信号
+  14. 资源限制
+  15. nice值
+  16. tms_utime tms_stime tms_cutime tms_cstime
+
+  17. 描述符看是否使用fcntl设置了 FD_CLOEXEC ,是则关闭，否打开，默认否
+
+![fexecve](../../image/fexecve.png)
+[execve](execo.c)
+
+### 更改用户ID和更改组ID
+* 最小特权(least privilege)
+* setuid 
+  - 有特权 
+  - 无特权 uid=有效用户ID或实际用户ID，设置有效用户ID=uid
+* exec
+```c
+#include <unistd.h>
+int setuid(uid_t uid);
+int setgid(gid_t gid);
+//返回：成功 0 出错 -1
+
+//交换实际用户ID和有效用户ID的值
+int setreuid(uid_t ruid,uid_t euid);
+int setregid(gid_t rgid,gid_t egid);
+//返回：成功 0 出错 -1
+
+//更改有效用户id和有效组id
+int seteuid(uid_t uid);
+int setegid(gid_t gid);
+//返回：成功 0 出错 -1
+```
+![setuid](../../image/setuid.png)
+
+![setuids](../../image/setuids.png)
+
+### 解释器文件
+
+* 例子
+[testinterp](testinterp.sh)
+
+[interpo](interpo.c)
+
+* 形式 `#! pathname[optional-argument]`
+ - argv[0] = pathname
+ - argv[1] = optional-argument 
+* `#! pathname -f myfile` 从myfile中定位改解释器文件 

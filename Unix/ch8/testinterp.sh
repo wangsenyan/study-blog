@@ -1,0 +1,1 @@
+#! /home/unix/paramo foo
