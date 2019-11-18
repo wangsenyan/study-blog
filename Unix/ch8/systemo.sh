@@ -1,0 +1,1 @@
+#!/home/unix/systemo systemo

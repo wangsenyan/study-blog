@@ -1,5 +1,25 @@
 ## <center>进程控制</center>
 
+```sh
+#排序并分页展示进程
+>ps aux --sort -rss | less
+
+#进程树
+>ps axjf
+
+# 批量删除进程
+>ps -ef | grep yourstr | grep -v grep | awk '{print $2}' | xargs kill -9
+# ps -ef 获取当前系统所有进程
+# grep yourstr 过滤出 yourstr 字符相关的数据，以行为单位
+# grep -v grep  -v表示反向选择，去除本次操作造成的影响(grep 本身的进程，一般是最后一个进程)
+# awak '{print $2}' 筛选出进程号
+# xargs kill -9     xargs命令表示前面命令输出的结果作为kill -9命令的参数
+
+>killall yourstr 
+#按名字yourstr消灭进程
+```
+
+
 ### 进程标识
 * /sbin/init.d 启动一个UNIX系统
 * /etc/rc* 或 /etc/inittab 文件 以及 /etc/init.d 中的文件
@@ -153,4 +173,84 @@ int setegid(gid_t gid);
 * 形式 `#! pathname[optional-argument]`
  - argv[0] = pathname
  - argv[1] = optional-argument 
-* `#! pathname -f myfile` 从myfile中定位改解释器文件 
+* `#! pathname -f myfile` 从myfile中定位改解释器文件
+* awk -f scripfile or --file scriptfile 从脚本文件中读取awk命令
+```sh
+#! /usr/bin/awk -f
+```
+### system
+* 执行命令字符串 
+* system执行fork和exec权限被保持下去
+* 设置用户ID和设置组ID程序决不应调用system函数
+* 在fork后，exec之前要更改会普通权限
+[自定义命令](systemo.sh)
+```sh
+#include <stdlib.h>
+int system(const char *cmdstring); 
+//返回：出错(非fork失败或waitpid返回EINTR) -1，exec失败，同exit返回一样，成功，shell的终止状态
+```
+
+### 进程会计
+* 启动改选项后，每当进程结束时内核就写一个会计记录
+* acct 启动和禁止进程会计
+* accton path 启用会计处理，记录写到指定的文件中
+* exec并不创建一个新的会计记录，但相应记录中的命令名改变了，AFORK标志被清除
+```c
+#include <sys/acct.h>
+typedef u_short comp_t;
+struct acct
+{
+  char ac_flag;			/* Flags.  */
+  char ac_stat;     /* tremination status(signal & core flag only) */
+  uid_t ac_uid;		/* Real user ID.  */
+  gid_t ac_gid;		/* Real group ID.  */
+  dev_t ac_tty;		/* Controlling terminal.  */
+  time_t ac_btime;		/* Beginning time.  */
+  comp_t ac_utime;		/* User time.  */
+  comp_t ac_stime;		/* System CPU time.  */
+  comp_t ac_etime;		/* Elapsed time.  */
+  comp_t ac_mem;		/* Average memory usage.  */
+  comp_t ac_io;			/* Chars transferred.  */
+  comp_t ac_rw;			/* Blocks read or written.  */
+  comp_t ac_minflt;		/* Minor pagefaults.  */
+  comp_t ac_majflt;		/* Major pagefaults.  */
+  comp_t ac_swaps;		/* Number of swaps.  */
+  u_int32_t ac_exitcode;	/* Process exitcode.  */
+  char ac_comm[ACCT_COMM+1];	/* Command name.  */
+  char ac_pad[10];		/* Padding bytes.  */
+};
+
+FMT "%-*.*s"   // - 左对齐 *.* 精度和字段宽度作为参数传入，s字符串
+```
+
+![ac_flag](../../image/ac_flag.png)
+
+* accton filename 开启accton
+* [执行accto](accto.c)
+* [解析accton.log](acprinto.c)
+
+### 用户标识
+* 找到运行改程序用户的登录名
+* getpwuid(getuid())
+```c
+#include <unistd.h>
+char *getlogin(void);
+//返回值：成功，指向登录名字符串的指针，出错，null
+```
+
+### 进程调度
+
+```c
+#include <unistd.h>
+int nice(int incr);
+//返回值：成功，返回 -NZERO ~ NZERO-1 之间的值，出错 -1，配合errno ==0?"error":"noraml"
+
+#include <sys/resource.h>
+int getpriority(int which,id_t who);
+//返回值：成功，返回 -NZERO ~ NZERO-1 之间的值，出错 -1，配合errno ==0?"error":"noraml"
+//which  PRIO_PROCESS 进程 PRIO_PGRP 进程组 PRIO_USER 用户id
+//多个进程返回优先级最高的(最小nice值)
+
+int setpriority(int which,id_t who,int value);
+//返回：成功0，出错-1
+```
