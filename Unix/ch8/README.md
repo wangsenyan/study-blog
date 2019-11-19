@@ -136,7 +136,9 @@ pid_t waitpid(pid_t pid,int *statloc,int options);
 
 ![fexecve](../../image/fexecve.png)
 [execve](execo.c)
-
+### vfork
+* 在exec或exit之前，运行在父进程空间
+* 如果子进程调用_exit(如果默认关闭标准流) 或 fclose(stdout) ，父进程输出缓冲区被关闭
 ### 更改用户ID和更改组ID
 * 最小特权(least privilege)
 * setuid 
@@ -254,3 +256,12 @@ int getpriority(int which,id_t who);
 int setpriority(int which,id_t who,int value);
 //返回：成功0，出错-1
 ```
+[example](niceo.c)
+
+### [times](timeso.c)
+
+### 习题
+8.1 [vforko](vforko.c)
+
+8.2 [vforke](vforke.c) 
+  - 不同进程栈指针不同 task不同

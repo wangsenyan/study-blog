@@ -1,3 +1,4 @@
+#include <pthread.h>
 struct task_struct
 {
   /*

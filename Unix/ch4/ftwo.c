@@ -57,11 +57,11 @@ static int dopath(Myfunc *func, char *pathname)
   struct dirent *dirp;
   DIR *dp;
   int ret, n;
-  if (lstat(pathname, &statbuf) < 0)
+  if (lstat(pathname, &statbuf) < 0) //链接文件
     return (func(pathname, &statbuf, FTW_NS));
-  if (S_ISDIR(statbuf.st_mode) == 0)
+  if (S_ISDIR(statbuf.st_mode) == 0) //非目录文件
     return (func(pathname, &statbuf, FTW_F));
-  if ((ret = func(pathname, &statbuf, FTW_D)) != 0)
+  if ((ret = func(pathname, &statbuf, FTW_D)) != 0) //目录文件但出错
     return (ret);
 
   if ((dp = opendir(pathname)) == NULL)
