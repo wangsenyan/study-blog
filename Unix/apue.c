@@ -126,3 +126,9 @@ void pr_exit(int status)
     printf("child stopped,signal number = %d\n",
            WSTOPSIG(status));
 }
+
+void pr_ids(char *name)
+{
+  printf("%s: pid = %ld, ppid = %ld, pgrp = %ld, tpgrp = %ld\n", name, (long)getpid(), (long)getppid(), (long)getpgrp(), (long)tcgetpgrp(STDIN_FILENO));
+  fflush(stdout);
+}
