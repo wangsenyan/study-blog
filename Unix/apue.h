@@ -22,5 +22,8 @@ static void err_doit(int errnoflag, int error, const char *fmt, va_list ap);
 void pr_exit(int status);
 void pr_ids(char *name);
 typedef void Sigfunc(int);
-//Sigfunc *signal(int, Sigfunc *);
+Sigfunc *signal(int, Sigfunc *);
+Sigfunc *signal_intr(int, Sigfunc *);
+void pr_mask(const char *str);
+//Sigfunc *signal(int signo, Sigfunc *func)
 #endif
