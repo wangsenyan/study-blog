@@ -15,7 +15,8 @@ int main(void)
     err_sys("signal(SIGALRM) error");
   pr_mask("starting main: ");
 
-  if (sigsetjmp(jmpbuf, 1))
+  //if (sigsetjmp(jmpbuf, 1))
+  if (setjmp(jmpbuf))
   {
     pr_mask("ending main: ");
     exit(0);
@@ -36,7 +37,8 @@ static void sig_usr1(int signo)
       break;
   pr_mask("finishing sig_usr1: ");
   canjump = 0;
-  siglongjmp(jmpbuf, 1);
+  //siglongjmp(jmpbuf, 1);
+  longjmp(jmpbuf, 1);
 }
 
 static void sig_alrm(int signo)

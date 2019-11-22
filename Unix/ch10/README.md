@@ -1,7 +1,7 @@
 ## <center>信号</center>
 
 * <sys/signal.h> 或 <bits/signum.h>
-
+* 关键是不要丢失信号
 ![信号](../../image/signals.png)
 
 ### signal
@@ -210,3 +210,18 @@ void siglongjmp(sigjmp_buf env,int val);
 ```
 [sigsetjmp](sigsetjmpo.c)
 ![sigsetjmp](../../image/sigsetjmp.png)
+
+### 函数sigsuspend
+* 设置sigmask -> 挂起 -> 恢复屏蔽字
+* 原子操作中先恢复信号屏蔽字然后使进程休眠
+* 在捕捉到一个信号或发生了一个终止该进程的信号前，改进程被挂起
+* 如果捕捉到一个信号且从该信号处理程序返回，则sigsuspend返回，信号屏蔽字恢复
+```c
+#include <signal.h>
+int sigsuspend(const sigset_t *sigmask);
+//返回：-1，并将errno设置为EINTR
+```
+
+* [保护代码临界区，使其不被特定信号中断](sigpendingo.c)
+
+* [等待一个信号处理程序设置一个全局变量]
