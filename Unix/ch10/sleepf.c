@@ -33,7 +33,7 @@ unsigned int sleep1(unsigned int seconds)
 
 unsigned int sleep2(unsigned int seconds)
 {
-  if (signal(SIGALRM, sig_alrm) == SIG_ERR)
+  if (signal(SIGALRM, sig_alrm) == SIG_ERR) 
     return (seconds);
   if (setjmp(env_alrm) == 0) // 1
   {
@@ -52,3 +52,7 @@ static void sig_int(int signo)
       k += i * j;
   printf("sig_int  finished\n");
 }
+
+
+//用sigaction代替signal
+//用sigprocmask屏蔽信号

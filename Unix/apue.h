@@ -7,6 +7,7 @@
 #include <errno.h>
 #include <unistd.h> //read write
 #include <sys/stat.h>
+#include <sys/wait.h>
 #include <signal.h>
 #define MAXLINE 4096
 #define FILE_MODE (S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH)
@@ -25,5 +26,6 @@ typedef void Sigfunc(int);
 Sigfunc *signal(int, Sigfunc *);
 Sigfunc *signal_intr(int, Sigfunc *);
 void pr_mask(const char *str);
+int system(const char *cmdstring);
 //Sigfunc *signal(int signo, Sigfunc *func)
 #endif

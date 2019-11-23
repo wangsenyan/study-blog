@@ -225,3 +225,61 @@ int sigsuspend(const sigset_t *sigmask);
 * [保护代码临界区，使其不被特定信号中断](sigpendingo.c)
 
 * [等待一个信号处理程序设置一个全局变量]
+
+### sleep
+* nanosleep
+  - reqtp 要求的时间
+  - remtp 剩余时间
+* clock_nanosleep
+  - clock_id [指定计算延迟时间基于的时钟](../../image/clockid_t.png)
+  - flag
+    - 0 相对时间
+    - TIMER_ABSTIME 休眠时间是绝对的
+```c
+#include <unistd.h>
+unsigned int sleep(unsigned int seconds);
+//返回：0或未休眠完的描述
+#include <time.h>
+int nanosleep(const struct timespec *reqtp,struct timespec *remtp);
+//返回：若休眠到要求的时间，返回0，若出错，-1
+int clock_nanosleep(clockid_t clock_id,int flags,
+                    const struct timespec *reqtp,struct timespec *remtp);
+//返回：若休眠到要求的时间，返回0，若出错，返回错误码
+```
+
+### 函数sigqueue
+
+* 对信号排队
+
+```c
+#include <signal.h>
+int sigqueue(pid_t pid,int signo,const union sigval value);
+//返回：成功，0，出错 -1
+```
+
+### 作业控制信号
+* SIGCHLD 子进程已停止或终止
+* SIGCONT 如果进程终止，则使其继续运行，即使被屏蔽
+* SIGSTOP 停止信号(不能被捕获或忽略)
+* SIGTSTP 交互式停止信号
+* SIGTTIN 后台进程组成员读控制终端
+* SIGTTOU 后台进程组成员写控制终端
+
+### 信号名和编号
+```c
+#include <signal.h>
+void psignal(int signo,const char *msg);
+
+//如果sigaction信号处理程序有siginfo结构,打印信号信息
+void psiginfo(const siginfo_t *info,const char *msg);
+
+#include <string.h>
+char *strsignal(int signo);
+//返回:指向描述改信号的字符串的指针
+
+#include <signal.h>
+//将信号编号映射为信号名
+int sig2str(int signo,char *str);
+int str2sig(const char *str,int *signop);
+//返回：成功 0 出错 -1
+```
