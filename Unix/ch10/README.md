@@ -283,3 +283,6 @@ int sig2str(int signo,char *str);
 int str2sig(const char *str,int *signop);
 //返回：成功 0 出错 -1
 ```
+
+### 联系
+10.8 如果信号是由其他用户的进程发出的，进程必须设置用户ID为根或者是接收进程的所有者，否则kill不能执行
