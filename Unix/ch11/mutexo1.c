@@ -47,7 +47,7 @@ void foo_hold(struct foo *fp)
 
 struct foo *foo_find(int id)
 {
-  struct foo *fp;
+  struct foo *fp; //默认初始化为null
   pthread_mutex_lock(&hashlock);
   for (fp = fh[HASH(id)]; fp != NULL; fp = fp->f_next)
   {
@@ -57,13 +57,15 @@ struct foo *foo_find(int id)
       break;
     }
   }
+  pthread_mutex_unlock(&hashlock);
+  return (fp);
 }
 void foo_rele(struct foo *fp)
 {
   struct foo *tfp;
   int idx;
   pthread_mutex_lock(&fp->lock);
-  if (--fp->f_count == 1)
+  if (fp->f_count == 1) // last reference
   {
     pthread_mutex_unlock(&fp->f_lock);
     pthread_mutex_lock(&hashlock);
@@ -97,5 +99,34 @@ void foo_rele(struct foo *fp)
   {
     fp->f_count--;
     pthread_mutex_unlock(&fp->lock);
+  }
+}
+
+void foo_rele(struct foo *fp)
+{
+  struct foo *tfp;
+  int idx;
+  pthread_mutex_lock(&hashlock);
+  if (--fp->f_count == 0)
+  {
+    idx = HASH(fp->f_id);
+    tfp = fh[idx];
+    if (tfp == fp)
+    {
+      fh[idx] = fp->f_next;
+    }
+    else
+    {
+      while (tfp->f_next != fp)
+        tfp = tfp->f_next;
+      tfp->f_next = fp->f_next;
+    }
+    pthread_mutex_unlock(&fp->f_lock);
+    pthread_mutex_destory(&fp->f_lock);
+    free(fp);
+  }
+  else
+  {
+    pthread_mutex_unlock(&hashlock);
   }
 }

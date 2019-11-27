@@ -57,6 +57,7 @@ int pthread_detach(pthread_t tid);
   - 不剥夺条件 已获得的资源不可被强占
   - 请求和保持条件 至少保持一个资源又提出新的资源请求
   - 循环等待条件
+* pthread_mutex_timelock 超时返回错误码 ETIMEOUT
 ```c
 #include <pthread.h>
 int pthread_mutex_init(pthread_mutex_t *restrict mutex,const pthread_mutexattr_t *restrict attr);
@@ -66,4 +67,26 @@ int pthread_mutex_lock(pthread_mutex_t *mutex);
 int pthread_mutex_trylock(pthread_mutex_t *mutex);
 int pthread_mutex_unlock(pthread_mutex_t *mutex);
 //返回：成功 0 否则 错误编码
+#include <pthread.h>
+#include <time.h>
+int pthread_mutex_timelock(pthread_mutex_t *restrict mutex,const struct timespec *restrict tsptr);
+//返回：成功 0 否则 错误编码
+```
+[example](mutexo1.c)
+
+#### 读写锁
+* pthread_rwlock_tryrdlock pthread_rwlock_trywrlock 可以获取锁时，返回0，否则返回EBUSY
+```c
+#include <pthread.h>
+pthread_rwlock_t rwlock = PTHREAD_RWLOCK_INITIALIZER;
+int pthread_rwlock_init(pthread_rwlock_t *restrict rwlock,const pthread_rwlockattr_t *restrict attr);
+int pthread_rwlock_destroy(pthread_rwlock_t *rwlock);
+//阻塞式
+int pthread_rwlock_rdlock(pthread_rwlock_t *rwlock); //读模式锁
+int pthread_rwlock_wrlock(pthread_rwlock_t *rwlock); //写模式锁
+int pthread_rwlock_unlock(pthread_rwlock_t *rwlock)；//解锁
+int pthread_rwlock_tryrdlock(pthread_rwlock_t *rwlock); 
+int pthread_rwlock_trywrlock(pthread_rwlock_t *rwlock);
+//返回：成功 0 否则 错误编码
+
 ```
