@@ -18,6 +18,7 @@ void err_msg(const char *fmt, ...);
 void err_quit(const char *fmt, ...);
 void err_sys(const char *fmt, ...);
 void err_ret(const char *fmt, ...);
+void err_cont(int error, const char *fmt, ...);
 void err_dump(const char *fmt, ...);
 static void err_doit(int errnoflag, int error, const char *fmt, va_list ap);
 void pr_exit(int status);

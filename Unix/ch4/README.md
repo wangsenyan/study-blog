@@ -119,6 +119,7 @@ struct inode {
 * 权限检查 - 进程执行文件，进程id匹配用户id/用户组id ->匹配权限
 
 ### 函数access和faccessat
+* 检查文件的用户权限
 * open打开文件，内核以进程的有效用户ID和有效组ID为基础执行访问权限测试
 * 实际用户 - 登录用户
 
@@ -240,7 +241,7 @@ int lchown(const char *pathname,uid_t owner,gid_t group);
 * 复制会将所有空洞填满，实际数据字节皆填0
 ```c
 ls -l file.hole file.nohole
-du -s file.hole file.nohole //多小哥512字节块
+du -s file.hole file.nohole //多少个512字节块
 wc -c file.hole  //计算文件中的字节数
 ```
 
@@ -299,6 +300,7 @@ DIR *fdopendir(int fd);
 struct dirent *readdir(DIR *dp);
 //返回：成功，范湖指针，出错，返回null
 void rewinddir(DIR *dp);
+//将一个目录设置到目录列表的起始位置
 int closedir(DIR *dp);
 //返回：若成功，返回0，若出错，返回-1
 long telldir(DIR *dp);

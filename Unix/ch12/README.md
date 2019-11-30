@@ -134,3 +134,66 @@ void *pthread_getspecific(pthread_key_t key);
 int pthread_setspecific(pthread_key_t key,const void *value);
 //返回：成功 0 否则 错误编号
 ```
+
+### 取消选项
+
+* 影响pthread_cancel函数调用时所呈现的行为
+ - PTHREAD_CANCEL_ENABLE
+ - PTHREAD_CANCEL_DISABLE
+* pthread_cancel 调用并不等待线程终止，直到取消点
+* 线程默认状态是 PTHREAD_CANCEL_ENABLE 
+* PTHREAD_CANCEL_DISABLE 时，pthread_cancel调用不会杀死线程，而等回复ENABLE后在下一个取消点对挂起的取消请求处理
+```C
+#include<pthread.h>
+int pthread_setcancelstate(int state,int *oldstate);//原子操作
+//返回：成功 0 失败 错误编号
+void pthread_testcancel(void);
+
+//取消类型
+//PTHREAD_CANCEL_DEFERRED  延迟 遇到取消点才能被取消
+//PTHREAD_CANCEL_ASYNCHRONOUS  异步 在任意时间撤销
+int pthread_setcanceltype(int type,int *oldtype);
+```
+
+![pthread_cancel](../../image/pthread_cancel.png)
+
+### 线程和信号
+* 信号的处理是进程中所有线程共享的
+* 进程中的信号是递送到单个线程的(故障发给当前线程，其他任意一个线程)
+* sigwait 线程等待信号
+ - signop 包含发送信号的数量
+ - 如果信号集中的某个信号在sigwait调用的时候处于挂起状态，那么sigwait将无阻塞的返回
+ - 调用sigwait的时候，先阻塞正在等待的信号，sigwait会原地取消信号集的阻塞状态，直到有新的信号被递送，在返回之前，sigwait将恢复线程的信号屏蔽字
+ - 多个线程在sigwait的调用中因等待同一个信号阻塞，那么信号递送的时候，就有一个线程可以从sigwait中返回
+
+* 如果信号的默认处理动作片是终止该进程，那么吧信号传递给某个线程将杀死整个进程
+* 闹钟定时器是进程资源，所有线程共享相同的闹钟，所以进程中的多个线程不可能互不干扰地使用闹钟定时器
+```c
+#include<pthread.h>
+int pthread_sigmask(int how,const sigset_t *restrict set,sigset_t *restrict oset);
+int sigwait(const sigset_t *restrict set,int *restrict signop);
+int pthread_kill(pthread_t thread,int signo);
+//返回：成功 0 失败 错误编号
+```
+[example](sigmasko.c)
+
+### 线程和fork
+* 子进程通过继承整个地址空间的副本，还从父进程那儿继承了每个互斥量、读写锁和条件变量的状态
+* 在子进程内部，只有一个线程，是由父进程中调用fork的线程的副本构成的
+* 继承了锁但没有锁和线程对应关系
+* 在fork返回和子进程调用其中一个exec之间，子进程只能调用异步安全的函数
+* 参数
+  - prepare 父进程 fork 之前 获取父进程的所有锁
+  - parent 父进程上下文 fork 和 return 之间 对所有prepare获取的所有锁进行解锁
+  - child  子进程上下文 fork返回之前 对所有prepare获取的所有锁进行解锁
+```c
+#include<pthread.h>
+int pthread_atfork(void (*prepare)(void),void (*parent)(void),void (*child)(void));
+//返回：成功0 失败 错误编号
+```
+[examlpe](atforko.c)
+![atfork](../../image/atfork.png)
+
+### 线程和I/O
+* 进程中的所有线程共享相同的文件描述符
+* pread 和 pwrite 将偏移量的设定和数据的读取成为一个原子操作

@@ -23,25 +23,40 @@ static void thread_init(void)
 
 int getenv_r(const char *name, char *buf, int buflen)
 {
-  int i, len, olen;
+  int i, len; //, olen;
+  char *envbuf;
   pthread_once(&init_done, thread_init);
-  len = strlen(name);
   pthread_mutex_lock(&env_mutex);
+  envbuf = (char *)pthread_getspecific(key);
+  if (envbuf == NULL)
+  {
+    envbuf = malloc(MAXSTRINGSZ);
+    if (envbuf == NULL)
+    {
+      pthread_mutex_unlock(&env_mutex);
+      return (NULL);
+    }
+    pthread_setspecific(key, envbuf);
+  }
+  len = strlen(name);
   for (i = 0; environ[i] != NULL; i++)
   {
     if ((strncmp(name, environ[i], len) == 0) && (environ[i][len] == '='))
     {
-      olen = strlen(&environ[i][len + 1]);
-      if (olen >= buflen)
-      {
-        pthread_mutex_unlock(&env_mutex); //buf不满足，出口
-        return (ENOSPC);
-      }
-      strcpy(buf, &environ[i][len + 1]);
-      pthread_mutex_unlock(&env_mutex); //正常情况，出口
-      return (0);
+      strncmp(envbuf, &environ[i][len + 1], MAXSTRINGSZ - 1);
+      pthread_mutex_unlock(&env_mutex);
+      return (envbuf);
+      // olen = strlen(&environ[i][len + 1]);
+      // if (olen >= buflen)
+      // {
+      //   pthread_mutex_unlock(&env_mutex); //buf不满足，出口
+      //   return (ENOSPC);
+      // }
+      // strcpy(buf, &environ[i][len + 1]);
+      // pthread_mutex_unlock(&env_mutex); //正常情况，出口
+      // return (0);
     }
   }
   pthread_mutex_unlock(&env_mutex); //没有改环境变量 ，出口
-  return (ENOENT);
+  return (NULL);
 }

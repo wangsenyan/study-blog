@@ -88,6 +88,14 @@ void err_ret(const char *fmt, ...)
   err_doit(1, errno, fmt, ap);
   va_end(ap);
 }
+
+void err_cont(int error, const char *fmt, ...)
+{
+  va_list ap;
+  va_start(ap, fmt);
+  err_doit(1, error, fmt, ap);
+  va_end(ap);
+}
 void err_dump(const char *fmt, ...)
 {
   va_list ap;
@@ -197,12 +205,12 @@ void abort(void)
   sigset_t mask;
   struct sigaction action;
   sigaction(SIGABRT, NULL, &action);
-  if(action.sa_handler==SIG_IGN)
+  if (action.sa_handler == SIG_IGN)
   {
     action.sa_handler = SIG_DFL;
     sigaction(SIGABRT, &action, NULL);
   }
-  if(action.sa_handler==SIG_DFL)
+  if (action.sa_handler == SIG_DFL)
   {
     fflush(NULL);
   }
@@ -215,7 +223,7 @@ void abort(void)
   fflush(NULL);
   action.sa_handler = SIG_DFL;
   sigaction(SIGABRT, &action, NULL);
-  sigprocmask(SIG_SETMASK, &mask, NULL);//阻塞除SIGABRT外的所有信号
+  sigprocmask(SIG_SETMASK, &mask, NULL); //阻塞除SIGABRT外的所有信号
   kill(getpid(), SIGABRT);
   exit(1);
 }
@@ -226,47 +234,52 @@ int system(const char *cmdstring)
   int status;
   struct sigaction ignore, saveintr, savequit;
   sigset_t chldmask, savemask;
-  if(cmdstring == NULL)
+  if (cmdstring == NULL)
     return (1);
   ignore.sa_handler = SIG_IGN;
   sigemptyset(&ignore.sa_mask);
   ignore.sa_flags = 0;
-  if(sigaction(SIGINT,&ignore,&saveintr)<0)
+  if (sigaction(SIGINT, &ignore, &saveintr) < 0)
     return (-1);
-  if(sigaction(SIGQUIT,&ignore,&savequit)<0)
+  if (sigaction(SIGQUIT, &ignore, &savequit) < 0)
     return (-1);
   sigemptyset(&chldmask);
   sigaddset(&chldmask, SIGCHLD);
-  if(sigprocmask(SIG_BLOCK,&chldmask,&savemask)<0)
+  if (sigprocmask(SIG_BLOCK, &chldmask, &savemask) < 0)
     status = -1;
-  if((pid=fork())<0){
+  if ((pid = fork()) < 0)
+  {
     status = -1;
-  }else if(pid==0){
+  }
+  else if (pid == 0)
+  {
     sigaction(SIGINT, &saveintr, NULL);
     sigaction(SIGQUIT, &savequit, NULL);
     execl("/bin/sh", "sh", "-c", cmdstring, (char *)0);
     _exit(127);
-  }else{
-    while (waitpid(pid,&status,0)<0)
+  }
+  else
+  {
+    while (waitpid(pid, &status, 0) < 0)
     {
-      if(errno!=EINTR){
+      if (errno != EINTR)
+      {
         status = -1;
         break;
       }
     }
   }
-  if(sigaction(SIGINT,&saveintr,NULL)<0)
+  if (sigaction(SIGINT, &saveintr, NULL) < 0)
     return (-1);
-  if(sigaction(SIGQUIT,&savequit,NULL)<0)
+  if (sigaction(SIGQUIT, &savequit, NULL) < 0)
     return (-1);
-  if(sigprocmask(SIG_SETMASK,&savemask,NULL)<0)
+  if (sigprocmask(SIG_SETMASK, &savemask, NULL) < 0)
     return (-1);
   return (status);
-} 
+}
 
 static void sig_alrm(int signo)
 {
-
 }
 unsigned int sleep(unsigned int seconds)
 {

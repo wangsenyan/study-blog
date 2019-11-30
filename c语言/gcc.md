@@ -170,7 +170,7 @@ int sigismember(const sigset_t *set,int signum);
 ![异步处理安全函数](../image/safe.png)
 
 * sigsuspend函数
-暂时用mask替换当前的阻塞集合，然后挂起该进程，知道收到一个信号  
+暂时用mask替换当前的阻塞集合，然后挂起该进程，直到收到一个信号  
 处理程序：从处理程序返回
 终止程序：直接终止
 
