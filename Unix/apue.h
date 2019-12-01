@@ -9,9 +9,14 @@
 #include <sys/stat.h>
 #include <sys/wait.h>
 #include <signal.h>
+#include <syslog.h>
+#include <fcntl.h>
+#include <sys/resource.h>
 #define MAXLINE 4096
 #define FILE_MODE (S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH)
 #define DIR_MODE (FILE_MODE | S_IXUSR | S_IXGRP | S_IXOTH)
+#define LOCKFILE "/var/run/deamon.pid"
+#define LOCKMODE (S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH)
 char *path_alloc(size_t *);
 void err_exit(int error, const char *fmt, ...);
 void err_msg(const char *fmt, ...);
@@ -28,5 +33,9 @@ Sigfunc *signal(int, Sigfunc *);
 Sigfunc *signal_intr(int, Sigfunc *);
 void pr_mask(const char *str);
 int system(const char *cmdstring);
+void daemonize(const char *cmd);
+int already_running(void);
+int lockfile(int fd);
+int set_cloexec(int fd);
 //Sigfunc *signal(int signo, Sigfunc *func)
 #endif
