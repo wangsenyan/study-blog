@@ -402,3 +402,95 @@ int set_cloexec(int fd)
   val |= FD_CLOEXEC;
   return (fcntl(fd, F_SETFD, val));
 }
+
+void set_fl(int fd, int flags)
+{
+  int val;
+  if ((val = fcntl(fd, F_GETFL, 0)) < 0)
+    err_sys("fcntl F_GETFL error");
+  val |= flags;
+  if (fcntl(fd, F_SETFL, val) < 0)
+    err_sys("fcntl F_SETFL error");
+}
+void clr_fl(int fd, int flags)
+{
+  int val;
+  if ((val = fcntl(fd, F_GETFL, 0)) < 0)
+    err_sys("fcntl F_GETFL error");
+  val &= ~flags;
+  if (fcntl(fd, F_SETFL, val) < 0)
+    err_sys("fcntl F_SETFL error");
+}
+
+int lock_reg(int fd, int cmd, int type, off_t offset, int whence, off_t len)
+{
+  struct flock lock;
+  lock.l_type = type;
+  lock.l_start = offset;
+  lock.l_whence = whence;
+  lock.l_len = len;
+  return (fcntl(fd, cmd, &lock));
+}
+int lock_test(int fd, int type, off_t offset, int whence, off_t len)
+{
+  struct flock lock;
+  lock.l_type = type;
+  lock.l_start = offset;
+  lock.l_whence = whence;
+  lock.l_len = len;
+  if (fcntl(fd, F_GETLK, &lock) < 0)
+    err_sys("fcntl error");
+  if (lock.l_type == F_UNLCK)
+    return (0);
+  return (lock.l_pid);
+}
+
+static volatile sig_atomic_t sigflag;
+static sigset_t newmask, oldmask, zeromask;
+static void sig_usr(int signo)
+{
+  sigflag = 1;
+}
+//添加信号处理函数SIGUSR1,SIGUSR2 并屏蔽这两个信号
+void TELL_WAIT(void)
+{
+  printf("tellwait inner");
+  if (signal(SIGUSR1, sig_usr) == SIG_ERR)
+    err_sys("signal(SIGUSR1) error");
+  if (signal(SIGUSR2, sig_usr) == SIG_ERR)
+    err_sys("signal(SIGUSR2) error");
+  sigemptyset(&zeromask);
+  sigemptyset(&newmask);
+  sigaddset(&newmask, SIGUSR1);
+  sigaddset(&newmask, SIGUSR2);
+
+  if (sigprocmask(SIG_BLOCK, &newmask, &oldmask) < 0)
+    err_sys("SIG_BLOCK error");
+  printf("tellwait inner");
+}
+
+void TELL_PARENT(pid_t pid)
+{
+  kill(pid, SIGUSR2);
+}
+
+void WAIT_PARENT(void)
+{
+  while (sigflag == 0)
+    sigpending(&zeromask);
+  sigflag = 0;
+  if (sigprocmask(SIG_SETMASK, &oldmask, NULL) < 0)
+    err_sys("SIG_SETMASK error");
+}
+void TELL_CHILD(pid_t pid)
+{
+  kill(pid, SIGUSR1);
+}
+void WAIT_CHILD(void)
+{
+  while (sigflag == 0)
+    sigpending(&zeromask);
+  sigflag = 0;
+  if (sigprocmask(SIG_SETMASK, &oldmask, NULL) < 0)
+    err_sys("SIG_SETMASK error");
+}

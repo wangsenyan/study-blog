@@ -35,7 +35,7 @@ int already_running(void)
     exit(1);
   }
   ftruncate(fd, 0); //文件截断
-  sprintf(buf, "%ld", (long)getpid());
+  sprintf(buf, "%ld\n", (long)getpid());
   write(fd, buf, strlen(buf) + 1);
   return (0);
 }

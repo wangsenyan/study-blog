@@ -29,7 +29,7 @@ void *thr_fn(void *arg)
       syslog(LOG_INFO, "got SIGTERM; exiting");
       exit(0);
     default:
-      syslog(LOG_ERR, "unexpected signal %d\n", signo);
+      syslog(LOG_INFO, "unexpected signal %d\n", signo);
     }
   }
   return (0);
