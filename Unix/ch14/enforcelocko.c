@@ -1,5 +1,5 @@
 #include "apue.h"
-#include <pthread.h>
+#include <errno.h>
 #include <fcntl.h>
 #include <sys/wait.h>
 
@@ -27,38 +27,27 @@ int main(int argc, char *argv[])
   if (fchmod(fd, (statbuf.st_mode & ~S_IXGRP) | S_ISGID) < 0)
     err_sys("fchmod error");
 
-  printf("why\n");
   TELL_WAIT();
-
-  printf("tellwait");
   if ((pid = fork()) < 0)
     err_sys("fork error");
   else if (pid > 0)
   {
-    printf("0");
     if (write_lock(fd, 0, SEEK_SET, 0) < 0)
       err_sys("write_lock error");
-    printf("1");
     TELL_CHILD(pid);
-    printf("2");
     if (waitpid(pid, NULL, 0) < 0)
       err_sys("waitpid error");
   }
   else
   {
-    printf("3");
     WAIT_PARENT();
-    printf("4");
     set_fl(fd, O_NONBLOCK);
-    printf("5");
-    if (read_lock(fd, 0, SEEK_SET, 0) != -1)
-      err_sys("child:read_block succeeded");
-    printf("6");
+    if (read_lock(fd, 0, SEEK_SET, 0) != -1) //父进程设置写锁不能加读锁
+      err_sys("child: read_block succeeded");
     printf("read_lock of already-locked region returns %d\n", errno);
     if (lseek(fd, 0, SEEK_SET) == -1)
       err_sys("lseek error");
-    printf("7");
-    if (read(fd, buf, 2) < 0)
+    if (read(fd, buf, 2) < 0) //linux非强制性锁，可以读
       err_ret("read failed (mandatory locking works)");
     else
       printf("read ok (no mandatory locking),buf = %2.2s\n", buf);

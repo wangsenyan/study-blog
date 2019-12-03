@@ -37,7 +37,7 @@
 ```c
 #include <sys/select.h>
 #include <sys/time.h>
-
+FD_SETSIZE //最大描述符数
 struct timeval {
     long tv_sec;
     long tv_usec;
@@ -60,7 +60,7 @@ FD_SET(5,&rset);
 ```
 
 * timeval
-  - 永远等待下去：仅在有一个描述符准备好I/O时才返回，该参数定义为空指针
+  - 永远等待下去：仅在有一个描述符准备好I/O时才返回，该参数定义为空指针，或捕获信号，EINTR
   - 等待一段固定时间
   - 根本不等待：检查描述符后立即返回，称为轮询(polling) 定时器为0
 
@@ -71,7 +71,7 @@ FD_SET(5,&rset);
 * fd_set   
   描述符集，通常是一个整数数组，其中每个整数中的每一位对应于一个描述符。
 
-* maxfdp1  
+* maxfdp1
   - 指定待测试的描述符个数，它的值是待测试的最大描述符加1
   - <sys/select.h>中定义的FD_SETSIZE常值是数据类型fd_set中描述符总数
 

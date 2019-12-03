@@ -454,7 +454,6 @@ static void sig_usr(int signo)
 //添加信号处理函数SIGUSR1,SIGUSR2 并屏蔽这两个信号
 void TELL_WAIT(void)
 {
-  printf("tellwait inner");
   if (signal(SIGUSR1, sig_usr) == SIG_ERR)
     err_sys("signal(SIGUSR1) error");
   if (signal(SIGUSR2, sig_usr) == SIG_ERR)
@@ -466,7 +465,6 @@ void TELL_WAIT(void)
 
   if (sigprocmask(SIG_BLOCK, &newmask, &oldmask) < 0)
     err_sys("SIG_BLOCK error");
-  printf("tellwait inner");
 }
 
 void TELL_PARENT(pid_t pid)
@@ -477,7 +475,7 @@ void TELL_PARENT(pid_t pid)
 void WAIT_PARENT(void)
 {
   while (sigflag == 0)
-    sigpending(&zeromask);
+    sigsuspend(&zeromask);
   sigflag = 0;
   if (sigprocmask(SIG_SETMASK, &oldmask, NULL) < 0)
     err_sys("SIG_SETMASK error");
@@ -489,7 +487,7 @@ void TELL_CHILD(pid_t pid)
 void WAIT_CHILD(void)
 {
   while (sigflag == 0)
-    sigpending(&zeromask);
+    sigsuspend(&zeromask);
   sigflag = 0;
   if (sigprocmask(SIG_SETMASK, &oldmask, NULL) < 0)
     err_sys("SIG_SETMASK error");
