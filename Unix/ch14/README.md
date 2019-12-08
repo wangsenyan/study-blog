@@ -174,12 +174,41 @@ int lio_listio(int mode,struct aiocb *restrict const list[restrict],int nent,str
   - addr 指定映射存储区的起始位置。通常为0，表示系统选择该映射区的起始地址 
   - len 指定要被映射文件的描述符
   - prot
+    - PROT_READ 映射区可读
+    - PROT_WRITE 映射区可写
+    - PROT_EXEC 映射区可执行
+    - PROT_NONE 映射区不可访问
   - flag
+    - MAP_FIXED 返回值必须等于addr
+    - MAP_SHARED 指定存储操作修改映射文件
+    - MAP_PRIVATE 对映射区的存储操作导致创建该映射文件的一个私有副本
   - fd
-  - off
+  - off 文件的偏移量，为存储页长度的倍数
+
+* msync
+  - flags 
+    - MS_ASYNC 简单的调试要写的页
+    - MS_SYNC 等待写操作完成
+    - MS_INVALIDATE 允许通知操作系统丢弃那些与底层存储器没有同步的页
+  
+* munmap 并不会使映射区的内容写到磁盘文件上
+  - 对MAP_SHARED 区磁盘文件的更新，会在我们将数据写到存储区后的某个时刻，按内核虚拟存储算法自动进行
+  - 在存储区解除映射后，对MAP_PRIVATE存储区的修改会被丢弃
+
+* 在从输入缓冲区取数据字节时，内核自动读输入文件；在将数据存入输出缓冲区时，内核自动将数据写到输出文件中
 ```c
 #include<sys/mman.h>
 void *mmap(void *addr,size_t len,int prot,int flag,int fd,off_t off);
 //返回：成功，返回映射区的起始地址，出错，返回MAP_FAILED
+
+int mprotect(void *addr,size_t len,int prot); //更改一个现有映射的权限
+//返回：成功 0 失败 -1
+
+int msync(void *addr,size_t len,int flags);//冲洗到被映射的文件中
+//返回成功0 失败 -1
+
+int munmap(void *addr,size_t len);
+//返回 成功0 出错 -1
 ```
 ![mmap](../../image/mmap.png)
+[example](mmapo.c)
