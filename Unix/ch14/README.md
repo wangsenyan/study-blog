@@ -123,7 +123,7 @@ struct aiocb{
   volatile    void     *aio_buf;            /* buffer for I/O */
   size_t               aio_nbytes;          /* number of bytes to transfer */
   int                  aio_reqprio;         /* priority */
-  struct sigevent      aio_sigevent;        /* signal information */
+  struct        aio_sigevent;        /* signal information */
   int                  aio_lio_opcode;      /* operation for list I/O */
 };
 
@@ -158,3 +158,28 @@ int lio_listio(int mode,struct aiocb *restrict const list[restrict],int nent,str
 
 ![aio](../../image/aio.png)
 [example](rot13o.c)
+
+### [readv和writev函数](../../tcp-ip/unix网络编程卷1/ch14.md#readv)
+
+### [readn和writen函数](../../tcp-ip/unix网络编程卷1/ch3.md#readn)
+* 读写指定的N直接数据，并处理返回值可能小于要求值的情况
+
+### 存储映射I/O
+* 能将一个磁盘文件映射到存储空间中一个缓冲上
+* 当从缓冲区中取数据时，就相当于读文件中的相应字节
+* 将数据存入缓冲区时，相应字节就自动写入文件
+* 可以咋不使用read和write的情况下执行I/O
+
+* mmap
+  - addr 指定映射存储区的起始位置。通常为0，表示系统选择该映射区的起始地址 
+  - len 指定要被映射文件的描述符
+  - prot
+  - flag
+  - fd
+  - off
+```c
+#include<sys/mman.h>
+void *mmap(void *addr,size_t len,int prot,int flag,int fd,off_t off);
+//返回：成功，返回映射区的起始地址，出错，返回MAP_FAILED
+```
+![mmap](../../image/mmap.png)

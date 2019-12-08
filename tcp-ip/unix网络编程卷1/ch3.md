@@ -197,6 +197,30 @@ const char * inet_ntop(int family,const void *addrptr,char *strptr,size_t len)
 
 ### readn,writen,readline函数
 ```c
+//被中断继续
+// ssize_t readn(int fd,void *vptr,size_t n)
+// {
+//     size_t nleft;
+//     ssize_t nread;
+//     char *ptr;
+//     ptr = vptr;
+//     nleft = n;
+//     while(nleft > 0)
+//     {
+//        if((nread = read(fd,ptr,nleft))<0)
+//        {
+//            if(errno == EINTR)
+//               nread = 0;
+//            else
+//               return (-1);
+//        }else if(nread ==0)
+//            break;
+//        nleft -=nread;
+//        ptr   +=nread;
+//     }
+//     return (n-nleft);
+// }
+//被中断会返回目前读的字节数
 ssize_t readn(int fd,void *vptr,size_t n)
 {
     size_t nleft;
@@ -208,18 +232,38 @@ ssize_t readn(int fd,void *vptr,size_t n)
     {
        if((nread = read(fd,ptr,nleft))<0)
        {
-           if(errno = EINTR)
-              nread = 0;
+           if(nleft == n)
+              return(-1);/* error,return -1 */
            else
-              return (-1);
-       }else if(nread ==0)
+              break; / * error ,return amount read so far */
+       }else if(nread ==0)//EOF
            break;
        nleft -=nread;
        ptr   +=nread;
     }
     return (n-nleft);
 }
+//被中断会继续
+// ssize_t writen(int fd,const void *vptr,size_t n)
+// {
+//     size_t nleft;
+//     ssize_t nwritten;
+//     const char * ptr;
+//     ptr = vptr;
+//     while(nleft>0){
+//        if((nwritten=write(fd,ptr,nleft))<0){//被阻塞了
+//            if(nwritten<0 && errno ==EINTR)
+//               nwritten = 0;
+//            else 
+//               return (-1);
+//        }
+//        nleft -= nwritten;
+//        ptr   += nwritten;
+//    }
+//    return (n);
+// }
 
+//被中断会返回已读字数
 ssize_t writen(int fd,const void *vptr,size_t n)
 {
     size_t nleft;
@@ -227,12 +271,13 @@ ssize_t writen(int fd,const void *vptr,size_t n)
     const char * ptr;
     ptr = vptr;
     while(nleft>0){
-       if((nwritten=write(fd,ptr,nleft))<=0){//被阻塞了
-           if(nwritten<0 && errno ==EINTR)
-              nwritten = 0;
+       if((nwritten=write(fd,ptr,nleft))<0){//被阻塞了
+           if(nleft==n)
+             return(-1);
            else 
-              return (-1);
-       }
+             break;
+       }else if(nwritten == 0)
+          break;
        nleft -= nwritten;
        ptr   += nwritten;
    }
