@@ -17,17 +17,16 @@
    <http://www.gnu.org/licenses/>.  */
 
 #ifndef _SYS_SELECT_H
-# error "Never include <bits/select2.h> directly; use <sys/select.h> instead."
+#error "Never include <bits/select2.h> directly; use <sys/select.h> instead."
 #endif
 
 /* Helper functions to issue warnings and errors when needed.  */
-extern long int __fdelt_chk (long int __d);
-extern long int __fdelt_warn (long int __d)
-  __warnattr ("bit outside of fd_set selected");
+extern long int __fdelt_chk(long int __d);
+extern long int __fdelt_warn(long int __d)
+    __warnattr("bit outside of fd_set selected");
 #undef __FD_ELT
-#define	__FD_ELT(d) \
-  __extension__								    \
-  ({ long int __d = (d);						    \
+#define __FD_ELT(d) \
+  __extension__({ long int __d = (d);						    \
      (__builtin_constant_p (__d)					    \
       ? (0 <= __d && __d < __FD_SETSIZE					    \
 	 ? (__d / __NFDBITS)						    \

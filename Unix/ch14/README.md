@@ -212,3 +212,31 @@ int munmap(void *addr,size_t len);
 ```
 ![mmap](../../image/mmap.png)
 [example](mmapo.c)
+
+
+### 习题
+14.5
+```c
+#include "apue.h"
+#include <sys/select.h>
+#include <poll.h>
+void sleep_us(unsigned int nusecs){
+  struct timeval tval;
+  tval.tv_sec = nusecs /100000;
+  tval.tv_usec=nusecs %100000;
+  select(0,NULL,NULL,NULL,&tval);
+}
+
+void sleep_us(unsigned int nusecs){
+  struct pollfd dummy;
+  int timeout;
+
+  if((timeout = nusecs / 1000)<=0)
+    timeout=1;
+  poll(&dummy,0,timeout);
+}
+
+```
+
+14.10
+  当文件具有给定操作系统默认的文件系统类型，上一次访问时间就会更新

@@ -35,6 +35,7 @@ int main(int argc, char *argv[])
       err_sys("mmap error for input");
     if ((dst = mmap(0, copysz, PROT_READ | PROT_WRITE, MAP_SHARED, fdout, fsz)) == MAP_FAILED)
       err_sys("mmap error for output");
+    //close(fdin);
     memcpy(dst, src, copysz);
     munmap(src, copysz);
     munmap(dst, copysz);
