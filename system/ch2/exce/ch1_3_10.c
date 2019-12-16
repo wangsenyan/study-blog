@@ -19,7 +19,7 @@ int main()
   }
   else if (pid == 0)
   {
-    for (i - 0; i < SIZE; i++)
+    for (i = 0; i < SIZE; i++)
     {
       nums[i] *= -i;
       printf("CHILD: %d ", nums[i]);
