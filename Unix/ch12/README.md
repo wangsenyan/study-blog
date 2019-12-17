@@ -61,7 +61,7 @@ int pthread_mutexattr_setpshared(pthread_mutexattr_t *attr,int pshared);
 int pthread_mutexattr_getrobust(const pthread_mutexattr_t *restrict attr,int *restrict robust);
 int pthread_mutexattr_setrobust(pthread_mutexattr_t *attr,int robust);
 
-//如果应用状态无法恢复，在线程对互斥量解锁后，改互斥量将永久不可用状态
+//如果应用状态无法恢复，在线程对互斥量解锁后，该互斥量将永久不可用状态
 //[consistent](../../image/consistent.png)
 int pthread_mutex_consistent(pthread_mutex_t *mutex);
 int pthread_mutexattr_gettype(const pthread_mutexattr_t *restrict attr,int *restrict type);
