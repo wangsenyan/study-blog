@@ -189,3 +189,61 @@ int semop(int semid,struct sembuf semoparray[],size_t nops);
 ```
 
 ### 共享内存
+
+* XSI共享存储没有相关的文件，存储段是内存的匿名段
+* shmget 创建或引用一个现有的存储段
+  - 正引用现存的段，size=0
+  - 新建段内容初始化为0
+* shmctl 对共享存储段操作
+  - cmd 
+   - IPC_STAT 获取->buf
+   - IPC_SET  bug -> shm_perm.uid,shm_perm.gid,shm_perm.mode  ,必须有效用户id等于shm_perm.cuid或shm_perm.uid,超级用户
+   - IPC_RMID 删除该共享存储段，不能shmat 与该段连接，权限同上
+   - SHM_LOCK
+   - SHM_UNLOCK
+* shmat 连接共享内存到它的地址空间
+  - addr
+    - 0 段连接到由内核选择的第一个可用地址上
+    - 非0  且没指定SHM_RND，则此段连接到addr所指定的地址上
+    - 非0  且指定了SHM_RND，此段连接到(addr-(addr mod SHMLBA))所表示的地址
+
+* shmdt 与addr指定放到段分离 shm_nattach -1
+```c
+#include <sys/shm.h>
+struct shmid_ds {
+  struct ipc_perm      shm_perm;
+  size_t               shm_segsz;   /* size of segment in bytes */
+  pid_t                shm_lpid;    /* pid of last shmop() */
+  pid_t                shm_cpid;    /* pid of creator */
+  shmatt_t             shm_nattach; /* number of current attaches */
+  time_t               shm_atime;   /* last-attach time */
+  time_t               shm_dtime;   /* last-detach time */
+  time_t               shm_ctime;   /* last-change time */
+}
+
+int shmget(key_t key,size_t size,int flag);
+//返回：成功，共享存储ID，出错 -1
+int shmctl(int shmid,int cmd,struct shmid_ds *buf);
+//返回：若成功，0 出错 -1
+void *shmat(int shmid,const void *addr,int flag);
+//返回：若成功，返回指向共享存储段的指针，出错，-1
+void *shmdt(const void *addr);
+//返回：成功 0 失败 -1
+```
+
+![shmget](../../image/shmget.png)
+
+[特殊用途](devnull.c)
+
+* 匿名存储映射
+  - MAP_ANON fd=-1
+  - 创建一个可以与后代进程共享的存储区
+```c
+if((area=mmap(0,SIZE,PROT_READ|PROT_WRITE,MAP_ANON|MAP_SHARED,-1,0))==MAP_FAILED)
+```
+
+### POSIX信号量
+* 解决XSI信号量接口的几个缺点
+  - POSIX更高新能的实现
+  - POSIX没有信号量集
+  - POSIX删除时更完美
