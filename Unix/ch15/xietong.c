@@ -1,14 +1,14 @@
 #include "apue.h"
 
-static void sig_pipe(int);
+//static void sig_pipe(int);
 int main(void)
 {
   int n, fd1[2], fd2[2];
   pid_t pid;
   char line[MAXLINE];
 
-  if (signal(SIGPIPE, sig_pipe) == SIG_ERR)
-    err_sys("signal error");
+  // if (signal(SIGPIPE, sig_pipe) == SIG_ERR)
+  //   err_sys("signal error");
   if (pipe(fd1) < 0 || pipe(fd2) < 0)
     err_sys("pipe error");
   if ((pid = fork()) < 0)
@@ -56,14 +56,15 @@ int main(void)
         err_sys("dup2 error to stdout");
       close(fd2[1]);
     }
+    exit(0); //echo $? 返回 128+信号 ，比如 141=128+13 13为SIGPIPE
     if (execl("./add2", "add2", (char *)0) < 0)
       err_sys("execl error");
   }
   exit(0);
 }
 
-static void sig_pipe(int signo)
-{
-  printf("SIGPIPE caught\n");
-  exit(0);
-}
+// static void sig_pipe(int signo)
+// {
+//   printf("SIGPIPE caught\n");
+//   exit(0);
+// }

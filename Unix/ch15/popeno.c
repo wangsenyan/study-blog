@@ -11,13 +11,13 @@ int main(int argc, char *argv[])
     err_quit("usage: a.out <pathname>");
   if ((fpin = fopen(argv[1], "r")) == NULL)
     err_sys("can't open %s", argv[1]);
-  if ((fpout = fopen(PAGER, "w")) == NULL)
+  if ((fpout = popen(PAGER, "w")) == NULL)
     err_sys("popen error");
 
   while (fgets(line, MAXLINE, fpin) != NULL)
   {
-    if (fputs(line, stdout) == EOF)
-      //if (fputs(line, fpout) == EOF)
+    //if (fputs(line, stdout) == EOF)
+    if (fputs(line, fpout) == EOF)
       err_sys("fputs error to pipe");
   }
   if (ferror(fpin))

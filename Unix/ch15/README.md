@@ -247,3 +247,95 @@ if((area=mmap(0,SIZE,PROT_READ|PROT_WRITE,MAP_ANON|MAP_SHARED,-1,0))==MAP_FAILED
   - POSIX更高新能的实现
   - POSIX没有信号量集
   - POSIX删除时更完美
+
+* sem_open 打开或使用已有信号量
+  - name
+  - oflag O_CREAT O_EXEL(当两个竞争的线程同时调用sem_open时，会使其中一个成功，其他失败，EEXIST)
+  - mode 同打开文件的权限位相同
+  - value 信号量初始值 0 ~ SEM_VALUE_MAX
+
+* sem_close 释放任何信号量相关的资源
+  - 没有调用sem_close而退出，内核将自动关闭任何打开的信号量，不会更改信号量值的状态
+
+* sem_unlink 销毁一个命名信号量，销毁延迟到最后一个打开的引用关闭
+
+* sem_trywait 信号量-1，如果信号量为0，返回-1并errno=EAGAIN
+
+* sem_wait  信号量-1，如果信号量为0发生阻塞
+
+* sem_timewait 信号量-1，或超时返回-1，errno=ETIMEOUT,基于CLOCK_REALTIME
+
+* sem_post 信号量值增1
+
+* sem_init 创建一个未命名的信号量
+  - sem 返回的信号量指针
+  - pshared 表明是否在多个进程中使用信号量，如果是，非0值
+  - value 信号量初始值
+
+* sem_destroy 销毁信号量，不能再使用
+
+* sem_getvalue 检索信号量值
+```c
+#include <semaphore.h>
+
+//命名信号量
+sem_t *sem_open(const char *name,int oflag,.../ * mode_t mode, unsigned int value */);
+//返回：成功，指向信号量的指针，出错 SEM_GAILED
+
+int sem_close(sem_t *sem);
+
+int sem_unlink(const char *name);
+
+int sem_trywait(sem_t *sem);
+
+int sem_wait(sem_t *sem);
+
+int sem_timewait(sem_t *restrict sem,const struct timespec *restrict tsptr);
+
+int sem_post(sem_t *sem);
+//返回：成功 0 出错 -1
+
+//未命名信号量
+int sem_init(sem_t *sem,int pshared,unsigned int value);
+
+int sem_destroy(sem_t *sem);
+
+int sem_getvalue(sem_t *restrict sem,int *restrict valp);
+//返回：成功 0 出错 -1
+```
+
+### 练习题
+
+* [15.10](fiforwo.c)
+  如果服务器进程以只读方式打开总所周知的FIFO，则每当客户进程个数从1变成0时，服务器进程就将在FIFO中读到(read)一个文件结束标志(关闭写端，产生EOF)，为使服务器进程免于处理这种情况，一种常用的技巧是使服务器进程以读-写方式打开该众所周知的FIFO
+
+* [15.12](msgo.c)
+  
+  - IPC_PRIVATE 队列id一样，只能创建者或超级用户可用
+  - 否则 不一样
+```s
+>ipcs   #列出所有(消息队列，共享内存，信号量)
+>ipcrm -[q/m/s] id  #删除上述(消息队列，共享内存，信号量)
+
+------ Message Queues --------
+key        msqid      owner      perms      used-bytes   messages    
+0x00000378 688128     root       0          55           5           
+
+------ Shared Memory Segments --------
+key        shmid      owner      perms      bytes      nattch     status      
+
+------ Semaphore Arrays --------
+key        semid      owner      perms      nsems     
+
+```
+
+* 15.13
+由于服务器进程和各客户进程可能会将段连接到不同的地址，所以在共享存储段中决不会存储实际物理地址。  
+相反，当在共享存储段中建立链表时，链表指针的值会设置为共享存储段内另一对象的偏移量。  
+偏移量为所指对象的实际地址减去共享存储段的起始位置  addr_pid + (实际地址 - 共享储存段起始地址)
+
+* [15.15](devnull_shm.c)
+
+* [15.16](devnull_sem.c)
+
+* [15.18](devnull_posix_sem.c)

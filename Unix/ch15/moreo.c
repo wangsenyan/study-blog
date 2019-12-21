@@ -33,8 +33,8 @@ int main(int argc, char *argv[])
     if (ferror(fp))
       err_sys("fgets error");
 
-    close(fd[1]);
-    if (waitpid(pid, NULL, 0) < 0)
+    close(fd[1]);                  //给子进程EOF，退出more
+    if (waitpid(pid, NULL, 0) < 0) //如果父进程提前终止，子进程成为孤儿进程，提前刷新缓冲
       err_sys("waitpid error");
     exit(0);
   }

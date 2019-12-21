@@ -1,12 +1,12 @@
 #include "apue.h"
 #include <sys/wait.h>
 
-int main(void)
+int main(int argc, char *argv[])
 {
   char line[MAXLINE];
   FILE *fpin;
-
-  if ((fpin = popen("./myuclc", "r")) == NULL)
+  if ((fpin = popen(argv[1], "r")) == NULL)
+    // if ((fpin = popen("./myuclc", "r")) == NULL)
     err_sys("popen error");
   for (;;)
   {
