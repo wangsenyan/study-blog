@@ -1,4 +1,5 @@
 //只在两个相关的进程间起作用，都需要同步访问
+//gcc devnull_posix_sem.c apue.c -o devnull_posix_sem -lpthread
 #include "apue.h"
 #include <fcntl.h>
 #include <semaphore.h>
@@ -24,7 +25,7 @@ int main(void)
   void *area;
   //if ((semid = shmget(888, sizeof(long), IPC_CREAT | IPC_EXCL)) < 0)
   if ((fd = open("/dev/zero", O_RDWR)) < 0) //接收并忽略所有信息
-    err_sys("open error");
+     err_sys("open error");
   if ((area = mmap(0, SIZE, PROT_READ | PROT_WRITE, MAP_ANON | MAP_SHARED, fd, 0)) == MAP_FAILED)
     err_sys("mmap error");
   close(fd);
