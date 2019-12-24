@@ -176,3 +176,11 @@ int close(int sockfd);
 int getsockname(int sockfd,struct sockaddr *localaddr,socklen_t *addrlen);
 int getpeername(int sockfd,struct sockaddr *perraddr,socklen_t *addrlen);
 ```
+
+
+### 
+* send时套接字必须已经连接
+* sendto 可以在无连接的套接字上指定一个目标地址
+* 连接中隐含了目标地址
+* 对于支持报文边界的协议，如果尝试发送的单个报文的长度超过协议所支持的最大长度，那么send会失败，并将errno设为EMSGSIZE
+* 对于字节流协议，send会阻塞直到整个数据传输完成

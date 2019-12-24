@@ -13,6 +13,7 @@
 #include <fcntl.h>
 #include <sys/resource.h>
 #define MAXLINE 4096
+#define MAXSLEEP 128
 #define FILE_MODE (S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH)
 #define DIR_MODE (FILE_MODE | S_IXUSR | S_IXGRP | S_IXOTH)
 #define LOCKFILE "/var/run/deamon.pid"

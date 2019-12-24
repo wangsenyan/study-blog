@@ -23,7 +23,7 @@ int main(int argc,char *argv[])
     int buff_size=0;
     char *msg;
     if(argc>=2)
-      serv_host = argv[1];
+      serv_host = argv[1]; 
     if(argc>=3)
       sscanf(argv[2],"%d",&port);
     if(argc>3)

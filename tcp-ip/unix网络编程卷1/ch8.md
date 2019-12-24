@@ -6,10 +6,9 @@
 
 ```c
 #include <sys/socket.h>
-ssize_t recvfrom(int sockfd,void *buff,size_t nbytes,int flags,struct sockaddr *from,socklen_t *addrlen);
-
+ssize_t recvfrom(int sockfd,void *restrict buff,size_t nbytes,int flags,struct sockaddr *restrict from,socklen_t *restrict addrlen);
+//返回值：返回数据的字节长度，若无可用数据或等方已经按序结束，返回0，出错，-1
 ssize_t sendto(int sockfd,const void *buff,size_t nbytes,int flags,const struct sockaddr *to,socklen_t *addrlen);
-
 //均返回：若成功则为读或写的字节数，若出错则为-1
 ```
 

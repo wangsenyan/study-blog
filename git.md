@@ -313,3 +313,7 @@ git reset --hard origin/master ## ???
 git checkout B path/file ## 从另一个分支检出文件
 git commit -m ''
 ```
+
+### 删除远程分支
+git branch -r -d origin/branch-name
+git push origin :branch-name
