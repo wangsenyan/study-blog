@@ -5,6 +5,7 @@
 * TCP/IP协议栈使用大端字节序
 
 * socket - domain
+
    域    |    描述
 ---------|------------
 AF_INET  | IPv4因特网域
@@ -215,3 +216,36 @@ int getnameinfo(const struct sockaddr *restrict addr,socklen_t alen,
 * 如果connect连接失败，套接字的状态会变成未定义的
   - 因此，如果connect失败，可迁移的应用程序需要关闭套接字
 * 合适选择合适的套接字类型？我们要做的工作量和能够容忍的出错程度
+
+### 带外数据
+* 带外数据(out-of-band data)
+  - 是一些通信协议所支持的可选功能，与普通数据相比，它允许更高优先级的数据传输。
+  - 带外数据先行传输，即使传输队列已经有数据
+  - TCP支持带外数据，UDP不支持
+  - TCP将带外数据称为紧急数据
+  - 一个字节，最后一个字节，MSG_OOB 标志发送，接收SIGURG
+  - 安排进程接收套接字的信号 `fcntl(sockfd,F_SETOWN,pid)` 
+  - 获得当前套接字所有权 `fcntl(sockfd,F_GETOWN,0)` 返回进程id或进程组id负数
+  - 紧急标记 `SO_OOBINLINE` 在普通数据中接收紧急数据
+  - 当带外数据出现在套接字读取队列时，select函数会返回一个文件描述符并且有一个待处理的异常条件
+  - 可以在普通数据流上接收紧急数据，也可以在其中一个recv函数中采用MSG_OOB标志在其他队列数据之前接收紧急数据
+  - 旧的紧急数据字节会被新的挤掉(丢掉旧紧急数据字节)
+* sockatmark 判断是否已经到达紧急标记
+
+```c
+#include <sys/socket.h>
+int sockatmark(int sockfd);
+//返回：若在标记处，返回1，没在标记处，返回0，出错，返回-1
+```
+
+### 非阻塞和异步I/O
+
+* 启用异步I/O是一个两步骤的过程
+  1. 建立套接字所有权，这样信号可以被传递到合适的进程
+  2. 通知套接字当I/O操作不会阻塞时发信号
+
+  ![asyncio](../../image/asyncio.png)
+
+### 习题
+* 16.4 
+  - ps -ef| wc -l
