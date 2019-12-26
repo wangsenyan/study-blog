@@ -9,7 +9,7 @@
 #include <netdb.h>
 #include <unistd.h> //read write
 #include <errno.h>
-#include "util.h"
+#include "apue.h"
 #define SERV_TCP_PORT 8000
 
 int main(int argc, char *argv[])
@@ -31,59 +31,63 @@ int main(int argc, char *argv[])
   else
     port = SERV_TCP_PORT;
 
-  //printf("%s %d %s",serv_host,port,msg);
   if ((host_ptr = gethostbyname(serv_host)) == NULL)
-  {
-    perror("gethostbyname error");
-    exit(1);
-  }
+    err_sys("gethostbyname error");
+
   if (host_ptr->h_addrtype != AF_INET)
-  {
-    perror("unknown address type");
-    exit(1);
-  }
-  //    for(i=0;i<5;i++){
-  //        if((sockfd[i]=socket(AF_INET,SOCK_STREAM,0))<0)
-  //	      //if((sockfd=socket(9999,SOCK_STREAM,0))<0)
-  //	    {
-  //	      printf("%d", errno);
-  //	      perror("can't open stream socket");
-  //	      exit(0);
-  //	    }
-  //	    bzero((char*)&serv_addr,sizeof(serv_addr));
-  //	    serv_addr.sin_family = AF_INET;
-  //	    //serv_addr.sin_addr.s_addr = ((struct in_addr*)host_ptr->h_addr_list[0])->s_addr;
-  //	    inet_pton(AF_INET,argv[1],&serv_addr.sin_addr);
-  //	    serv_addr.sin_port=htons(port);
-  //
-  //	     if(connect(sockfd[i], (struct sockaddr *) &serv_addr, sizeof(serv_addr)) < 0) {
-  //	       perror("can't connect to server");
-  //	       exit(1);
-  //	     }
-  //	 }
+    err_sys("gethostbyname error");
+
   bzero((char *)&serv_addr, sizeof(serv_addr));
   serv_addr.sin_family = AF_INET;
   serv_addr.sin_addr.s_addr = ((struct in_addr *)host_ptr->h_addr_list[0])->s_addr;
   serv_addr.sin_port = htons(port);
 
   if ((sockfd = socket(AF_INET, SOCK_STREAM, 0)) < 0)
-  //if((sockfd=socket(9999,SOCK_STREAM,0))<0)
-  {
-    printf("%d", errno);
-    perror("can't open stream socket");
-    exit(0);
-  }
+    err_sys("can't open stream socket,%s", strerror(errno));
+
   if (connect(sockfd, (struct sockaddr *)&serv_addr, sizeof(serv_addr)) < 0)
-  {
-    perror("can't connect to server");
-    exit(1);
-  }
-  //  printf("%d",(int)sizeof(msg));
-  //write(sockfd,msg,strlen(msg));
-  //str_cli(stdin,sockfd);
-  //str_cli_poll(stdin,sockfd);
-  printf("connected success");
-  str_cli_pthread(stdin, sockfd);
+    err_sys("can't connect to server");
+  str_cli(stdin, sockfd);
   exit(0);
-  //close(sockfd);
+}
+
+void str_cli(FILE *fp, int sockfd)
+{
+  int maxfdp1, stdineof;
+  fd_set rset;
+  char buf[MAXLINE];
+  int n;
+  stdineof = 0;
+  FD_ZERO(&rset);
+  for (;;)
+  {
+    if (stdineof == 0)
+      FD_SET(fileno(fp), &rset);
+    FD_SET(sockfd, &rset);
+    maxfdp1 = MAX(fileno(fp), sockfd) + 1;
+    select(maxfdp1, &rset, NULL, NULL, NULL);
+    if (FD_ISSET(sockfd, &rset))
+    {
+      if ((n = read(sockfd, buf, MAXLINE)) == 0) //read读取一行数据
+        if (stdineof == 1)
+          return;
+        else
+        {
+          perror("str_cli:server terminated prematurely");
+          exit(0);
+        }
+      write(fileno(stdout), buf, n);
+    }
+    if (FD_ISSET(fileno(fp), &rset))
+    {
+      if ((n = read(fileno(fp), buf, MAXLINE)) == 0)
+      {
+        stdineof = 1;
+        shutdown(sockfd, SHUT_WR);
+        FD_CLR(fileno(fp), &rset);
+        continue;
+      }
+      writen(sockfd, buf, n);
+    }
+  }
 }

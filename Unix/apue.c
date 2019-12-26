@@ -492,3 +492,71 @@ void WAIT_CHILD(void)
   if (sigprocmask(SIG_SETMASK, &oldmask, NULL) < 0)
     err_sys("SIG_SETMASK error");
 }
+
+void str_cli(FILE *fp, int sockfd)
+{
+  int maxfdp1, stdineof;
+  fd_set rset;
+  char buf[MAXLINE];
+  int n;
+  stdineof = 0;
+  FD_ZERO(&rset);
+  for (;;)
+  {
+    if (stdineof == 0)
+      FD_SET(fileno(fp), &rset);
+    FD_SET(sockfd, &rset);
+    maxfdp1 = MAX(fileno(fp), sockfd) + 1;
+    select(maxfdp1, &rset, NULL, NULL, NULL);
+    if (FD_ISSET(sockfd, &rset))
+    {
+      if ((n = read(sockfd, buf, MAXLINE)) == 0) //read读取一行数据
+        if (stdineof == 1)
+          return;
+        else
+        {
+          perror("str_cli:server terminated prematurely");
+          exit(0);
+        }
+      write(fileno(stdout), buf, n);
+    }
+    if (FD_ISSET(fileno(fp), &rset))
+    {
+      if ((n = read(fileno(fp), buf, MAXLINE)) == 0)
+      {
+        stdineof = 1;
+        shutdown(sockfd, SHUT_WR);
+        FD_CLR(fileno(fp), &rset);
+        continue;
+      }
+      writen(sockfd, buf, n);
+    }
+  }
+}
+
+ssize_t writen(int fd, const void *vptr, size_t n)
+{
+  size_t nleft;
+  ssize_t nwritten;
+  const char *ptr;
+  ptr = vptr;
+  nleft = n;
+  while (nleft > 0)
+  {
+    if ((nwritten = write(fd, ptr, nleft)) <= 0)
+    {
+      if (nwritten < 0 && errno == EINTR)
+        nwritten = 0;
+      else
+        return (-1);
+    }
+    nleft -= nwritten;
+    ptr += nwritten;
+  }
+  return (n);
+}
+
+int fd_pipe(int fd[2])
+{
+  return (socketpair(AF_UNIX, SOCK_STREAM, 0, fd));
+}
