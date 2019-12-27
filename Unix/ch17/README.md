@@ -9,3 +9,7 @@
  - 无需发送确认报文
 
 ![socketpair](../../image/socketpair.png)
+
+```c
+#define offsetof(TYPE,MEMBER)((int)&((TYPE *)0)->MEMBER)
+```
