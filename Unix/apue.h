@@ -13,14 +13,21 @@
 #include <fcntl.h>
 #include <sys/resource.h>
 #include <sys/socket.h>
+#include <sys/un.h>
+#include <time.h>
 #define MAXLINE 4096
 #define MAXSLEEP 128
+#define QLEN 10
+#define STALE 30
+#define CLI_PATH "/var/tmp/"
+#define CLI_PERM S_IRWXU
 #define FILE_MODE (S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH)
 #define DIR_MODE (FILE_MODE | S_IXUSR | S_IXGRP | S_IXOTH)
 #define LOCKFILE "/var/run/deamon.pid"
 #define LOCKMODE (S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH)
 #define MAX(a, b) (((a) > (b)) ? (a) : (b))
 #define MIN(a, b) (((a) < (b)) ? (a) : (b))
+#define CONTROLLEN CMSG_LEN(sizeof(int))
 #define read_lock(fd, offset, whence, len) \
   lock_reg((fd), F_SETLK, F_RDLCK, (offset), (whence), (len))
 #define readw_lock(fd, offset, whence, len) \
@@ -67,5 +74,8 @@ void TELL_CHILD(pid_t pid);
 void WAIT_CHILD(void);
 void str_cli(FILE *fp, int sockfd);
 ssize_t writen(int fd, const void *vptr, size_t n);
+int serv_listen(const char *name);
+int serv_accept(int listenfd, uid_t *uidptr);
+int cli_conn(const char *name);
 //Sigfunc *signal(int signo, Sigfunc *func)
 #endif
