@@ -12,4 +12,9 @@
 
 ```c
 #define offsetof(TYPE,MEMBER)((int)&((TYPE *)0)->MEMBER)
+
+#include <unistd.h>
+int getopt(int argc,char *const argv[],const char *options);
+extern int optind,opterr,optopt;
+extern char *optarg;
 ```

@@ -575,11 +575,12 @@ int serv_listen(const char *name)
     return (-2);
 
   unlink(name);
-  memset(&un, 0, sizeof(un));
+  bzero(&un, sizeof(un));
+  //memset(&un, 0, sizeof(un));
   un.sun_family = AF_UNIX;
   strcpy(un.sun_path, name);
   len = offsetof(struct sockaddr_un, sun_path) + strlen(name);
-  if (bind(fd, (sockaddr *)&un, len) < 0)
+  if (bind(fd, (struct sockaddr *)&un, len) < 0)
   {
     rval = -3;
     goto errout;
@@ -604,8 +605,10 @@ int serv_accept(int listenfd, uid_t *uidptr)
   if ((name = malloc(sizeof(un.sun_path) + 1)) == NULL)
     return (-1);
   len = sizeof(un);
-  if ((clifd = accept(listenfd, (sockaddr *)&un, len)) < 0)
+  //if ((clifd = accept(listenfd, (struct sockaddr *)&un, &len)) < 0)
+  if ((clifd = accept(listenfd, (struct sockaddr *)&un, &len)) < 0)
   {
+
     free(name);
     return (-2);
   }
@@ -626,7 +629,7 @@ int serv_accept(int listenfd, uid_t *uidptr)
 #endif
   if ((statbuf.st_mode & (S_IRWXG | S_IRWXO)) || (statbuf.st_mode & S_IRWXU) != S_IRWXU)
   {
-    rval = -4;
+    rval = -5;
     goto errout;
   }
   staletime = time(NULL) - STALE;
@@ -640,7 +643,7 @@ int serv_accept(int listenfd, uid_t *uidptr)
   if (uidptr != NULL)
     *uidptr = statbuf.st_uid;
   unlink(name);
-  fread(name);
+  free(name);
   return (clifd);
 
 errout:
@@ -811,6 +814,7 @@ int recv_fd(int fd, ssize_t (*userfunc)(int, const void *, size_t))
   }
 }
 
+//#ifdef _OPEND_H
 static void log_doit(int, int, int, const char *, va_list ap);
 extern int log_to_stderr;
 
@@ -881,3 +885,4 @@ static void log_doit(int errnoflag, int error, int priority, const char *fmt, va
     syslog(priority, "%s", buf);
   }
 }
+//#endif

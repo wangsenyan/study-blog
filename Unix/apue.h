@@ -15,6 +15,7 @@
 #include <sys/socket.h>
 #include <sys/un.h>
 #include <time.h>
+#include <stddef.h> /*offsetof*/
 #define MAXLINE 4096
 #define MAXSLEEP 128
 #define QLEN 10
@@ -77,5 +78,17 @@ ssize_t writen(int fd, const void *vptr, size_t n);
 int serv_listen(const char *name);
 int serv_accept(int listenfd, uid_t *uidptr);
 int cli_conn(const char *name);
+int recv_fd(int fd, ssize_t (*userfunc)(int, const void *, size_t));
+int send_err(int fd, int errcode, const char *msg);
+int send_fd(int fd, int fd_to_send);
+#ifdef _OPEND_H
+void log_open(const char *ident, int option, int facility);
+void log_ret(const char *fmt, ...);
+void log_sys(const char *fmt, ...);
+void log_msg(const char *fmt, ...);
+void log_quit(const char *fmt, ...);
+void log_exit(int error, const char *fmt, ...);
+static void log_doit(int errnoflag, int error, int priority, const char *fmt, va_list ap);
+#endif
 //Sigfunc *signal(int signo, Sigfunc *func)
 #endif

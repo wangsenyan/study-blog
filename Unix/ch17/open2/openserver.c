@@ -1,26 +1,28 @@
-#include "open.h"
-#include <fcntl.h>
+#include "opend.h"
+#include <syslog.h>
 
-#define BUFFSIZE 8192
+int debug, oflag, client_size, log_to_stderr;
+char errmsg[MAXLINE];
+char *pathname;
+Client *client = NULL;
 
 int main(int argc, char *argv[])
 {
-  int n, fd;
-  char buf[BUFFSIZE];
-  char line[MAXLINE];
-
-  while (fgets(line, MAXLINE, stdin) != NULL)
+  int c;
+  log_open("open.serv", LOG_PID, LOG_USER);
+  opterr = 0;
+  while ((c = getopt(argc, argv, "d")) != EOF)
   {
-    if (line[strlen(line) - 1] == '\n')
-      line[strlen(line) - 1] = 0;
-    if ((fd = csopen(line, O_RDONLY)) < 0)
-      continue;
-    while ((n = read(fd, buf, BUFFSIZE)) > 0)
-      if (write(STDOUT_FILENO, buf, n) != n)
-        err_sys("write error");
-    if (n < 0)
-      err_sys("read error");
-    close(fd);
+    switch (c)
+    {
+    case 'd':
+      debug = log_to_stderr = 1;
+      break;
+    case '?':
+      err_quit("unrecognized option: -%c", optopt);
+    }
   }
-  exit(0);
+  if (debug == 0)
+    daemonize("opend"); //作为守护进程
+  loop();
 }
