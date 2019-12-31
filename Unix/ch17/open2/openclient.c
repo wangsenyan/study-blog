@@ -15,7 +15,10 @@ int main(int argc, char *argv[])
     if (line[strlen(line) - 1] == '\n')
       line[strlen(line) - 1] = 0;
     if ((fd = csopen(line, O_RDONLY)) < 0)
+    {
+      fprintf(stderr, "fd %d %s", fd, line);
       continue;
+    }
     while ((n = read(fd, buf, BUFFSIZE)) > 0)
       if (write(STDOUT_FILENO, buf, n) != n)
         err_sys("write error");

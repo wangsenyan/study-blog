@@ -162,5 +162,6 @@ int cli_args(int argc, char **argv)
   }
   pathname = argv[1];
   oflag = atoi(argv[2]);
+  fprintf(stderr, "%s %d", pathname, oflag);
   return (0);
 }

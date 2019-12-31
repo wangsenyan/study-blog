@@ -575,8 +575,7 @@ int serv_listen(const char *name)
     return (-2);
 
   unlink(name);
-  bzero(&un, sizeof(un));
-  //memset(&un, 0, sizeof(un));
+  memset(&un, 0, sizeof(un));
   un.sun_family = AF_UNIX;
   strcpy(un.sun_path, name);
   len = offsetof(struct sockaddr_un, sun_path) + strlen(name);
@@ -585,8 +584,12 @@ int serv_listen(const char *name)
     rval = -3;
     goto errout;
   }
+  if (listen(fd, QLEN) < 0)
+  {
+    rval = -4;
+    goto errout;
+  }
   return (fd);
-
 errout:
   err = errno;
   close(fd);
@@ -605,10 +608,9 @@ int serv_accept(int listenfd, uid_t *uidptr)
   if ((name = malloc(sizeof(un.sun_path) + 1)) == NULL)
     return (-1);
   len = sizeof(un);
-  //if ((clifd = accept(listenfd, (struct sockaddr *)&un, &len)) < 0)
   if ((clifd = accept(listenfd, (struct sockaddr *)&un, &len)) < 0)
   {
-
+    //fprintf(stderr, "accept error %d %d %d", clifd, len, (int)sizeof(un));
     free(name);
     return (-2);
   }
@@ -814,7 +816,7 @@ int recv_fd(int fd, ssize_t (*userfunc)(int, const void *, size_t))
   }
 }
 
-//#ifdef _OPEND_H
+#ifdef _OPEND_H
 static void log_doit(int, int, int, const char *, va_list ap);
 extern int log_to_stderr;
 
@@ -885,4 +887,4 @@ static void log_doit(int errnoflag, int error, int priority, const char *fmt, va
     syslog(priority, "%s", buf);
   }
 }
-//#endif
+#endif
