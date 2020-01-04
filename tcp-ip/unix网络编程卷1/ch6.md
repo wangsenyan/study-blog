@@ -32,6 +32,7 @@
 ![model_comp](../../image/model_comp.png)
 
 ### select
+![select](../../image/select.png)
 * 运行进程指示内核等待多个事件中的任何一个发生，并只有在有一个或多个实践发生或经历一段指定时间后才唤醒它
 
 ```c
@@ -77,6 +78,14 @@ FD_SET(5,&rset);
 
 * 当某个套接字上发生错误时，它将由select标记为即可读又可写
 
+* select 几大缺点
+  - 每次调用select，都需要把fd集合从用户态拷贝到内核态，这个开销在fd很多时会很大
+  - 每次调用select都需要在内核遍历传递进来的所有fd,这个开销在 fd很多时也很大
+  - select支持的文件描述符数量太小，默认是1024
+* epoll
+ - epoll_ctl(指定EPOLL_CTL_ADD),会把所有的fd拷贝进内核，保证每个fd在整个过程中只会拷贝一次
+ - epoll_ctr 把current挂一遍，等待回调
+ - epoll没有描述符限制 
 ![ready](../../image/sg_read.png)
 
 

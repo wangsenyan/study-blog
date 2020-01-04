@@ -24,4 +24,5 @@ int client_add(int, uid_t);
 void client_del(int);
 void handle_request(char *, int, int, uid_t);
 void loop(void);
+void pollfd_loop(void);
 #endif

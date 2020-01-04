@@ -24,5 +24,5 @@ int main(int argc, char *argv[])
   }
   if (debug == 0)
     daemonize("opend"); //作为守护进程
-  loop();
+  pollfd_loop();
 }

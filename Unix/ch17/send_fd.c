@@ -1,7 +1,7 @@
 //linux版本，传递证书
 #include "apue.h"
 #include <sys/socket.h>
-
+#define _GNU_SOURCE
 #if defined(SCM_CREDS)
 #define CREDSTRUCT cmsgcred
 #define SCM_CREDTYPE SCM_CREDS
@@ -14,8 +14,10 @@
 
 #define RIGHTSLEN CMSG_LEN(sizeof(int))
 #define CREDSLEN CMSG_LEN(sizeof(struct CREDSTRUCT))
+#if defined(CONTROLLEN)
+#undef CONTROLLEN
 #define CONTROLLEN (RIGHTSLEN + CREDSLEN)
-
+#endif
 static struct cmsghdr *cmptr = NULL;
 
 int send_fd(int fd, int fd_to_send)
@@ -51,12 +53,12 @@ int send_fd(int fd, int fd_to_send)
     cmp = cmptr;
 
     cmp->cmsg_level = SOL_SOCKET;
-    cmp->cmsg_type = SCM_RIGHTS;
+    cmp->cmsg_type = SCM_RIGHTS; //发送/接收描述符
     cmp->cmsg_len = RIGHTSLEN;
     *(int *)CMSG_DATA(cmp) = fd_to_send;
     cmp = CMSG_NXTHDR(&msg, cmp);
     cmp->cmsg_level = SOL_SOCKET;
-    cmp->cmsg_type = SCM_CREDTYPE;
+    cmp->cmsg_type = SCM_CREDTYPE; //发送/接收用户凭证
     cmp->cmsg_len = CREDSLEN;
     credp = (struct CREDSTRUCT *)CMSG_DATA(cmp);
 #if defined(SCM_CREDENTIALS)
