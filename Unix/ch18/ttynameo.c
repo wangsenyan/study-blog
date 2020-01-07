@@ -6,7 +6,6 @@
 #include <termios.h>
 #include <unistd.h>
 #include <stdlib.h>
-
 struct devdir
 {
   struct devdir *d_next;
@@ -16,7 +15,11 @@ struct devdir
 static struct devdir *head;
 static struct devdir *tail;
 static char pathname[_POSIX_PATH_MAX + 1];
-
+int isatty(int fd)
+{
+  struct termios ts;
+  return (tcgetattr(fd, &ts) != -1);
+}
 static void add(char *dirname)
 {
   struct devdir *ddp;
@@ -29,6 +32,8 @@ static void add(char *dirname)
   if (strcmp(dirname, "/dev/fd") == 0)
     return;
   if ((ddp = malloc(sizeof(struct devdir))) == NULL)
+    return;
+  if ((ddp->d_name = strdup(dirname)) == NULL)
   {
     free(ddp);
     return;
@@ -81,7 +86,10 @@ static char *seachdir(char *dirname, struct stat *fdstatp)
         strcmp(pathname, "/dev/stderr") == 0)
       continue;
     if (stat(pathname, &devstat) < 0)
+    {
+      fprintf(stdout, "err %s\n", strerror(errno));
       continue;
+    }
     if (S_ISDIR(devstat.st_mode))
     {
       add(pathname);
@@ -89,6 +97,7 @@ static char *seachdir(char *dirname, struct stat *fdstatp)
     }
     if (devstat.st_ino == fdstatp->st_ino && devstat.st_dev == fdstatp->st_dev)
     {
+      //fprintf(stdout, "err2 %s\n", strerror(errno));
       closedir(dp);
       return (pathname);
     }
@@ -116,23 +125,24 @@ char *ttyname(int fd)
         break;
   }
   cleanup();
+  // fprintf(stderr, "path is %s\n", rval);
   return (rval);
 }
 
 int main(void)
 {
   char *name;
-  // if (isatty(0))
-  // {
-  //   name = ttyname(0);
-  //   if (name == NULL)
-  //     name = "undefined";
-  // }
-  // else
-  // {
-  //   name = "not a tty";
-  // }
-  // printf("fd 0:%s\n", name);
+  if (isatty(0))
+  {
+    name = ttyname(0);
+    if (name == NULL)
+      name = "undefined";
+  }
+  else
+  {
+    name = "not a tty";
+  }
+  printf("fd 0:%s\n", name);
 
   if (isatty(1))
   {
