@@ -24,3 +24,5 @@ int unlockpt(int fd);
 char *ptsname(int fd);
 //返回：若成功，返回指向PTY从设备的指针，若出错，返回NULL
 ```
+
+* 在linux , Mac OS X 和 Solaris 系统中，当调用ptys_open时，从设备成为新会话的控制终端 

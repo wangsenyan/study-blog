@@ -90,5 +90,5 @@ void log_quit(const char *fmt, ...);
 void log_exit(int error, const char *fmt, ...);
 static void log_doit(int errnoflag, int error, int priority, const char *fmt, va_list ap);
 #endif
-//Sigfunc *signal(int signo, Sigfunc *func)
+int fd_pipe(int fd[2]);
 #endif
