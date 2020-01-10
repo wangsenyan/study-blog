@@ -95,7 +95,7 @@ int main(int argc, char *argv[])
   }
   if (driver)
     do_driver(driver);
-  loop(fdm, ignoreeof);
+  loop(fdm, ignoreeof);//父子进程都会loop
   exit(0);
 }
 

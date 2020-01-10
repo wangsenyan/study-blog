@@ -28,7 +28,7 @@ pid_t pty_fork(int *ptrfdm, char *slave_name, int slave_namesz,
       err_sys("setsid error");
     if ((fds = ptys_open(pts_name)) < 0)
       err_sys("can't open slave pty");
-    close(fdm);
+    close(fdm); //子进程关闭主设备
 #if defined(BSD)
     if (ioctl(fds, TIOCSCTTY, (char *)0) < 0)
       err_sys("TIOCSCTTY error");
