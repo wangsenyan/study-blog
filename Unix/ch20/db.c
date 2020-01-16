@@ -21,30 +21,33 @@ typedef unsigned long COUNT;
 
 typedef struct
 {
-  int idxfd; /* fd for index file */
-  int datfd; /* fd for data file */
-  char *idxbuf;
-  char *datbuf;
-  char *name; /* name db was opened under */
-  off_t idxoff;
-  size_t idxlen;
-  off_t datoff;
-  size_t datlen;
-
-  off_t ptrval;
-  off_t ptroff;
-  off_t chainoff;
-  off_t hashoff;
-  DBHASH nhash;
+  int idxfd;      /* fd for index file */
+  int datfd;      /* fd for data file */
+  char *idxbuf;   /* malloc'ed buffer for index record */
+  char *datbuf;   /* malloc'ed buffer for data record */
+  char *name;     /* name db was opened under */
+  off_t idxoff;   /* offset in index file of index record */
+                  /* key is at (idxoff + PTR_SZ + IDXLEN_SZ ) */
+  size_t idxlen;  /* length of index record */
+                  /* excludes IDXLEN_SZ bytes at front of record */
+                  /* includes newline at end of index record */
+  off_t datoff;   /* offset in data file of data record */
+  size_t datlen;  /* length of data record */
+                  /* includes newline at end */
+  off_t ptrval;   /* contents of chain ptr in index record (散列表记录项内容)*/
+  off_t ptroff;   /* chain ptr offset pointing to this idx record (散列表记录项所在地址) */
+  off_t chainoff; /* offset of hash chain for this index record (散列表项地址)*/
+  off_t hashoff;  /* offset in index file of hash table (散列表开始地址)*/
+  DBHASH nhash;   /* current hash table size */
   COUNT cnt_delok;
   COUNT cnt_delerr;
   COUNT cnt_fetchok;
   COUNT cnt_fetcherr;
   COUNT cnt_nextrec;
-  COUNT cnt_stor1;
-  COUNT cnt_stor2;
-  COUNT cnt_stor3;
-  COUNT cnt_stor4;
+  COUNT cnt_stor1; /* store:DB_INSERT,no empty,appended */
+  COUNT cnt_stor2; /* store:DB_INSERT,found empty,reused */
+  COUNT cnt_stor3; /* store:DB_REPLACE,diff len,appended */
+  COUNT cnt_stor4; /* store:DB_REPLACE,same len,overwrote */
   COUNT cnt_storeerr;
 } DB;
 
@@ -107,7 +110,7 @@ DBHANDLE db_open(const char *pathname, int oflag, ...)
       sprintf(asciiptr, "%*d", PTR_SZ, 0);
       hash[0] = 0;
       for (i = 0; i < NHASH_DEF + 1; i++)
-        strcat(hash, asciiptr);
+        strcat(hash, asciiptr); //从末尾复制 '\n' 相当于填充
       strcat(hash, "\n");
       i = strlen(hash);
       if (write(db->idxfd, hash, i) != i)
@@ -169,8 +172,12 @@ char *db_fetch(DBHANDLE h, const char *key)
     err_dump("db_fetch:un_lock error");
   return (ptr);
 }
-
-static _db_find_and_lock(DB *db, const char *key, int writelock)
+/*
+ Find the specified record,Called by db_delete,db_fetch,
+ and db_store,Return with the hash chain locked.
+ 锁住所找到的整个哈希链表
+*/
+static int _db_find_and_lock(DB *db, const char *key, int writelock)
 {
   off_t offset, nextofset;
   db->chainoff = (_db_hash(db, key) * PTR_SZ) + db->hashoff;
@@ -219,8 +226,16 @@ static off_t _db_readptr(DB *db, off_t offset)
   asciiptr[PTR_SZ] = 0;
   return (atol(asciiptr));
 }
-
-//从索引记录中查找
+/*
+ * 从索引记录中查找
+db->ptrval
+db->idxoff
+db->idxlen
+db->idxbuf
+db->datoff
+db->datlen
+//db->datbuf
+*/
 static off_t _db_readidx(DB *db, off_t offset)
 {
   ssize_t i;
@@ -266,9 +281,12 @@ static off_t _db_readidx(DB *db, off_t offset)
   return (db->ptrval); //返回索引记录下一个
 }
 
+/*
+db->datbuf
+*/
 static char *_db_readdat(DB *db)
 {
-  if (lseek(db->datfd, db->datoff, db->datlen, SEEK_SET) == -1)
+  if (lseek(db->datfd, db->datoff, SEEK_SET) == -1)
     err_dump("_db_readdat: lseek error");
   if (read(db->datfd, db->datbuf, db->datlen) != db->datlen)
     err_dump("_db_readdat:read error");
@@ -359,6 +377,7 @@ static void _db_writeidx(DB *db, const char *key, off_t offset, int whence, off_
   len = strlen(db->idxbuf);
   if (len < IDXLEN_MIN || len > IDXLEN_MAX)
     err_dump("_db_writeidx:invalid length");
+  //%*lld指定长度 PTR_SZ 的ptrval %*d 指定长度为 IDXLEN_SZ的len
   sprintf(asciiptrlen, "%*lld%*d", PTR_SZ, (long long)ptrval, IDXLEN_SZ, len); //所有
   if (whence == SEEK_END)
     if (writew_lock(db->idxfd, ((db->nhash + 1) * PTR_SZ) + 1, SEEK_SET, 0) < 0)
@@ -374,4 +393,163 @@ static void _db_writeidx(DB *db, const char *key, off_t offset, int whence, off_
   if (whence == SEEK_END)
     if (un_lock(db->idxfd, ((db->nhash + 1) * PTR_SZ) + 1, SEEK_SET, 0) < 0)
       err_dump("_db_writeidx:un_lock error");
+}
+
+//仅仅写入指针
+static void _db_writeptr(DB *db, off_t offset, off_t ptrval)
+{
+  char asciiptr[PTR_SZ + 1];
+  if (ptrval < 0 || ptrval > PTR_MAX)
+    err_quit("_db_writeptr: invalid ptr :%d", ptrval);
+  sprintf(asciiptr, "%*lld", PTR_SZ, (long long)ptrval);
+  if (lseek(db->idxfd, offset, SEEK_SET) == -1)
+    err_dump("_db_writeptr: lseek error to ptr field");
+  if (write(db->idxfd, asciiptr, PTR_SZ) != PTR_SZ)
+    err_dump("_db_writeptr: write error of ptr field");
+}
+
+int db_store(DBHANDLE h, const char *key, const char *data, int flag)
+{
+  DB *db = h;
+  int rc, keylen, datlen;
+  off_t ptrval;
+  if (flag != DB_INSERT && flag != DB_REPLACE && flag != DB_STORE)
+  {
+    errno = EINVAL;
+    return (-1);
+  }
+  keylen = strlen(key);
+  datlen = strlen(data) + 1; /* +1 for newline at end */
+  if (datlen < DATALEN_MIN || datlen > DATALEN_MAX)
+    err_dump("db_store: invalid data length");
+  if (_db_find_and_lock(db, key, 1) < 0)
+  {
+    if (flag == DB_REPLACE)
+    {
+      rc = -1;
+      db->cnt_storeerr++;
+      errno = ENOENT;
+      goto doreturn;
+    }
+    ptrval = _db_readptr(db, db->chainoff);
+    if (_db_findfree(db, keylen, datlen) < 0)
+    {
+      _db_writedat(db, data, 0, SEEK_END);
+      _db_writeidx(db, key, 0, SEEK_END, ptrval);
+      _db_writeptr(db, db->chainoff, db->idxoff);
+      db->cnt_storeerr++;
+    }
+    else
+    {
+      _db_writedat(db, data, db->datoff, SEEK_SET);
+      _db_writeidx(db, key, db->idxoff, SEEK_SET, ptrval);
+      _db_writeptr(db, db->chainoff, db->idxoff);
+      db->cnt_stor2++;
+    }
+  }
+  else
+  {
+    if (flag == DB_INSERT)
+    {
+      rc = 1;
+      db->cnt_storeerr++;
+      goto doreturn;
+    }
+    if (datlen != db->datlen)
+    {
+      _db_dodelete(db);
+      ptrval = _db_readptr(db, db->chainoff);
+      _db_writedat(db, data, 0, SEEK_END);
+      _db_writeidx(db, key, 0, SEEK_END, ptrval);
+
+      _db_writeptr(db, db->chainoff, db->idxoff);
+      db->cnt_stor3++;
+    }
+    else
+    {
+      _db_writedat(db, data, db->datoff, SEEK_SET);
+      db->cnt_stor4++;
+    }
+  }
+  rc = 0;
+doreturn:
+  if (un_lock(db->idxfd, db->chainoff, SEEK_SET, 1) < 0)
+    err_dump("db_store: un_lock error");
+  return (rc);
+}
+
+static int _db_findfree(DB *db, int keylen, int datlen)
+{
+  int rc;
+  off_t offset, nextoffset, saveoffset;
+  if (writew_lock(db->idxfd, FREE_OFF, SEEK_SET, 1) < 0)
+    err_dump("_db_findfree: writew_lock error");
+  saveoffset = FREE_OFF;
+  offset = _db_readptr(db, saveoffset);
+  while (offset != 0)
+  {
+    nextoffset = _db_readidx(db, offset);
+    if (strlen(db->idxbuf) == keylen && db->datlen == datlen)
+      break;
+    saveoffset = nextoffset;
+    offset = nextoffset;
+  }
+  if (offset == 0)
+  {
+    rc = -1;
+  }
+  else
+  {
+    _db_writeptr(db, saveoffset, db->ptrval); //下一个链指针写至前一记录的链表指针
+    rc = 0;
+  }
+  if (un_lock(db->idxfd, FREE_OFF, SEEK_SET, 1) < 0)
+    err_dump("_db_findfree: unlock error");
+  return (rc);
+}
+
+//将索引文件的文件偏移量设置为指向第一条索引记录
+void db_rewind(DBHANDLE h)
+{
+  DB *db = h;
+  off_t offset;
+  offset = (db->nhash + 1) * PTR_SZ;
+  if ((db->idxoff = lseek(db->idxfd, offset + 1, SEEK_SET)) == -1)
+    err_dump("db_rewind: lseek error");
+}
+
+//返回数据库的下一条记录,并不按键的顺序返回
+char *db_nextrec(DBHANDLE h, char *key)
+{
+  DB *db = h;
+  char c;
+  char *ptr;
+  /*
+   we read lock the free list so that we don't read 
+   a record in the middle of its being deleted
+  */
+  if (readw_lock(db->idxfd, FREE_OFF, SEEK_SET, 1) < 0)
+    err_dump("db_nextrec: readw_lock error");
+  do
+  {
+    if (_db_readidx(db, 0) < 0)
+    {
+      ptr = NULL;
+      goto doreturn;
+    }
+    ptr = db->idxbuf;
+    /*
+     check id key is all blank (empty record)
+    */
+    while ((c = *ptr++) != 0 && c == SPACE)
+      ;
+  } while (c == 0); /* loop until a nonblank key is found */
+  if (key != NULL)
+    strcpy(key, db->idxbuf);
+  ptr = _db_readdat(db);
+  db->cnt_nextrec++;
+doreturn:
+  if (un_lock(db->idxfd, FREE_OFF, SEEK_SET, 1) < 0)
+    err_dump("db_nextrec: un_lock error");
+  return (ptr);
 }
