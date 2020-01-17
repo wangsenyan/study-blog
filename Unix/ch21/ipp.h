@@ -95,3 +95,19 @@
 #define TAG_CHARSET 0x47
 #define TAG_NATULANG 0x48
 #define TAG_MIMETYPE 0x49
+
+struct ipp_hdr
+{
+  int8_t major_version;
+  int8_t minor_version;
+  union {
+    int16_t op;
+    int16_t st;
+  } u;
+  int32_t request_id;
+  char attr_group[1];
+};
+
+#define operation u.op;
+#define status u.st;
+#endif
