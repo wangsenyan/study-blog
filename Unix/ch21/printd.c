@@ -518,14 +518,12 @@ char *add_option(char *cp, int tag, char *optname, char *optval)
   *cp++ = tag;
   n = strlen(optname);
   u.s = htons(n);
-  //保持对齐
   *cp++ = u.c[0];
   *cp++ = u.c[1];
   strcpy(cp, optname);
   cp += n;
   n = strlen(optval);
   u.s = htons(n);
-  //保持对齐
   *cp++ = u.c[0];
   *cp++ = u.c[1];
   strcpy(cp, optval);
@@ -555,11 +553,328 @@ void *printer_thread(void *arg)
     while (jobhead == NULL)
     {
       log_msg("printer_thread: waiting...");
-      pthread_cond_wait(&jobwait, &joblock);
+      pthread_cond_wait(&jobwait, &joblock); //等待条件变量的过程中会释放互斥锁
     }
     remove_job(jp = jobhead);
     log_msg("printer_thread: picked up job %d", jp->jobid);
     pthread_mutex_unlock(&joblock);
     update_jobno();
+    pthred_mutex_lock(&configlock);
+    if (reread)
+    {
+      freeaddrinfo(printer);
+      printer = NULL;
+      printer_name = NULL;
+      reread = 0;
+      pthread_mutex_unlock(&configlock);
+      init_printer();
+    }
+    else
+    {
+      pthread_mutex_unlock(&configlock);
+    }
+    sprintf(name, "%s/%s/%ld", SPOOLDIR, DATADIR, jp->jobid);
+    if ((fd = open(name, O_RDONLY)) < 0)
+    {
+      log_msg("job %ld canceled - can't open %s: %s", jp->jobid, name, strerror(errno));
+      free(jp);
+      continue;
+    }
+    if (fstat(fd, &sbuf) < 0)
+    {
+      log_msg("job %ld canceled - can't fstat %s: %s", jp->jobid, name, strerror(errno));
+      free(jp);
+      close(fd);
+      continue;
+    }
+    if ((sockfd = connect_retry(AF_INET, SOCK_STREAM, 0, printer->ai_addr, printer->ai_addrlen)) < 0)
+    {
+      log_msg("job %d deferred - can't contact printer: %s", jp->jobid, strerror(errno));
+      goto defer;
+    }
+
+    /**
+     * Set up the IPP header
+    */
+    icp = ibuf;
+    hp = (struct ipp_hdr *)icp;
+    hp->major_version = 1;
+    hp->minor_version = 1;
+    hp->operation = htons(OP_PRINT_JOB);
+    hp->request_id = htonl(jp->jobid);
+    icp += offsetof(struct ipp_hdr, attr_group);
+    *icp++ = TAG_OPERATION_ATTR;
+    icp = add_option(icp, TAG_CHARSET, "attributes-charset", "utf-8");
+    icp = add_option(icp, TAG_NAMEWLANG, "attributes-natural-language", "en-us");
+    sprintf(str, "http://%s/ipp", printer_name);
+    icp = add_option(icp, TAG_URI, "printer-uri", str);
+    icp = add_option(icp, TAG_NAMEWOLANG, "requesting-user-name", jp->req.usernm);
+    icp = add_option(icp, TAG_NAMEWOLANG, "job-name", jp->req.jobnm);
+    if (jp->req.flags & PR_TEXT)
+    {
+      p = "text/plain";
+      extra = 1;
+    }
+    else
+    {
+      p = "application/postscript";
+      extra = 0;
+    }
+    icp = add_option(icp, TAG_MIMETYPE, "document-format", p);
+    *icp++ = TAG_END_OF_ATTR;
+    ilen = icp - ibuf; //计算IPP首部的大小
+
+    /**
+     * Set up the HTTP header
+    */
+    hcp = hbuf;
+    sprintf(hcp, "POST /ipp HTTP/1.1\r\n");
+    hcp += strlen(hcp);
+    sprintf(hcp, "Content-Length: %ld\r\n", (long)sbuf.st_size + ilen + extra);
+    hcp += strlen(hcp);
+    strcpy(hcp, "Content-Type: application/ipp\r\n");
+    hcp += strlen(hcp);
+    sprintf(hcp, "Host: %s:%d\r\n", printer_name, IPP_PORT);
+    hcp += strlen(hcp);
+    *hcp++ = '\r';
+    *hcp++ = '\n';
+    hlen = hcp - hbuf;
+    /**
+     * Write the headers first,Hhen send the file 
+    */
+    iov[0].iov_base = hbuf;
+    iov[0].iov_len = hlen;
+    iov[1].iov_base = ibuf;
+    iov[1].iov_len = ilen;
+    if (writev(sockfd, iov, 2) != hlen + ilen)
+    {
+      log_ret("can't write to printer");
+      goto defer;
+    }
+    if (jp->req.flags & PR_TEXT)
+    {
+      if (write(sockfd, "\b", 1) != 1) //使自动识别文件格式功能失效，使其打印源文件而不是postscript文件的镜像
+      {
+        log_ret("can't write to printer");
+        goto defer;
+      }
+    }
+
+    while ((nr = read(fd, buf, IOBUFSZ)) > 0)
+    {
+      if ((nw = write(sockfd, buf, nr)) != nr)
+      {
+        if (nw < 0)
+          log_ret("can't write to printer");
+        else
+          log_msg("short write (%d/%d) to printer", nw, nr);
+        goto defer;
+      }
+    }
+    if (nr < 0)
+    {
+      log_ret("can't read %s", name);
+      goto defer;
+    }
+    /**
+     * read the response from the printer
+    */
+    if (printer_status(sockfd, jp))
+    {
+      unlink(name);
+      sprintf(name, "%s/%s/%d", SPOOLDIR, REQDIR, jp->jobid);
+      unlink(name);
+      free(jp);
+      jp = NULL;
+    }
+  defer:
+    close(fd);
+    if (sockfd >= 0)
+      close(sockfd);
+    if (jp != NULL)
+    {
+      replace_job(jp);
+      nanosleep(&ts, NULL);
+    }
   }
+}
+
+/**
+ * 用于读取来自打印机的部分响应消息
+ */
+ssize_t readmore(int sockfd, char **bpp, int off, int *bszp)
+{
+  ssize_t nr;
+  char *bp = *bpp;
+  int bsz = *bszp;
+
+  if (off >= bsz)
+  {
+    bsz += IOBUFSZ;
+    if ((bp = realloc(*bpp, bsz)) == NULL)
+      log_sys("readmore: can't allocate bigger read buffer");
+    *bszp = bsz;
+    *bpp = bp;
+  }
+  if ((nr = tread(sockfd, &bp[off], bsz - off, 1)) > 0)
+    return (off + nr);
+  else
+    return (-1);
+}
+
+/**
+ * Read and parse the response from the printer. Return 1
+ * if the request was successful,and o otherwise
+*/
+int printer_status(int sfd, struct job *jp)
+{
+  int i, success, code, len, found, bufsz, datsz;
+  int32_t jobid;
+  ssize_t nr;
+  char *bp, *cp, *statcode, *reason, *contentlen;
+  struct ipp_hdr h;
+
+  success = 0;
+  bufsz = IOBUFSZ;
+  if ((bp = malloc(IOBUFSZ)) == NULL)
+    log_sys("printer_status: can't allocate read buffer");
+
+  while ((nr = tread(sfd, bp, bufsz, 5)) > 0)
+  {
+    /**
+     * Find the status,Response starts with "HTTP/x.y"
+     * so we can skip the frist 8 characters
+    */
+    cp = bp + 8;
+    datsz = nr;
+    while (isspace((int)*cp))
+      cp++;
+    statcode = cp;
+    while (isdigit((int)*cp))
+      cp++;
+    if (cp == statcode) //指针没变化
+      log_msg(bp);
+    else
+    {
+      *cp++ = '\0';
+      reason = cp;
+      while (*cp != '\r' && *cp != '\n')
+        cp++;
+      *cp = '\0';
+      code = atoi(statcode);
+      if (HTTP_INFO(code))
+        continue;
+      if (!HTTP_SUCCESS(code))
+      {
+        bp[datsz] = '\0';
+        log_msg("error: %s", reason);
+        break;
+      }
+      /**
+       * HTTP request was okey,but still need to check
+       * IPP status,Search for the Content-Length
+      */
+      i = cp - bp;
+      for (;;)
+      {
+        while (*cp != 'C' && *cp != 'c' && i < datsz)
+        {
+          cp++;
+          i++;
+        }
+        if (i >= datsz) /* get more header */
+        {
+          if ((nr = readmore(sfd, &bp, i, &bufsz)) < 0) /* realloc */
+            goto out;
+          else
+          {
+            cp = &bp[i];
+            datsz += nr;
+          }
+        }
+        if (strncasecmp(cp, "Content-Length:", 15) == 0)
+        {
+          cp += 15;
+          while (isspace((int)*cp))
+            cp++;
+          contentlen = cp;
+          while (isdigit((int)*cp))
+            cp++;
+          *cp++ = '\0';
+          i = cp - bp;
+          len = atoi(contentlen); //内容长度
+          break;
+        }
+        else
+        {
+          cp++;
+          i++;
+        }
+      }
+      if (i >= datsz) /*get more header */
+      {
+        if ((nr = readmore(sfd, &bp, i, &bufsz)) < 0)
+          goto out;
+        else
+        {
+          cp = &bp[i];
+          datsz += nr;
+        }
+      }
+      found = 0;
+      while (!found) /* look for end of HTTP header */
+      {
+        while (i < datsz - 2)
+        {
+          if (*cp == '\n' && *(cp + 1) == '\r' && *(cp + 2) == '\n')
+          {
+            found = 1;
+            cp += 3;
+            i += 3;
+            break;
+          }
+          cp++;
+          i++;
+        }
+        if (i >= datsz)
+        {
+          if ((nr = readmore(sfd, &bp, i, &bufsz)) < 0)
+            goto out;
+          else
+          {
+            cp = &bp[i];
+            datsz += nr;
+          }
+        }
+      }
+      if (datsz - i < len)
+      {
+        if ((nr = readmore(sfd, &bp, i, &bufsz)) < 0)
+          goto out;
+        else
+        {
+          cp = &bp[i];
+          datsz += nr;
+        }
+      }
+      memcpy(&h, cp, sizeof(struct ipp_hdr));
+      i = ntohs(h.status);
+      jobid = ntohl(h.request_id);
+      if (jobid != jp->jobid)
+      {
+        log_msg("jobid %d status code %d", jobid, i);
+        break;
+      }
+      if (STATCLASS_OK(i))
+        success = 1;
+      break;
+    }
+  }
+out:
+  free(bp);
+  if (nr < 0)
+  {
+    log_msg("jobid %d: error reading printer response: %s", jobid, strerror(errno));
+  }
+  return (success);
 }
