@@ -151,3 +151,51 @@ sudo apt-get install npm
   Node 里有readFile和对应的同步方法readFileSync，但http.get() 却没有 http.getSync()，如果要实现一个http.getSync()，怎么做？  
 
   readFile异步，readFileSync同步异步读取不能读取文件大小，分片读取，每次异步读取8k内容到buffer，并将buffer的内容存储到数组，然后合并如果能正确读取文件大小，则直接生成与文件大小相同，并将内容读取到buffer里面readFileSync不带回调函数，结果是直接返回libuv的文件操作方法跟socket的实现方式原理不一样，对于socket处理，libuv是调用系统本身的非阻塞特性，而fs模块，则是通过线程池 模拟getSync 这种方法，在libuv框架下是无法实现的，libuv从底层调用开始就是非阻塞的，是操作系统提供，所以你无论用什么黑魔法实际效果都是异步，但对于fs模块来说，仅仅是利用线程池模拟出异步的效果，所以能，非系统自带的特性，所以能写出同步的api。
+
+### 内存
+* process.memUsage()  
+* os.totalmem()
+* os.freemem()
+
+```js
+var showMem = function() {
+   var mem = process.memoryUsage();
+   var format = function(bytes)
+   {
+     return ((bytes/(1024*1024)).toFixed(2) + ' MB');
+   }
+   console.log('process:rss ' + format(mem.rss) + 'process:heapTotal'+format(mem.heapTotal) + 'process:heapUsed'+format(mem.heapUsed));
+   console.log('---------------------------------------------------------------------');
+}
+var useMem = function()
+{
+  var size = 200*1024*1024;
+  //var buf = new Buffer(size);
+  var buf = new Array(size);
+  for(var i=0;i<size;i++)
+    buf[i]=0;
+  return buf;
+}
+var total = []
+for(var i=0;i<15;i++)
+{
+   showMem();
+   total.push(useMem());
+}
+showMem();
+```
+
+* 内存泄漏
+```js
+var leekList = [];
+var leek = function()
+{
+  leekList.push("leek  "+ Math.random());
+}
+http.createServer(function(req,res){
+   leek();
+   res.writeHead(200,{'Content-Type':"text/plain"});
+   res.end('Hello world');
+}).listen(12345);
+console.log('server on 12345');
+```
