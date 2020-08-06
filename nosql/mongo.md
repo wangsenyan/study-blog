@@ -147,3 +147,15 @@ db.foo.find({"$where":function(){
 db.getCollection("").totalIndexSize() #某个表的索引
 db.runCommand({"collStats":collection}); #表的信息
 ```
+
+### 设置和查看慢查询
+```
+db.setProfilingLevel(1,200);
+db.getProfilingLevel();
+db.system.profile.find({ns:'dbName.collection'}).limit().sort().pretty();
+```
+
+### 运维命令
+```js
+mongotop -h 192.168.0.31:27001 10 //每十秒返回连接信息
+```

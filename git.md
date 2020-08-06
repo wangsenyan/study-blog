@@ -317,3 +317,8 @@ git commit -m ''
 ### 删除远程分支
 git branch -r -d origin/branch-name
 git push origin :branch-name
+
+### 从已有仓库传代码
+git remote add origin git@github.com:yuanmingchen/tensorflow_study.git
+git pull origin master --allow-unrelated-histories
+git push -u origin master

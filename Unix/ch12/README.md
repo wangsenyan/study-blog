@@ -160,6 +160,12 @@ int pthread_setcanceltype(int type,int *oldtype);
 ### 线程和信号
 * 信号的处理是进程中所有线程共享的
 * 进程中的信号是递送到单个线程的(故障发给当前线程，其他任意一个线程)
+* pthread_sigmask
+  - set 用于修改信号屏蔽字的信号集
+  - how 
+    - SIG_BLOCK 原屏蔽信号+set
+    - SIG_UNBLOCK 原屏蔽信号-set
+    - SIG_SETMASK =set
 * sigwait 线程等待信号
  - signop 包含发送信号的数量
  - 如果信号集中的某个信号在sigwait调用的时候处于挂起状态，那么sigwait将无阻塞的返回
