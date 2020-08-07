@@ -86,7 +86,7 @@ FD_SET(5,&rset);
  - epoll_ctl(指定EPOLL_CTL_ADD),会把所有的fd拷贝进内核，保证每个fd在整个过程中只会拷贝一次
  - epoll_ctr 把current挂一遍，等待回调
  - epoll没有描述符限制 
-![ready](../../image/sg_read.png)
+![ready](../../image/sg_ready.png)
 
 
 ### str_cli
@@ -217,3 +217,29 @@ else{
         }
 }
 ```
+
+### epoll
+* `int epoll_create(int size)` 
+  - 创建一个epoll的句柄，size用来告诉内核这个监听的数目一共有多大
+  - 使用完epoll后必须调用close()关闭，否则可能导致fd被耗尽
+* `int epoll_ctl(int epfd,int op,int fd,struct epoll_event *event)`
+  - 先注册要监听的事件类型。
+  - epfd epoll_create的返回值
+  - op
+    - EPOLL_CTL_ADD：注册新的fd到epfd中；
+    - EPOLL_CTL_MOD：修改已经注册的fd的监听事件；
+    - EPOLL_CTL_DEL：从epfd中删除一个fd；
+  - event
+  ```cpp
+  typedef union epoll_data {
+    void *ptr;
+    int fd;
+    __uint32_t u32;
+    __uint64_t u64;
+  } epoll_data_t;
+
+  struct epoll_event {
+      __uint32_t events; /* Epoll events */
+      epoll_data_t data; /* User data variable */
+  };
+  ```
