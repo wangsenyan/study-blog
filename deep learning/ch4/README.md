@@ -1,19 +1,19 @@
 ## <center>决策树</center>
 
 ### 基本流程
-![treegenerate](../image/tg.png)
+![treegenerate](../../image/tg.png)
 
 ### 划分选择
 * 信息增益
   - 信息熵 
 
-  ![ent](../image/ent.png)
+  ![ent](../../image/ent.png)
 
   - pk 当前样本集合D中第k类样本所占的比例
   
   - 信息增益
 
-  ![gain](../image/gain.png)
+  ![gain](../../image/gain.png)
 
   - 属性a有V个可能的取值{a1,a2,...,aV}
   - 选择 a* = arg max Gain(D,a) a∈A
@@ -21,18 +21,18 @@
 
 * 增益率
   
-  ![gain_ratio](../image/gain_ratio.png)
+  ![gain_ratio](../../image/gain_ratio.png)
 
   - IV(a) 称为属性a的“固有值”
 
 * 基尼指数
   - Gini(D)越小，则数据集D的纯度越高
 
-  ![gini](../image/gini.png)
+  ![gini](../../image/gini.png)
 
   - 属性a的基尼指数
 
-  ![gini_index](../image/gini_index.png)
+  ![gini_index](../../image/gini_index.png)
 
   - a* = arg min Gini_index(D,a) a∈A
 
@@ -47,17 +47,17 @@
 ### [连续与缺失值](./gain.cpp)
   * 划分
 
-  ![ta](../image/ta.png)
+  ![ta](../../image/ta.png)
   
   * 信息增益
 
-  ![gain_max](../image/gain_max.png)
+  ![gain_max](../../image/gain_max.png)
 
   * 缺失值处理
 
-  ![权重](../image/ppr.png)
+  ![权重](../../image/ppr.png)
 
-  ![信息增益](../image/xxzy.png)
+  ![信息增益](../../image/xxzy.png)
 
 ### 多变量决策树
   * 对属性的线性组合进行测试
