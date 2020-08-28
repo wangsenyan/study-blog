@@ -20,26 +20,28 @@ class MaxEntropy:
     def loadData(self, dataset):
         self._samples = deepcopy(dataset)
         for items in self._samples:
-                y = items[0]
-                X = items[1:]
-                self._Y.add(y)  # 集合中y若已存在则会自动忽略
-                for x in X:
-                    if (x, y) in self._numXY:
-                        self._numXY[(x, y)] += 1
-                    else:
-                        self._numXY[(x, y)] = 1
+            y = items[0]
+            X = items[1:]
+            #print('----', y, X)
+            self._Y.add(y)  # 集合中y若已存在则会自动忽略
+            for x in X:
+                if (x, y) in self._numXY:
+                    self._numXY[(x, y)] += 1
+                else:
+                    self._numXY[(x, y)] = 1
+        #print(self._Y, self._numXY)
 
         self._N = len(self._samples)
         self._n = len(self._numXY)
         self._C = max([len(sample)-1 for sample in self._samples])
         self._w = [0]*self._n
         self._lastw = self._w[:]
-
         self._Ep_ = [0] * self._n
-        for i, xy in enumerate(self._numXY):   # 计算特征函数fi关于经验分布的期望
+        for i, xy in enumerate(self._numXY):  # 计算特征函数fi关于经验分布的期望
             self._Ep_[i] = self._numXY[xy]/self._N
             self._xyID[xy] = i
             self._IDxy[i] = xy
+        # print(self.__dict__)
 
     def _Zx(self, X):    # 计算每个Z(x)值
         zx = 0
@@ -95,7 +97,7 @@ class MaxEntropy:
             for i in range(self._n):
                 ep = self._model_ep(i)    # 计算第i个特征的模型期望
                 self._w[i] += math.log(self._Ep_[i]/ep)/self._C   # 更新参数
-            print("w:", self._w)
+            #print("w:", self._w)
             if self._convergence():  # 判断是否收敛
                 break
 
@@ -119,4 +121,4 @@ maxent = MaxEntropy()
 x = ['overcast', 'mild', 'high', 'FALSE']
 maxent.loadData(dataset)
 maxent.train()
-print('predict:', maxent.predict(x))
+#print('predict:', maxent.predict(x))
