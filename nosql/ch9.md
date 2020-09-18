@@ -59,6 +59,29 @@ mongod --dbpath {dbpath} --port {portn} --replSet {setname}/{hostname}:{portn-1}
   }
 })
 
+db.runCommand({
+  "replSetInitiate": {
+    "_id": "rs",
+    "members": [
+      {
+        "_id": 1,
+        "host": "127.0.0.1:27017",
+        "priority":40
+      },
+      {
+        "_id": 2,
+        "host":"127.0.0.1:27018",
+        "priority":20
+      },
+      {
+        "_id": 3,
+        "host": "127.0.0.1:27019",
+        "priority":10
+      }
+    ]
+  }
+})
+
 #设置优先级
 > members.push({
   "_id":3,
@@ -130,4 +153,18 @@ rs.reconfig(cfg)
 ```sh
 >db.printReplicationInfo(); #主节点
 >db.printSlaveReplicationInfo(); #从结点
+```
+
+### 副本集权限
+1. 添加 admin权限 
+```
+db.createUser({user:"admin",pwd:"admin",roles:[{role:"root",db:"admin"}]})
+```
+2. 添加keyfile
+```shell
+>openssl rand -base64 741 > keyfile
+```
+3. 启动服务
+```
+>mongod --auth --keyFile /home/mongoset/key/keyfile   --port=27019 --dbpath=/home/mongoset/data/27019 --replSet=rs --bind_ip=0.0.0.0 --logpath=/home/mongoset/log/27019/mongodb.log --fork
 ```

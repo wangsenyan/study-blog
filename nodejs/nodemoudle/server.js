@@ -1,5 +1,13 @@
 var http = require("http")
-var nodedump = require("nodedump");
+var memwatch = require("memwatch");
+memwatch.on('leak', function (info) {
+    console.log('leak');
+    console.log(info);
+})
+memwatch.on('stats', function (stats) {
+    console.log("stats");
+    console.log(stats);
+})
 var leekList = [];
 var leek = function()
 {
@@ -10,4 +18,4 @@ http.createServer(function(req,res){
    res.writeHead(200,{'Content-Type':"text/plain"});
    res.end('Hello world');
 }).listen(12345);
-console.log('server on 12345');
+console.log('server on 8080');
