@@ -78,3 +78,5 @@ db.foo.find({"$where":function(){
 	 return false;
 }})
 ```
+
+[内存使用](https://www.lagou.com/lgeduarticle/28686.html)
