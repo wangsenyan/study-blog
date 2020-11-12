@@ -159,3 +159,11 @@ db.system.profile.find({ns:'dbName.collection'}).limit().sort().pretty();
 ```js
 mongotop -h 192.168.0.31:27001 10 //每十秒返回连接信息
 ```
+
+### 慢查询日志[https://www.jianshu.com/p/27775ae48f29]
+```sh
+#为所有数据库开启慢查询记录
+db.setProfilingLevel(2)
+#指定数据库，并指定阈值慢查询 ，超过20毫秒的查询被记录
+use testdb.setProfilingLevel(1, { slowms: 20 })
+```

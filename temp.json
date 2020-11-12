@@ -1,176 +1,21 @@
-{
-  "_samples": [
-    [
-      "no",
-      "sunny",
-      "hot",
-      "high",
-      "FALSE"
-    ],
-    [
-      "no",
-      "sunny",
-      "hot",
-      "high",
-      "TRUE"
-    ],
-    [
-      "yes",
-      "overcast",
-      "hot",
-      "high",
-      "FALSE"
-    ],
-    [
-      "yes",
-      "rainy",
-      "mild",
-      "high",
-      "FALSE"
-    ],
-    [
-      "yes",
-      "rainy",
-      "cool",
-      "normal",
-      "FALSE"
-    ],
-    [
-      "no",
-      "rainy",
-      "cool",
-      "normal",
-      "TRUE"
-    ],
-    [
-      "yes",
-      "overcast",
-      "cool",
-      "normal",
-      "TRUE"
-    ],
-    [
-      "no",
-      "sunny",
-      "mild",
-      "high",
-      "FALSE"
-    ],
-    [
-      "yes",
-      "sunny",
-      "cool",
-      "normal",
-      "FALSE"
-    ],
-    [
-      "yes",
-      "rainy",
-      "mild",
-      "normal",
-      "FALSE"
-    ],
-    [
-      "yes",
-      "sunny",
-      "mild",
-      "normal",
-      "TRUE"
-    ],
-    [
-      "yes",
-      "overcast",
-      "mild",
-      "high",
-      "TRUE"
-    ],
-    [
-      "yes",
-      "overcast",
-      "hot",
-      "normal",
-      "FALSE"
-    ],
-    [
-      "no",
-      "rainy",
-      "mild",
-      "high",
-      "TRUE"
-    ]
-  ],
-  "_Y": {
-    "no",
-    "yes"
-  },
-  "_numXY": {("sunny",
-    "no"): 3, ("hot",
-    "no"): 2, ("high",
-    "no"): 4, ("FALSE",
-    "no"): 2, ("TRUE",
-    "no"): 3, ("overcast",
-    "yes"): 4, ("hot",
-    "yes"): 2, ("high",
-    "yes"): 3, ("FALSE",
-    "yes"): 6, ("rainy",
-    "yes"): 3, ("mild",
-    "yes"): 4, ("cool",
-    "yes"): 3, ("normal",
-    "yes"): 6, ("rainy",
-    "no"): 2, ("cool",
-    "no"): 1, ("normal",
-    "no"): 1, ("TRUE",
-    "yes"): 3, ("mild",
-    "no"): 2, ("sunny",
-    "yes"): 2
-  },
-  "_N": 14,
-  "_Ep_": [],
-  "_xyID": {},
-  "_n": 19,
-  "_C": 4,
-  "_IDxy": {},
-  "_w": [
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0
-  ],
-  "_EPS": 0.005,
-  "_lastw": [
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0
-  ]
-}
+[{"outline":"22671495",
+  "file_type":"2",
+  "vin":"LSGUL8AL5KA066142",
+  "collection":"cwt5cyl94uwyp7kkr_miea",
+  "fileId":"fvhx5cl2Xk6mgxwsxQXJUg"},
+  {"outline":"22671495",
+    "file_type":"2",
+    "vin":"LSGUL8AL5KA066142",
+    "collection":"crg4_jofaea2doeky-1rra",
+    "fileId":"fcPwDUMtdEO_MGS2v8w3vA"},
+    {"outline":"22671495",
+      "file_type":"2",
+      "vin":"LSGUL8AL5KA066142",
+      "collection":"comqfkkxuki_pisdefanag",
+      "fileId":"fymZSl5Vtk-RXGIBfeoPVw"},
+      {"outline":"22671495",
+        "file_type":"2",
+        "vin":"LSGUL8AL5KA066142",
+        "collection":"cutgzigvckir0t1ks0hplq",
+        "fileId":"f_BJps0IbUOrngNDvO9d9Q"}
+]
