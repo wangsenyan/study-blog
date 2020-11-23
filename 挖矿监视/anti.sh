@@ -83,6 +83,9 @@ kill -9 $(pidof dbusex)
 # 删除用户
 chattr -ia /etc/passwd
 chattr -ia /etc/shadow
+chattr -ia /etc/sudoers
+chmod +w /etc/sudoers
+
 userdel -rf autoupdater
 userdel -rf system
 userdel -rf logger
@@ -92,8 +95,16 @@ groupdel sysall
 groupdel system
 groupdel logger
 groupdel autoupdater
+
+sed -i '/sysall/d' /etc/sudoers
+sed -i '/system/d' /etc/sudoers
+sed -i '/logger/d' /etc/sudoers
+sed -i '/sysall/d' /etc/sudoers
+sed -i '/autoupdater/d' /etc/sudoers
 chattr +ia /etc/passwd
 chattr +ia /etc/shadow
+chmod -w /etc/sudoers
+chattr +ia /etc/sudoers
 # 删除authorized_keys
 # rm -rf /opt/autoupdater
 # rm -rf /opt/logger
@@ -158,4 +169,59 @@ localgo() {
 	echo "my  local done"
 }
 
+#sshd_config
+sshd_rm() {
+  chattr -ia /etc/ssh/sshd_config
+  echo "run delete sshd_config"
+  cat /etc/ssh/sshd_config | grep -iw "Port 22" | grep -v grep >/dev/null
+  if [ $? -eq 0 ]; then
+    needreset=1
+    sed -i '/Port 22/d' /etc/ssh/sshd_config
+    sed -i '/Port 33768/d' /etc/ssh/sshd_config
+    sed -i '/PasswordAuthentication/d' /etc/ssh/sshd_config
+    sed -i '/GSSAPIAuthentication/d' /etc/ssh/sshd_config
+    sed -i '/GSSAPICleanupCredentials/d' /etc/ssh/sshd_config
+  fi
+  chattr +ia /etc/ssh/sshd_config
+  echo "delete sshd_config success"
+}
+
+resetssh() {
+  if [ "$needreset" -eq "0" ]; then
+		echo "no need"
+	else
+		sleep 10
+		/etc/init.d/ssh restart
+		/etc/init.d/sshd restart
+		/etc/rc.d/sshd restart
+		service ssh restart
+		service sshd restart
+		systemctl start ssh
+		systemctl restart ssh
+		scw-fetch-ssh-keys --upgrade
+	fi
+}
+
+# 删除dns解析
+delete_resolv() {
+  sed -i '/1.1.1.1/d' /etc/resolv.conf
+  sed -i '/8.8.8.8/d' /etc/resolv.conf
+}
+
+# cron和crond区别
+# crontab
+# anacron
+#安装监控软件
+initf() {
+  sed -i '/kernel.nmi_watchdog=0/d' /etc/sysctl.conf
+  sysctl -p #使生效
+  # 有问题
+  echo '1' > /proc/sys/kernel/nmi_watchdog > /dev/null 2>&1
+# syslog
+# hostguard
+# cloudResetPwdUpdateAgent
+#
+}
+#S.0表示screen
 stopscan
+sshd_rm

