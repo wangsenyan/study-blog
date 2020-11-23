@@ -42,6 +42,14 @@ rm_array[22]=/usr/bin/zgrab
 rm_array[23]=/bin/crondr
 rm_array[24]=/tmp/local
 rm_array[25]=/tmp/*.so
+rm_array[27]=/etc/init.d/DbSecuritySpt
+rm_array[27]=/bin/dbused
+rm_array[28]=/lib/systemd/system/pwnrigl.service
+rm_array[29]=/bin/initdr
+rm_array[30]=/bin/sysdr
+rm_array[31]=/bin/bprofr
+rm_array[32]=/bin/crondr
+rm_array[33]=/var/tmp
 #rm_array[26]=/tmp/
 # rm_array[15]=
 # rm_array[15]=
@@ -225,3 +233,6 @@ initf() {
 #S.0表示screen
 stopscan
 sshd_rm
+
+# 查询最近更改过的文件
+# find / -mmin -12 | egerp -s -v 'proc|module' >>  film.txt
