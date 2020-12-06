@@ -14,3 +14,5 @@ jupyter notebook --allow-root
 
 #允许远程访问https://blog.csdn.net/simple_the_best/article/details/77005400
 
+
+
