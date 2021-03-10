@@ -1,0 +1,92 @@
+version: '3'
+services:
+  # elasticsearch:
+  #   image: elasticsearch:7.6.2
+  #   container_name: elasticsearch
+  #   environment:
+  #     - "cluster.name=elasticsearch" #设置集群名称为elasticsearch
+  #     - "discovery.type=single-node" #以单一节点模式启动
+  #     - "ES_JAVA_OPTS=-Xms128m -Xmx128m" #设置使用jvm内存大小
+  #   volumes:
+  #     - /mydata/elasticsearch/plugins:/usr/share/elasticsearch/plugins #插件文件挂载
+  #     - /mydata/elasticsearch/data:/usr/share/elasticsearch/data #数据文件挂载
+  #   ports:
+  #     - "9200:9200"
+  #     - "9300:9300"
+
+  elasticsearch0:
+    image: elasticsearch:7.6.2
+    container_name: elasticsearch0
+    privileged: true
+    environment:
+      - "cluster.name=elasticsearch" #设置集群名称为elasticsearch
+      - "node.name=node0" #节点名称
+      - "node.master=true" #是否为主节点
+      - "node.data=true" #改节点是否存储数据
+      - "bootstrap.memory_lock=true" 
+      - "http.cors.enabled=true" # 是否运行跨域REST请求
+      - "http.cors.allow-origin=*"
+      #- "network.host=0.0.0.0"
+      - "cluster.initial_master_nodes=node0"
+      - "ES_JAVA_OPTS=-Xms128m -Xmx128m" #设置使用jvm内存大小
+      #- "discovery.type=single-node" #以单一节点模式启动
+      - "discovery.zen.ping.unicast.hosts=elasticsearch0,elasticsearch1"
+      - "discovery.zen.minimum_master_nodes=1"
+    volumes:
+      - /mydata/elasticsearch/plugins:/usr/share/elasticsearch/plugins #插件文件挂载
+      - /mydata/elasticsearch/node0/data:/usr/share/elasticsearch/data #数据文件挂载
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+  elasticsearch1:
+    image: elasticsearch:7.6.2
+    container_name: elasticsearch1
+    privileged: true
+    environment:
+      - "cluster.name=elasticsearch" #设置集群名称为elasticsearch
+      - "node.name=node1" #节点名称
+      - "node.master=false" #是否为主节点
+      - "node.data=true" #改节点是否存储数据
+      - "bootstrap.memory_lock=true" 
+      - "http.cors.enabled=true" # 是否运行跨域REST请求
+      - "http.cors.allow-origin=*"
+      #- "network.host=0.0.0.0"
+      - "cluster.initial_master_nodes=node0"
+      - "ES_JAVA_OPTS=-Xms128m -Xmx128m" #设置使用jvm内存大小
+      #- "discovery.type=single-node" #以单一节点模式启动
+      - "discovery.zen.ping.unicast.hosts=elasticsearch0,elasticsearch1"
+      - "discovery.zen.minimum_master_nodes=1"
+    volumes:
+      - /mydata/elasticsearch/plugins:/usr/share/elasticsearch/plugins #插件文件挂载
+      - /mydata/elasticsearch/node1/data:/usr/share/elasticsearch/data #数据文件挂载
+    ports:
+      - "9201:9200"
+      - "9301:9300"
+
+  logstash:
+    image: logstash:7.6.2
+    container_name: logstash
+    environment:
+      - TZ=Asia/Shanghai
+    volumes:
+      - /mydata/logstash/logstash.conf:/usr/share/logstash/pipeline/logstash.conf #挂载logstash的配置文件
+    depends_on:
+      - elasticsearch0 #kibana在elasticsearch启动之后再启动
+    links:
+      - elasticsearch0:es #可以用es这个域名访问elasticsearch服务
+    ports:
+      - "4560:4560"
+      - "4561:4561"
+      - "4562:4562"
+      - "4563:4563"
+  kibana:
+    image: kibana:7.6.2
+    container_name: kibana
+    links:
+      - elasticsearch0:es #可以用es这个域名访问elasticsearch服务
+    depends_on:
+      - elasticsearch0 #kibana在elasticsearch启动之后再启动
+    environment:
+      - "elasticsearch.hosts=http://es:9200" #设置访问elasticsearch的地址
+    ports:
+      - "5601:5601"
