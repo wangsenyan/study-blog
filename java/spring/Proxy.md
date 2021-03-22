@@ -69,3 +69,8 @@ public Object invoke(Object obj, Object[] args) throws Throwable {
 }
 
 ```
+### [Enhancer](https://www.cnblogs.com/micrari/p/7565632.html#:~:text=Enhancer%E6%98%AFcglib%E4%B8%AD%E4%BD%BF%E7%94%A8,%E9%83%BD%E5%B8%A6%E6%9C%89%E5%9B%9E%E8%B0%83%E9%92%A9%E5%AD%90%E3%80%82)
+
+### AnnotationAwareAspectJAutoProxyCreator使用post-process生成代理类
+
+### BeanPostProcessor.class

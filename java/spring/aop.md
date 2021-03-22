@@ -1,5 +1,6 @@
+[](https://www.cnblogs.com/foreveravalon/p/8653832.html)
 ### @EnableAspectJAutoProxy
-
+signature 签名
 ```java
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
@@ -195,3 +196,15 @@ public class DefaultAopProxyFactory implements AopProxyFactory, Serializable {
 
 }
 ```
+
+### Aware 
+
+* 感知到aware前面的含义
+
+```java
+public interface BeanClassLoaderAware extends Aware {
+	void setBeanClassLoader(ClassLoader classLoader);
+}
+```
+
+### [Enhancer](https://www.huaweicloud.com/articles/120916a8ab3c810404c3a21c4ce7d521.html)
