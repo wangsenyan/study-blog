@@ -1,5 +1,7 @@
 ### 流程
 
+* Redisson.create()
+
 * Redisson(Config)
 
 * ConnectionManager.createConnectionManager()
