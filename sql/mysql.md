@@ -225,3 +225,41 @@ mysql>show full processlist ## 所有连接进程
   * double 64位，精确存取13位数字左右的浮点型数据
   * decimal
 
+### 锁
+- 表锁
+- record lock
+- gap lock
+- 意向共享/排他锁
+- 插入意向锁
+- 元数据锁
+- 自增锁
+
+```sql
+# 设置获取锁超时时间
+show variables like '%innodb_lock_wait%'
+set innodb_lock_wait_timeout=600
+# 所有连接
+show processlist;
+# 查看事务执行情况
+select * from information_schema.innodb_trx \G
+#查看锁占用情况
+select * from information_schema.innodb_locks \G
+# 查看锁等待信息
+select * from information_schema.innodb_lock_waits\G
+```
+### 隔离级别
+- 读未提交
+- 读已提交
+- 可重复读
+  - Next-Key 锁
+    - record锁
+    - gap锁
+- 序列化
+
+```
+在快照读读情况下，mysql通过mvcc来避免幻读。
+在当前读读情况下，mysql通过next-key来避免幻读。
+select * from t where a=1;属于快照读
+select * from t where a=1 lock in share mode;属于当前读
+```
+

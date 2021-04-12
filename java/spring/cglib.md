@@ -9,7 +9,10 @@ CglibAopProxy.getProxy()
 	CglibAopProxy.getCallbacks()
     		//创建代理
 	CglibAopProxy.createProxyClassAndInstance()
-	
+	    //生成class
+	    enhancer.createClass();
+	    objenesis.newInstance(proxyClass, enhancer.getUseCache());
+	    //生成class实例
 		AdvisedSupport.getInterceptorsAndDynamicInterceptionAdvice()
 		//
 		Enhancer.generateClass()

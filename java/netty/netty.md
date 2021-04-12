@@ -45,3 +45,14 @@
 * callHandlerAdded0()
 
 * AbstractChannelHandlerContext.callHandlerAdded()
+
+
+### Channel
+* 和文件描述符一对一？提供抽象服务?
+* Channel 和 pipeline 一对多
+
+### Pipeline
+* in/out handler 的载体
+
+### Select
+* bind -> doBind() -> initAndRegister() ->init(channel)
