@@ -1,0 +1,96 @@
+version: '3'
+services:
+  elasticsearch0:
+    image: elasticsearch:7.6.2
+    container_name: elasticsearch0
+    privileged: true
+    environment:
+      - "cluster.name=es-cluster" #设置集群名称为elasticsearch
+      - "node.name=node0" #节点名称
+      - "node.master=true" #是否为主节点
+      - "node.data=true" #改节点是否存储数据
+      - "bootstrap.memory_lock=true"
+      - "discovery.seed_hosts=elasticsearch1"
+      - "cluster.initial_master_nodes=elasticsearch0,elasticsearch1"
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m" #设置使用jvm内存大小
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - /mydata/es-cluster/node0/plugins:/usr/share/elasticsearch/plugins #插件文件挂载
+      - /mydata/es-cluster/node0/data:/usr/share/elasticsearch/data #数据文件挂载
+      - /mydata/es-cluster/elasticsearch.yaml:/usr/share/elasticsearch/config/elasticsearch.yml
+      - /mydata/es-cluster/elastic-certificates.p12:/usr/share/elasticsearch/config/elastic-certificates.p12
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+    networks:
+      - elastic
+
+  elasticsearch1:
+    image: elasticsearch:7.6.2
+    container_name: elasticsearch1
+    privileged: true
+    environment:
+      - "cluster.name=es-cluster" #设置集群名称为elasticsearch
+      - "node.name=node1" #节点名称
+      - "node.master=false" #是否为主节点
+      - "node.data=true" #改节点是否存储数据
+      - "bootstrap.memory_lock=true"
+      - "discovery.seed_hosts=elasticsearch0"
+      - "cluster.initial_master_nodes=elasticsearch0,elasticsearch1"
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m" #设置使用jvm内存大小
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - /mydata/es-cluster/node1/plugins:/usr/share/elasticsearch/plugins #插件文件挂载
+      - /mydata/es-cluster/node1/data:/usr/share/elasticsearch/data #数据文件挂载
+      - /mydata/es-cluster/elasticsearch.yaml:/usr/share/elasticsearch/config/elasticsearch.yml
+      - /mydata/es-cluster/elastic-certificates.p12:/usr/share/elasticsearch/config/elastic-certificates.p12
+    ports:
+      - "9201:9200"
+      - "9301:9300"
+    networks:
+      - elastic
+
+  kibana:
+    image: kibana:7.6.2
+    container_name: kibana
+    depends_on:
+      - elasticsearch0 #kibana在elasticsearch启动之后再启动
+    environment:
+      - "ELASTICSEARCH_HOSTS=http://elasticsearch0:9200" #设置访问elasticsearch的地址
+      - "TZ=Asia/Shanghai"
+      - "ELASTICSEARCH_URL=http://elasticsearch0:9200"
+    ports:
+      - 5601:5601
+    networks:
+      - elastic
+    volumes:
+      - /mydata/kibana/kibana.yml:/usr/share/kibana/config/kibana.yml 
+
+  fluentd:
+    image: fluent/fluentd:v1.10
+    container_name: fluentd
+    user: root
+    environment:
+      - TZ=Asia/Shanghai
+    volumes:
+      - /mydata/fluentd/log:/fluentd/log
+      - /mydata/fluentd/fluent.conf:/fluentd/etc/fluent.conf
+    depends_on:
+      - elasticsearch0 #kibana在elasticsearch启动之后再启动
+    links:
+      - elasticsearch0:es #可以用es这个域名访问elasticsearch服务
+    ports:
+      - 24221:24221
+      - 24222:24222
+      - 24223:24223
+      - 24224:24224
+
+networks:
+  elastic:
+    driver: bridge 
